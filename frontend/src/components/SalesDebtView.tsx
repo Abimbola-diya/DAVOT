@@ -291,10 +291,10 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                   </div>
 
                   <div style={{ textAlign: 'right' }}>
-                    {c.balance_due > 0 ? (
+                    {(c.balance_due ?? 0) > 0 ? (
                       <div>
                         <div style={{ fontSize: '14px', fontWeight: 800, color: '#dc2626' }}>
-                          ₦{c.balance_due.toLocaleString()}
+                          ₦{(c.balance_due ?? 0).toLocaleString()}
                         </div>
                         <div style={{ fontSize: '10px', color: '#b45309', fontWeight: 600 }}>Owes Balance</div>
                       </div>

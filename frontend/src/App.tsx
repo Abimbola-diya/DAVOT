@@ -145,26 +145,34 @@ export const App: React.FC = () => {
   const fetchAllData = async () => {
     try {
       const [sumRes, flowRes, blocksRes, invItemsRes, ledgersRes, custRes, salesRes, expRes, supRes] = await Promise.all([
-        api.getDashboardSummary(),
-        api.getFlowNodes(),
-        api.getBlocks(),
-        api.getInventoryItems(),
-        api.getInventoryLedger(),
-        api.getCustomers(),
-        api.getSales(),
-        api.getExpenses(),
-        api.getSuppliers(),
+        api.getDashboardSummary().catch(() => null),
+        api.getFlowNodes().catch(() => null),
+        api.getBlocks().catch(() => null),
+        api.getInventoryItems().catch(() => null),
+        api.getInventoryLedger().catch(() => null),
+        api.getCustomers().catch(() => null),
+        api.getSales().catch(() => null),
+        api.getExpenses().catch(() => null),
+        api.getSuppliers().catch(() => null),
       ]);
 
-      if (sumRes) setSummary(sumRes);
-      if (flowRes) setFlowData(flowRes);
-      if (blocksRes) setBlocks(blocksRes);
-      if (invItemsRes) setInventoryItems(invItemsRes);
-      if (ledgersRes) setLedgers(ledgersRes);
-      if (custRes && custRes.length > 0) setCustomers(custRes);
-      if (salesRes) setSales(salesRes);
-      if (expRes) setExpenses(expRes);
-      if (supRes) setSuppliers(supRes);
+      if (sumRes && typeof sumRes === 'object' && typeof (sumRes as any).total_revenue === 'number') {
+        setSummary(sumRes);
+      }
+      if (flowRes && typeof flowRes === 'object' && typeof (flowRes as any).harvested_ffb_kg === 'number') {
+        setFlowData(flowRes);
+      }
+      if (Array.isArray(blocksRes)) setBlocks(blocksRes);
+      if (Array.isArray(invItemsRes) && invItemsRes.length > 0 && typeof invItemsRes[0]?.current_stock === 'number') {
+        setInventoryItems(invItemsRes);
+      }
+      if (Array.isArray(ledgersRes)) setLedgers(ledgersRes);
+      if (Array.isArray(custRes) && custRes.length > 0 && typeof custRes[0]?.balance_due === 'number') {
+        setCustomers(custRes);
+      }
+      if (Array.isArray(salesRes)) setSales(salesRes);
+      if (Array.isArray(expRes)) setExpenses(expRes);
+      if (Array.isArray(supRes)) setSuppliers(supRes);
     } catch (err) {
       console.warn('Backend API connection warning (using resilient offline state):', err);
     }
@@ -304,7 +312,7 @@ export const App: React.FC = () => {
               })()}
             </div>
           ) : (
-            <Navigate to="/app/flow" replace />
+            <Navigate to="/role" replace />
           )
         }
       />

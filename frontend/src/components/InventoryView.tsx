@@ -19,7 +19,9 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ items, ledgers }) 
       {/* Stock Cards */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
         {items.map(item => {
-          const isLow = item.current_stock <= item.reorder_level;
+          const stock = item.current_stock ?? 0;
+          const reorder = item.reorder_level ?? 0;
+          const isLow = stock <= reorder;
           return (
             <div 
               key={item.id} 
@@ -42,7 +44,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({ items, ledgers }) 
 
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--primary-green-dark)' }}>
-                    {item.current_stock.toLocaleString()} <span style={{ fontSize: '12px', fontWeight: 600 }}>{item.unit}</span>
+                    {stock.toLocaleString()} <span style={{ fontSize: '12px', fontWeight: 600 }}>{item.unit}</span>
                   </div>
                   {isLow && (
                     <span className="badge badge-partial" style={{ fontSize: '9px', marginTop: '2px' }}>

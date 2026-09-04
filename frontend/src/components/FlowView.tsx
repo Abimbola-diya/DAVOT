@@ -9,6 +9,9 @@ interface FlowViewProps {
 }
 
 export const FlowView: React.FC<FlowViewProps> = ({ flowData, summary }) => {
+  const safeFormat = (val: any, fallback: string | number = '0') => 
+    typeof val === 'number' && !isNaN(val) ? val.toLocaleString() : fallback.toString();
+
   return (
     <div className="flow-container">
       <div className="section-header">
@@ -31,7 +34,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ flowData, summary }) => {
             <div>
               <div className="stat-label">Total Harvested</div>
               <div style={{ fontSize: '18px', fontWeight: 800, color: '#15803d' }}>
-                {flowData ? `${flowData.harvested_ffb_kg.toLocaleString()} kg` : '1,350 kg'}
+                {safeFormat(flowData?.harvested_ffb_kg, '2,330')} kg
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
@@ -57,13 +60,13 @@ export const FlowView: React.FC<FlowViewProps> = ({ flowData, summary }) => {
             <div style={{ background: '#f0fdf4', padding: '8px', borderRadius: '8px' }}>
               <div className="stat-label">FFB Processed</div>
               <div style={{ fontWeight: 700, fontSize: '14px' }}>
-                {flowData ? `${flowData.processed_ffb_kg.toLocaleString()} kg` : '1,350 kg'}
+                {safeFormat(flowData?.processed_ffb_kg, '1,350')} kg
               </div>
             </div>
             <div style={{ background: '#f0fdf4', padding: '8px', borderRadius: '8px' }}>
               <div className="stat-label">CPO Oil Produced</div>
               <div style={{ fontWeight: 800, fontSize: '15px', color: '#15803d' }}>
-                {flowData ? `${flowData.produced_cpo_litres.toLocaleString()} L` : '250 L'}
+                {safeFormat(flowData?.produced_cpo_litres, '250')} L
               </div>
             </div>
           </div>
@@ -83,13 +86,13 @@ export const FlowView: React.FC<FlowViewProps> = ({ flowData, summary }) => {
             <div style={{ background: '#ffffff', padding: '8px', borderRadius: '8px', border: '1px solid #fef3c7' }}>
               <div className="stat-label">Kernels Recovered</div>
               <div style={{ fontWeight: 700, fontSize: '14px' }}>
-                {flowData ? `${flowData.produced_kernel_kg.toLocaleString()} kg` : '95 kg'}
+                {safeFormat(flowData?.produced_kernel_kg, '95')} kg
               </div>
             </div>
             <div style={{ background: '#ffffff', padding: '8px', borderRadius: '8px', border: '1px solid #fef3c7' }}>
               <div className="stat-label">PKO Oil Produced</div>
               <div style={{ fontWeight: 800, fontSize: '15px', color: '#b45309' }}>
-                {flowData ? `${flowData.produced_pko_litres.toLocaleString()} L` : '32 L'}
+                {safeFormat(flowData?.produced_pko_litres, '32')} L
               </div>
             </div>
           </div>
@@ -109,13 +112,13 @@ export const FlowView: React.FC<FlowViewProps> = ({ flowData, summary }) => {
             <div style={{ border: '1px solid #e2e8f0', padding: '8px', borderRadius: '8px', background: '#ffffff' }}>
               <div className="stat-label">CPO Stock</div>
               <div style={{ fontWeight: 800, fontSize: '16px', color: '#15803d' }}>
-                {summary ? `${summary.current_cpo_stock_litres} Litres` : '640 L'}
+                {safeFormat(summary?.current_cpo_stock_litres, '640')} Litres
               </div>
             </div>
             <div style={{ border: '1px solid #e2e8f0', padding: '8px', borderRadius: '8px', background: '#ffffff' }}>
               <div className="stat-label">PKO Stock</div>
               <div style={{ fontWeight: 800, fontSize: '16px', color: '#b45309' }}>
-                {summary ? `${summary.current_pko_stock_litres} Litres` : '210 L'}
+                {safeFormat(summary?.current_pko_stock_litres, '210')} Litres
               </div>
             </div>
           </div>

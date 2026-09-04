@@ -28,30 +28,26 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
 
   // Sync user name and avatar from storage if updated
   useEffect(() => {
-    const handleAvatarChange = () => {
-      setUserAvatar(localStorage.getItem('davot_profile_picture'));
-    };
-
-    window.addEventListener('davot_avatar_changed', handleAvatarChange);
-    window.addEventListener('storage', handleAvatarChange);
-
-    const interval = setInterval(() => {
+    const syncHeader = () => {
       const storedName = localStorage.getItem('davot_user_name');
-      if (storedName && storedName !== userName) {
-        setUserName(storedName);
+      if (storedName) {
+        setUserName(prev => (prev !== storedName ? storedName : prev));
       }
       const storedAvatar = localStorage.getItem('davot_profile_picture');
-      if (storedAvatar !== userAvatar) {
-        setUserAvatar(storedAvatar);
-      }
-    }, 1000);
+      setUserAvatar(prev => (prev !== storedAvatar ? storedAvatar : prev));
+    };
+
+    window.addEventListener('davot_avatar_changed', syncHeader);
+    window.addEventListener('storage', syncHeader);
+
+    const interval = setInterval(syncHeader, 1000);
 
     return () => {
-      window.removeEventListener('davot_avatar_changed', handleAvatarChange);
-      window.removeEventListener('storage', handleAvatarChange);
+      window.removeEventListener('davot_avatar_changed', syncHeader);
+      window.removeEventListener('storage', syncHeader);
       clearInterval(interval);
     };
-  }, [userName, userAvatar]);
+  }, []);
 
   return (
     <header className="app-header-clean">
