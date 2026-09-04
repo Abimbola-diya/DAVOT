@@ -45,20 +45,21 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
 
   return (
     <div>
-      {/* SCENARIO 1: INITIAL LANDING - 3 IDENTICAL SIZED FAINT ORANGE CARDS */}
+      {/* SCENARIO 1: INITIAL LANDING - SPACIOUS FAINT ORANGE CARDS WITH GENEROUS BREATHING ROOM */}
       {selectedCategory === null ? (
-        <div style={{ padding: '8px 0 20px 0' }}>
-          <div className="section-header" style={{ marginBottom: '16px' }}>
+        <div style={{ padding: '12px 0 32px 0' }}>
+          {/* HEADER SECTION WITH GENEROUS BOTTOM MARGIN */}
+          <div className="section-header" style={{ marginBottom: '28px', marginTop: '4px' }}>
             <div className="section-title" style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a' }}>
               <Users size={20} color="#ea580c" /> Customer Categories
             </div>
-            <span className="badge badge-paid" style={{ background: '#fff7ed', color: '#c2410c', border: '1px solid #ffedd5', padding: '4px 10px' }}>
+            <span className="badge badge-paid" style={{ background: '#fff7ed', color: '#c2410c', border: '1px solid #ffedd5', padding: '5px 12px', fontSize: '11px' }}>
               {customers.length} Total Registered
             </span>
           </div>
 
-          {/* 3 IDENTICAL SIZED FAINT ORANGE CARDS WITH EVEN GAP */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {/* 3 FAINT ORANGE CARDS WITH AIRY 20PX GAP */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {PRIMARY_CATEGORIES.map(cat => {
               const count = getCategoryCount(cat);
               return (
@@ -83,10 +84,10 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                     transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <div style={{ 
-                      width: '44px', 
-                      height: '44px', 
+                      width: '46px', 
+                      height: '46px', 
                       borderRadius: '12px', 
                       background: '#ffedd5', 
                       display: 'flex', 
@@ -101,7 +102,7 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                       <div style={{ fontSize: '17px', fontWeight: 800, letterSpacing: '-0.01em', color: '#7c2d12' }}>
                         {cat}
                       </div>
-                      <div style={{ fontSize: '12px', color: '#c2410c', fontWeight: 600, marginTop: '2px' }}>
+                      <div style={{ fontSize: '12px', color: '#c2410c', fontWeight: 600, marginTop: '3px' }}>
                         View registered category buyers
                       </div>
                     </div>
@@ -131,10 +132,10 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
           </div>
         </div>
       ) : (
-        /* SCENARIO 2: CATEGORY SELECTED DRILL-DOWN VIEW (NO SLIDING HEADER) */
-        <div>
+        /* SCENARIO 2: CATEGORY SELECTED DRILL-DOWN VIEW (AIRY SPACING) */
+        <div style={{ padding: '8px 0 28px 0' }}>
           {/* Header & Back Button */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '22px' }}>
             <button
               type="button"
               onClick={() => setSelectedCategory(null)}
@@ -156,34 +157,34 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
               <ArrowLeft size={15} /> Back to Categories
             </button>
 
-            <span className="badge badge-paid" style={{ background: '#fff7ed', color: '#c2410c', border: '1px solid #ffedd5', fontSize: '12px', padding: '4px 12px' }}>
+            <span className="badge badge-paid" style={{ background: '#fff7ed', color: '#c2410c', border: '1px solid #ffedd5', fontSize: '12px', padding: '5px 12px' }}>
               {selectedCategory}
             </span>
           </div>
 
           {/* CUSTOMERS DIRECTORY UNDER CATEGORY */}
-          <div className="section-header">
+          <div className="section-header" style={{ marginBottom: '18px' }}>
             <div className="section-title">
               <Users size={18} /> {selectedCategory} Customers ({filteredCustomers.length})
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '24px' }}>
             {filteredCustomers.length === 0 ? (
-              <div className="card" style={{ textAlign: 'center', color: '#64748b', padding: '24px' }}>
+              <div className="card" style={{ textAlign: 'center', color: '#64748b', padding: '28px' }}>
                 No customers registered under category <strong>"{selectedCategory}"</strong>.
               </div>
             ) : (
               filteredCustomers.map(c => {
                 const displayCategory = formatSegmentName(c.segment);
                 return (
-                  <div key={c.id} className="card" style={{ marginBottom: 0 }}>
+                  <div key={c.id} className="card" style={{ marginBottom: 0, padding: '16px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
                         <div style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>
                           {c.name}
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
                           <span 
                             style={{
                               fontSize: '10px',
@@ -191,7 +192,7 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                               background: '#fff7ed',
                               color: '#c2410c',
                               border: '1px solid #ffedd5',
-                              padding: '2px 9px',
+                              padding: '3px 10px',
                               borderRadius: '12px'
                             }}
                           >
@@ -206,11 +207,11 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                                 background: '#f0f9ff',
                                 color: '#0369a1',
                                 border: '1px solid #e0f2fe',
-                                padding: '2px 9px',
+                                padding: '3px 10px',
                                 borderRadius: '12px',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '3px'
+                                gap: '4px'
                               }}
                             >
                               <Package size={10} /> {c.preferred_product}
@@ -218,14 +219,14 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                           )}
                         </div>
 
-                        <div style={{ display: 'flex', gap: '12px', marginTop: '6px', fontSize: '11px', color: '#64748b' }}>
+                        <div style={{ display: 'flex', gap: '14px', marginTop: '8px', fontSize: '11px', color: '#64748b' }}>
                           {c.phone && (
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                               <Phone size={11} /> {c.phone}
                             </span>
                           )}
                           {c.location && (
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                               <MapPin size={11} /> {c.location}
                             </span>
                           )}
@@ -238,14 +239,14 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                             <div style={{ fontSize: '14px', fontWeight: 800, color: '#dc2626' }}>
                               ₦{(c.balance_due ?? 0).toLocaleString()}
                             </div>
-                            <div style={{ fontSize: '10px', color: '#b45309', fontWeight: 600 }}>Owes Balance</div>
+                            <div style={{ fontSize: '10px', color: '#b45309', fontWeight: 600, marginTop: '2px' }}>Owes Balance</div>
                           </div>
                         ) : (
                           <div>
                             <div style={{ fontSize: '12px', fontWeight: 700, color: '#16a34a' }}>
                               Cleared
                             </div>
-                            <div style={{ fontSize: '10px', color: '#64748b' }}>No Debt</div>
+                            <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px' }}>No Debt</div>
                           </div>
                         )}
                       </div>
