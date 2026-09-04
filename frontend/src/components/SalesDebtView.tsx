@@ -614,34 +614,6 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                 })
               )}
 
-              {/* DASHED CARD TO ADD NEW CUSTOMER DIRECTLY IN THIS CATEGORY */}
-              <motion.button
-                type="button"
-                onClick={() => handleOpenAddCustomer(selectedCategory)}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.985, boxShadow: '1.5px 1.5px 0px #0f172a' }}
-                transition={{ duration: 0.12 }}
-                style={{
-                  width: '100%',
-                  height: '56px',
-                  padding: '0 20px',
-                  borderRadius: '16px',
-                  background: '#ffffff',
-                  border: '2.5px dashed #0f172a',
-                  color: '#0f172a',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  fontSize: '13px',
-                  fontWeight: 800,
-                  boxShadow: '3px 3px 0px #0f172a',
-                  marginTop: '6px'
-                }}
-              >
-                <Plus size={16} color="#0f172a" /> Add New Customer under {selectedCategory}
-              </motion.button>
             </div>
           </motion.div>
         )}
