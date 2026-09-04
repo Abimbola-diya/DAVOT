@@ -38,6 +38,24 @@ def create_customer(cust_in: CustomerCreate, db: Session = Depends(get_db)):
     db.refresh(customer)
     return CustomerResponse.model_validate(customer)
 
+@router.put("/customers/{customer_id}", response_model=CustomerResponse)
+def update_customer(customer_id: int, cust_in: CustomerCreate, db: Session = Depends(get_db)):
+    customer = db.query(Customer).filter(Customer.id == customer_id).first()
+    if not customer:
+        raise HTTPException(status_code=404, detail="Customer not found")
+    
+    for key, value in cust_in.model_dump().items():
+        setattr(customer, key, value)
+    
+    db.commit()
+    db.refresh(customer)
+    res = CustomerResponse.model_validate(customer)
+    res.total_purchased = sum(s.total_amount for s in customer.sales)
+    res.total_paid = sum(s.amount_paid for s in customer.sales)
+    res.balance_due = sum(s.balance_due for s in customer.sales)
+    return res
+
+
 # --- Sales Logging ---
 @router.get("/records", response_model=List[SaleResponse])
 def get_sales(db: Session = Depends(get_db)):

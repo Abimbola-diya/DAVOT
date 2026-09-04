@@ -38,6 +38,7 @@ export const api = {
   // Sales & Debt
   getCustomers: () => axios.get<Customer[]>(`${API_BASE}/sales/customers`).then(r => r.data),
   createCustomer: (data: Partial<Customer>) => axios.post<Customer>(`${API_BASE}/sales/customers`, data).then(r => r.data),
+  updateCustomer: (id: number, data: Partial<Customer>) => axios.put<Customer>(`${API_BASE}/sales/customers/${id}`, data).then(r => r.data),
   getSales: () => axios.get<Sale[]>(`${API_BASE}/sales/records`).then(r => r.data),
   createSale: (data: Partial<Sale>) => axios.post<Sale>(`${API_BASE}/sales/records`, data).then(r => r.data),
   getPayments: () => axios.get<Payment[]>(`${API_BASE}/sales/payments`).then(r => r.data),
