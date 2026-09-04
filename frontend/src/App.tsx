@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { ViewMode, ActiveTab, FarmBlock, InventoryItem, InventoryLedger, Customer, Sale, Expense, Supplier, DashboardSummary, FlowNodeSummary } from './types';
 import { api } from './api';
 import { Header } from './components/Header';
@@ -14,9 +14,35 @@ import { Modals } from './components/edit/Modals';
 import { AuthModeSelection } from './components/AuthModeSelection';
 import { LoginPage } from './components/LoginPage';
 
+const getTabFromPath = (pathname: string): ActiveTab => {
+  if (pathname.includes('/settings')) return 'settings';
+  if (pathname.includes('/customers') || pathname.includes('/dashboard')) return 'dashboard';
+  if (pathname.includes('/stock') || pathname.includes('/inventory')) return 'inventory';
+  if (pathname.includes('/sales') || pathname.includes('/expenses')) return 'sales';
+  return 'flow';
+};
+
+const getPathFromTab = (tab: ActiveTab): string => {
+  switch (tab) {
+    case 'settings':
+      return '/app/settings';
+    case 'dashboard':
+      return '/app/customers';
+    case 'inventory':
+      return '/app/stock';
+    case 'sales':
+    case 'expenses':
+      return '/app/sales';
+    case 'flow':
+    default:
+      return '/app/flow';
+  }
+};
+
 export const App: React.FC = () => {
   const navigate = useNavigate();
-  
+  const location = useLocation();
+
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
     return localStorage.getItem('davot_auth') === 'true';
   });
@@ -25,7 +51,8 @@ export const App: React.FC = () => {
     return (localStorage.getItem('davot_role') as ViewMode) || 'view';
   });
 
-  const [activeTab, setActiveTab] = useState<ActiveTab>('flow');
+  // Active tab synchronized with URL path
+  const activeTab = getTabFromPath(location.pathname);
 
   // Data states
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
@@ -90,13 +117,17 @@ export const App: React.FC = () => {
     localStorage.setItem('davot_role', roleToSet);
     localStorage.setItem('davot_auth', 'true');
     setIsAuthenticated(true);
-    navigate('/app');
+    navigate('/app/flow');
   };
 
   const handleLogout = () => {
     localStorage.removeItem('davot_auth');
     setIsAuthenticated(false);
     navigate('/role');
+  };
+
+  const handleTabSelect = (tab: ActiveTab) => {
+    navigate(getPathFromTab(tab));
   };
 
   return (
@@ -128,14 +159,14 @@ export const App: React.FC = () => {
         }
       />
 
-      {/* Route 3: /app - Authenticated Main Workspace */}
+      {/* Route 3: /app/* - Authenticated Main Workspace Sub-Routes */}
       <Route
-        path="/app"
+        path="/app/*"
         element={
           isAuthenticated ? (
             <div className="app-container">
               <Header 
-                onOpenSettings={() => setActiveTab('settings')}
+                onOpenSettings={() => navigate('/app/settings')}
               />
 
               <main className="content-area">
@@ -144,7 +175,7 @@ export const App: React.FC = () => {
                     viewMode={viewMode}
                     onSelectRole={handleSelectRole}
                     onReturnToAuth={handleLogout}
-                    onClose={() => setActiveTab('flow')}
+                    onClose={() => navigate('/app/flow')}
                   />
                 ) : viewMode === 'edit' ? (
                   <EditHub onOpenForm={handleOpenForm} />
@@ -193,9 +224,7 @@ export const App: React.FC = () => {
               {viewMode === 'view' && (
                 <BottomNav 
                   activeTab={activeTab} 
-                  onSelectTab={(tab) => {
-                    setActiveTab(tab);
-                  }} 
+                  onSelectTab={handleTabSelect} 
                 />
               )}
             </div>
@@ -208,7 +237,7 @@ export const App: React.FC = () => {
       {/* Default Catch-All Route */}
       <Route
         path="*"
-        element={<Navigate to={isAuthenticated ? "/app" : "/role"} replace />}
+        element={<Navigate to={isAuthenticated ? "/app/flow" : "/role"} replace />}
       />
     </Routes>
   );

@@ -10,6 +10,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
   const [userName, setUserName] = useState(() => {
     return localStorage.getItem('davot_user_name') || 'Seun';
   });
+  const [userAvatar, setUserAvatar] = useState<string | null>(() => {
+    return localStorage.getItem('davot_profile_picture');
+  });
   const [timeOfDay, setTimeOfDay] = useState('Good morning');
 
   useEffect(() => {
@@ -23,16 +26,32 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
     }
   }, []);
 
-  // Sync user name from storage if updated
+  // Sync user name and avatar from storage if updated
   useEffect(() => {
+    const handleAvatarChange = () => {
+      setUserAvatar(localStorage.getItem('davot_profile_picture'));
+    };
+
+    window.addEventListener('davot_avatar_changed', handleAvatarChange);
+    window.addEventListener('storage', handleAvatarChange);
+
     const interval = setInterval(() => {
-      const stored = localStorage.getItem('davot_user_name');
-      if (stored && stored !== userName) {
-        setUserName(stored);
+      const storedName = localStorage.getItem('davot_user_name');
+      if (storedName && storedName !== userName) {
+        setUserName(storedName);
+      }
+      const storedAvatar = localStorage.getItem('davot_profile_picture');
+      if (storedAvatar !== userAvatar) {
+        setUserAvatar(storedAvatar);
       }
     }, 1000);
-    return () => clearInterval(interval);
-  }, [userName]);
+
+    return () => {
+      window.removeEventListener('davot_avatar_changed', handleAvatarChange);
+      window.removeEventListener('storage', handleAvatarChange);
+      clearInterval(interval);
+    };
+  }, [userName, userAvatar]);
 
   return (
     <header className="app-header-clean">
@@ -60,11 +79,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
           type="button"
         >
           <img
-            src="/seun-avatar.png"
+            src={userAvatar || "/seun-avatar.png"}
             alt={`${userName} Profile`}
             className="header-avatar-img"
             onError={(e) => {
-              (e.target as HTMLElement).style.display = 'none';
+              (e.target as HTMLImageElement).src = '/seun-avatar.png';
             }}
           />
         </button>
