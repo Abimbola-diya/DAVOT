@@ -266,36 +266,10 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
             style={{ padding: '12px 0 32px 0' }}
           >
             {/* HEADER SECTION */}
-            <div className="section-header" style={{ marginBottom: '24px', marginTop: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+            <div className="section-header" style={{ marginBottom: '28px', marginTop: '4px' }}>
               <div className="section-title" style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap' }}>
                 <Users size={20} color="#0f172a" /> Customer Categories
               </div>
-
-              <motion.button
-                type="button"
-                onClick={() => setIsAddCategoryOpen(true)}
-                whileHover={{ scale: 1.03, translateY: -1 }}
-                whileTap={{ scale: 0.95, translateY: 1, boxShadow: '1px 1px 0px #0f172a' }}
-                transition={{ duration: 0.1 }}
-                style={{
-                  background: '#ea580c',
-                  color: '#ffffff',
-                  border: '2px solid #0f172a',
-                  borderRadius: '10px',
-                  padding: '7px 14px',
-                  fontSize: '12px',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  boxShadow: '2px 2px 0px #0f172a',
-                  flexShrink: 0,
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                <Plus size={14} /> Add Category
-              </motion.button>
             </div>
 
             {/* CRISP MINIMALIST RECTANGULAR CARDS WITH MICRO-ANIMATIONS */}
@@ -400,6 +374,35 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                   </motion.div>
                 );
               })}
+
+              {/* + DASHED CARD TO ADD CUSTOM CATEGORY WITH PRESS MOTION */}
+              <motion.button
+                type="button"
+                onClick={() => setIsAddCategoryOpen(true)}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98, boxShadow: '1.5px 1.5px 0px #0f172a' }}
+                transition={{ duration: 0.12 }}
+                style={{
+                  width: '100%',
+                  height: '60px',
+                  padding: '0 20px',
+                  borderRadius: '20px',
+                  background: '#ffffff',
+                  border: '2.5px dashed #0f172a',
+                  color: '#0f172a',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontSize: '14px',
+                  fontWeight: 800,
+                  boxShadow: '3px 3px 0px #0f172a',
+                  marginTop: '4px'
+                }}
+              >
+                <Plus size={18} color="#0f172a" /> Add New Customer Category
+              </motion.button>
             </div>
           </motion.div>
         ) : (
