@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Customer, Sale, Expense } from '../types';
-import { Users, Package, Phone, MapPin, ChevronRight, ArrowLeft, Plus, X } from 'lucide-react';
+import { Users, Package, Phone, MapPin, ChevronRight, ArrowLeft, Plus, X, Trash2 } from 'lucide-react';
 import { api } from '../api';
 
 interface SalesDebtViewProps {
@@ -73,9 +73,11 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
     return [...PRIMARY_CATEGORIES];
   });
 
-  // Modal State for Adding Category
+  // Modal State for Adding / Deleting Category
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [newCatName, setNewCatName] = useState('');
+  const [isDeleteCategoryOpen, setIsDeleteCategoryOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
   // Modal State for Adding/Editing Customer
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
@@ -103,6 +105,40 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
     }
     setNewCatName('');
     setIsAddCategoryOpen(false);
+  };
+
+  const handleOpenDeleteCategory = (catName: string) => {
+    setCategoryToDelete(catName);
+    setIsDeleteCategoryOpen(true);
+  };
+
+  const handleConfirmDeleteCategory = () => {
+    if (!categoryToDelete) return;
+
+    const target = categoryToDelete;
+    const updatedCategories = categories.filter(c => c.toLowerCase() !== target.toLowerCase());
+    const finalCategories = updatedCategories.length > 0 ? updatedCategories : [...PRIMARY_CATEGORIES];
+    
+    setCategories(finalCategories);
+
+    // Sync custom categories to localStorage
+    const customOnly = finalCategories.filter(c => !(PRIMARY_CATEGORIES as readonly string[]).includes(c));
+    localStorage.setItem('davot_custom_customer_categories', JSON.stringify(customOnly));
+
+    // Reassign any customers under this category to 'Direct consumer'
+    setCustomerList(prev => prev.map(cust => {
+      if (cust.segment?.toLowerCase() === target.toLowerCase()) {
+        return { ...cust, segment: 'Direct consumer' };
+      }
+      return cust;
+    }));
+
+    if (selectedCategory?.toLowerCase() === target.toLowerCase()) {
+      setSelectedCategory(null);
+    }
+
+    setIsDeleteCategoryOpen(false);
+    setCategoryToDelete(null);
   };
 
   const handleOpenAddCustomer = (defaultCategory?: string) => {
@@ -232,14 +268,14 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
             {categories.map(cat => {
               const count = getCategoryCount(cat);
               return (
-                <button
+                <div
                   key={cat}
-                  type="button"
+                  role="button"
                   onClick={() => setSelectedCategory(cat)}
                   style={{
                     width: '100%',
                     height: '84px',
-                    padding: '0 20px',
+                    padding: '0 16px 0 20px',
                     borderRadius: '20px',
                     background: '#ffffff',
                     color: '#0f172a',
@@ -253,7 +289,7 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                     transition: 'transform 0.15s ease, box-shadow 0.15s ease',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1, minWidth: 0 }}>
                     <div style={{ 
                       width: '44px', 
                       height: '44px', 
@@ -267,8 +303,8 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                     }}>
                       <Users size={22} color="#0f172a" />
                     </div>
-                    <div style={{ textAlign: 'left' }}>
-                      <div style={{ fontSize: '17px', fontWeight: 800, letterSpacing: '-0.01em', color: '#0f172a' }}>
+                    <div style={{ textAlign: 'left', overflow: 'hidden' }}>
+                      <div style={{ fontSize: '17px', fontWeight: 800, letterSpacing: '-0.01em', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {cat}
                       </div>
                       <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, marginTop: '2px' }}>
@@ -277,7 +313,7 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
                     <span style={{
                       fontSize: '14px',
                       fontWeight: 800,
@@ -294,9 +330,35 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                     }}>
                       {count}
                     </span>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenDeleteCategory(cat);
+                      }}
+                      title={`Delete category "${cat}"`}
+                      style={{
+                        background: '#fef2f2',
+                        border: '2px solid #0f172a',
+                        borderRadius: '12px',
+                        width: '32px',
+                        height: '32px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#dc2626',
+                        cursor: 'pointer',
+                        boxShadow: '1.5px 1.5px 0px #0f172a',
+                        padding: 0
+                      }}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+
                     <ChevronRight size={20} color="#0f172a" />
                   </div>
-                </button>
+                </div>
               );
             })}
 
@@ -354,9 +416,35 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
               <ArrowLeft size={15} /> Back to Categories
             </button>
 
-            <span className="badge badge-paid" style={{ background: '#fff7ed', color: '#ea580c', border: '1.5px solid #0f172a', fontSize: '12px', padding: '5px 12px', fontWeight: 800 }}>
-              {formatBadgeCategory(selectedCategory)}
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className="badge badge-paid" style={{ background: '#fff7ed', color: '#ea580c', border: '1.5px solid #0f172a', fontSize: '12px', padding: '5px 12px', fontWeight: 800 }}>
+                {formatBadgeCategory(selectedCategory)}
+              </span>
+
+              {selectedCategory && (
+                <button
+                  type="button"
+                  onClick={() => handleOpenDeleteCategory(selectedCategory)}
+                  title="Delete this category"
+                  style={{
+                    background: '#fef2f2',
+                    border: '1.5px solid #0f172a',
+                    borderRadius: '10px',
+                    padding: '5px 10px',
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    color: '#dc2626',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    boxShadow: '1.5px 1.5px 0px #0f172a'
+                  }}
+                >
+                  <Trash2 size={13} /> Delete
+                </button>
+              )}
+            </div>
           </div>
 
           {/* CUSTOMERS DIRECTORY UNDER CATEGORY WITH RIGHT ALIGNED + ADD CUSTOMER BUTTON */}
@@ -602,6 +690,72 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE CATEGORY CONFIRMATION MODAL */}
+      {isDeleteCategoryOpen && categoryToDelete && (
+        <div className="modal-overlay" onClick={() => setIsDeleteCategoryOpen(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '380px', padding: '24px', borderRadius: '20px', border: '2.5px solid #0f172a', boxShadow: '6px 6px 0px #0f172a' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', color: '#dc2626', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Trash2 size={18} /> Delete Category
+              </h3>
+              <button 
+                onClick={() => setIsDeleteCategoryOpen(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0f172a' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <p style={{ fontSize: '13px', color: '#334155', fontWeight: 600, lineHeight: 1.5, margin: '0 0 16px 0' }}>
+              Are you sure you want to delete the category <strong>"{categoryToDelete}"</strong>?
+            </p>
+
+            {getCategoryCount(categoryToDelete) > 0 && (
+              <div style={{ background: '#fff7ed', border: '1.5px solid #f97316', borderRadius: '12px', padding: '10px 12px', fontSize: '12px', color: '#c2410c', fontWeight: 700, marginBottom: '16px' }}>
+                ⚠️ {getCategoryCount(categoryToDelete)} customer(s) under this category will be reassigned to <strong>Direct consumer</strong>.
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                type="button"
+                className="cancel-btn"
+                onClick={() => setIsDeleteCategoryOpen(false)}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '12px',
+                  background: '#f1f5f9',
+                  color: '#0f172a',
+                  border: '2px solid #0f172a',
+                  fontWeight: 800,
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteCategory}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  borderRadius: '12px',
+                  background: '#dc2626',
+                  color: '#ffffff',
+                  border: '2px solid #0f172a',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  boxShadow: '2px 2px 0px #0f172a'
+                }}
+              >
+                Delete Category
+              </button>
+            </div>
           </div>
         </div>
       )}
