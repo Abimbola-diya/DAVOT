@@ -80,17 +80,17 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
 
   return (
     <div>
-      {/* SCENARIO 1: INITIAL LANDING - SPACIOUS FAINT ORANGE CARDS WITH GENEROUS BREATHING ROOM */}
+      {/* SCENARIO 1: INITIAL LANDING - CRISP MINIMALIST CARDS WITH BOLD HARD SHADOW */}
       {selectedCategory === null ? (
         <div style={{ padding: '12px 0 32px 0' }}>
-          {/* HEADER SECTION - CLEAN SINGLE LINE TITLE */}
+          {/* HEADER SECTION */}
           <div className="section-header" style={{ marginBottom: '28px', marginTop: '4px' }}>
             <div className="section-title" style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap' }}>
-              <Users size={20} color="#ea580c" /> Customer Categories
+              <Users size={20} color="#0f172a" /> Customer Categories
             </div>
           </div>
 
-          {/* FAINT ORANGE CARDS WITH AIRY 20PX GAP */}
+          {/* CRISP MINIMALIST RECTANGULAR CARDS WITH 4PX HARD DROP SHADOW */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {categories.map(cat => {
               const count = getCategoryCount(cat);
@@ -101,40 +101,40 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                   onClick={() => setSelectedCategory(cat)}
                   style={{
                     width: '100%',
-                    height: '88px',
+                    height: '84px',
                     padding: '0 20px',
-                    borderRadius: '18px',
-                    background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)',
-                    color: '#9a3412',
-                    border: '1.5px solid #fed7aa',
-                    boxShadow: '0 6px 16px -4px rgba(234, 88, 12, 0.12), 0 2px 4px -1px rgba(234, 88, 12, 0.06)',
+                    borderRadius: '20px',
+                    background: '#ffffff',
+                    color: '#0f172a',
+                    border: '2.5px solid #0f172a',
+                    boxShadow: '4px 4px 0px #0f172a',
                     cursor: 'pointer',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     boxSizing: 'border-box',
-                    transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transition: 'transform 0.15s ease, box-shadow 0.15s ease',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                     <div style={{ 
                       width: '44px', 
                       height: '44px', 
-                      borderRadius: '12px', 
-                      background: '#ffedd5', 
+                      borderRadius: '14px', 
+                      background: '#f8fafc', 
                       display: 'flex', 
                       alignItems: 'center', 
                       justifyContent: 'center',
-                      border: '1px solid #fdba74',
+                      border: '2px solid #0f172a',
                       flexShrink: 0
                     }}>
-                      <Users size={22} color="#ea580c" />
+                      <Users size={22} color="#0f172a" />
                     </div>
                     <div style={{ textAlign: 'left' }}>
-                      <div style={{ fontSize: '17px', fontWeight: 800, letterSpacing: '-0.01em', color: '#7c2d12' }}>
+                      <div style={{ fontSize: '17px', fontWeight: 800, letterSpacing: '-0.01em', color: '#0f172a' }}>
                         {cat}
                       </div>
-                      <div style={{ fontSize: '12px', color: '#c2410c', fontWeight: 600, marginTop: '2px' }}>
+                      <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, marginTop: '2px' }}>
                         View registered category buyers
                       </div>
                     </div>
@@ -152,11 +152,12 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: '0 2px 6px rgba(234, 88, 12, 0.25)'
+                      border: '2px solid #0f172a',
+                      boxShadow: '1.5px 1.5px 0px #0f172a'
                     }}>
                       {count}
                     </span>
-                    <ChevronRight size={20} color="#ea580c" />
+                    <ChevronRight size={20} color="#0f172a" />
                   </div>
                 </button>
               );
@@ -168,24 +169,25 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
               onClick={() => setIsAddCategoryOpen(true)}
               style={{
                 width: '100%',
-                height: '64px',
+                height: '60px',
                 padding: '0 20px',
-                borderRadius: '18px',
-                background: '#fff7ed',
-                border: '1.5px dashed #fdba74',
-                color: '#ea580c',
+                borderRadius: '20px',
+                background: '#ffffff',
+                border: '2.5px dashed #0f172a',
+                color: '#0f172a',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px',
                 fontSize: '14px',
-                fontWeight: 700,
-                transition: 'all 0.2s ease',
+                fontWeight: 800,
+                boxShadow: '3px 3px 0px #0f172a',
+                transition: 'all 0.15s ease',
                 marginTop: '4px'
               }}
             >
-              <Plus size={18} /> Add New Customer Category
+              <Plus size={18} color="#0f172a" /> Add New Customer Category
             </button>
           </div>
         </div>
@@ -199,23 +201,23 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
               onClick={() => setSelectedCategory(null)}
               style={{
                 background: '#ffffff',
-                border: '1px solid #cbd5e1',
-                borderRadius: '10px',
+                border: '2px solid #0f172a',
+                borderRadius: '12px',
                 padding: '8px 14px',
                 fontSize: '12px',
-                fontWeight: 700,
-                color: '#334155',
+                fontWeight: 800,
+                color: '#0f172a',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                boxShadow: '2px 2px 0px #0f172a'
               }}
             >
               <ArrowLeft size={15} /> Back to Categories
             </button>
 
-            <span className="badge badge-paid" style={{ background: '#fff7ed', color: '#c2410c', border: '1px solid #ffedd5', fontSize: '12px', padding: '5px 12px' }}>
+            <span className="badge badge-paid" style={{ background: '#fff7ed', color: '#ea580c', border: '1.5px solid #0f172a', fontSize: '12px', padding: '5px 12px', fontWeight: 800 }}>
               {selectedCategory}
             </span>
           </div>
@@ -229,27 +231,27 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '24px' }}>
             {filteredCustomers.length === 0 ? (
-              <div className="card" style={{ textAlign: 'center', color: '#64748b', padding: '28px' }}>
+              <div className="card" style={{ textAlign: 'center', color: '#64748b', padding: '28px', border: '2px solid #0f172a', boxShadow: '3px 3px 0px #0f172a' }}>
                 No customers registered under category <strong>"{selectedCategory}"</strong>.
               </div>
             ) : (
               filteredCustomers.map(c => {
                 const displayCategory = formatSegmentName(c.segment);
                 return (
-                  <div key={c.id} className="card" style={{ marginBottom: 0, padding: '16px' }}>
+                  <div key={c.id} className="card" style={{ marginBottom: 0, padding: '16px', border: '2px solid #0f172a', boxShadow: '3px 3px 0px #0f172a', borderRadius: '16px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
-                        <div style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>
+                        <div style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
                           {c.name}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}>
                           <span 
                             style={{
                               fontSize: '10px',
-                              fontWeight: 700,
+                              fontWeight: 800,
                               background: '#fff7ed',
-                              color: '#c2410c',
-                              border: '1px solid #ffedd5',
+                              color: '#ea580c',
+                              border: '1px solid #0f172a',
                               padding: '3px 10px',
                               borderRadius: '12px'
                             }}
@@ -261,10 +263,10 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                             <span 
                               style={{
                                 fontSize: '10px',
-                                fontWeight: 600,
+                                fontWeight: 700,
                                 background: '#f0f9ff',
                                 color: '#0369a1',
-                                border: '1px solid #e0f2fe',
+                                border: '1px solid #0f172a',
                                 padding: '3px 10px',
                                 borderRadius: '12px',
                                 display: 'flex',
@@ -277,7 +279,7 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                           )}
                         </div>
 
-                        <div style={{ display: 'flex', gap: '14px', marginTop: '8px', fontSize: '11px', color: '#64748b' }}>
+                        <div style={{ display: 'flex', gap: '14px', marginTop: '8px', fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
                           {c.phone && (
                             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                               <Phone size={11} /> {c.phone}
@@ -297,14 +299,14 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                             <div style={{ fontSize: '14px', fontWeight: 800, color: '#dc2626' }}>
                               ₦{(c.balance_due ?? 0).toLocaleString()}
                             </div>
-                            <div style={{ fontSize: '10px', color: '#b45309', fontWeight: 600, marginTop: '2px' }}>Owes Balance</div>
+                            <div style={{ fontSize: '10px', color: '#b45309', fontWeight: 700, marginTop: '2px' }}>Owes Balance</div>
                           </div>
                         ) : (
                           <div>
-                            <div style={{ fontSize: '12px', fontWeight: 700, color: '#16a34a' }}>
+                            <div style={{ fontSize: '12px', fontWeight: 800, color: '#16a34a' }}>
                               Cleared
                             </div>
-                            <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px' }}>No Debt</div>
+                            <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 600 }}>No Debt</div>
                           </div>
                         )}
                       </div>
@@ -320,14 +322,14 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
       {/* ADD CATEGORY MODAL */}
       {isAddCategoryOpen && (
         <div className="modal-overlay" onClick={() => setIsAddCategoryOpen(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '380px', padding: '24px', borderRadius: '16px' }}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '380px', padding: '24px', borderRadius: '20px', border: '2.5px solid #0f172a', boxShadow: '6px 6px 0px #0f172a' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h3 style={{ margin: 0, fontSize: '16px', color: '#0f172a', fontWeight: 800 }}>
                 Add Customer Category
               </h3>
               <button 
                 onClick={() => setIsAddCategoryOpen(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0f172a' }}
               >
                 <X size={18} />
               </button>
@@ -335,7 +337,7 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
 
             <form onSubmit={handleAddCategory}>
               <div className="form-group" style={{ marginBottom: '20px' }}>
-                <label className="form-label" style={{ fontWeight: 700, fontSize: '12px', color: '#475569' }}>
+                <label className="form-label" style={{ fontWeight: 800, fontSize: '12px', color: '#0f172a' }}>
                   Category Name
                 </label>
                 <input
@@ -349,8 +351,8 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                   style={{
                     width: '100%',
                     padding: '12px 14px',
-                    borderRadius: '10px',
-                    border: '1px solid #cbd5e1',
+                    borderRadius: '12px',
+                    border: '2px solid #0f172a',
                     fontSize: '14px',
                     boxSizing: 'border-box'
                   }}
@@ -365,11 +367,11 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                   style={{
                     flex: 1,
                     padding: '12px',
-                    borderRadius: '10px',
+                    borderRadius: '12px',
                     background: '#f1f5f9',
-                    color: '#475569',
-                    border: 'none',
-                    fontWeight: 700,
+                    color: '#0f172a',
+                    border: '2px solid #0f172a',
+                    fontWeight: 800,
                     cursor: 'pointer'
                   }}
                 >
@@ -380,13 +382,13 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                   style={{
                     flex: 1,
                     padding: '12px',
-                    borderRadius: '10px',
-                    background: 'linear-gradient(135deg, #ea580c, #c2410c)',
+                    borderRadius: '12px',
+                    background: '#ea580c',
                     color: '#ffffff',
-                    border: 'none',
-                    fontWeight: 700,
+                    border: '2px solid #0f172a',
+                    fontWeight: 800,
                     cursor: 'pointer',
-                    boxShadow: '0 2px 6px rgba(234, 88, 12, 0.3)'
+                    boxShadow: '2px 2px 0px #0f172a'
                   }}
                 >
                   Save Category
