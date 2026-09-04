@@ -65,7 +65,8 @@ export const App: React.FC = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
-  // Modal active form state
+  // Recording mode category filter state
+  const [recordCategory, setRecordCategory] = useState<string>('all');
   const [activeFormModal, setActiveFormModal] = useState<string | null>(null);
 
   const fetchAllData = async () => {
@@ -178,7 +179,10 @@ export const App: React.FC = () => {
                     onClose={() => navigate('/app/flow')}
                   />
                 ) : viewMode === 'edit' ? (
-                  <EditHub onOpenForm={handleOpenForm} />
+                  <EditHub 
+                    activeCategory={recordCategory}
+                    onOpenForm={handleOpenForm}
+                  />
                 ) : (
                   <>
                     {activeTab === 'flow' && (
@@ -220,13 +224,18 @@ export const App: React.FC = () => {
                 />
               )}
 
-              {/* Fixed Navigation for Mobile (Only for Viewer Mode) */}
-              {viewMode === 'view' && (
-                <BottomNav 
-                  activeTab={activeTab} 
-                  onSelectTab={handleTabSelect} 
-                />
-              )}
+              {/* Fixed Navigation for Mobile (Active in both Viewer & Recording modes) */}
+              <BottomNav 
+                viewMode={viewMode}
+                activeTab={viewMode === 'edit' ? recordCategory : activeTab} 
+                onSelectTab={(tabId) => {
+                  if (viewMode === 'edit') {
+                    setRecordCategory(tabId);
+                  } else {
+                    handleTabSelect(tabId as ActiveTab);
+                  }
+                }} 
+              />
             </div>
           ) : (
             <Navigate to="/role" replace />

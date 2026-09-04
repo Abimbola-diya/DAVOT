@@ -55,6 +55,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [defaultUnit, setDefaultUnit] = useState(() => {
     return localStorage.getItem('davot_unit') || 'Litres';
   });
+  const [defaultWeightUnit, setDefaultWeightUnit] = useState(() => {
+    return localStorage.getItem('davot_weight_unit') || 'Kilograms (kg)';
+  });
   const [saveSuccessMsg, setSaveSuccessMsg] = useState(false);
   const [saveMsgText, setSaveMsgText] = useState('Settings updated successfully!');
 
@@ -138,6 +141,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     localStorage.setItem('davot_farm_name', farmName);
     localStorage.setItem('davot_currency', currency);
     localStorage.setItem('davot_unit', defaultUnit);
+    localStorage.setItem('davot_weight_unit', defaultWeightUnit);
     triggerSuccessMsg('Farm preferences saved successfully!');
   };
 
@@ -393,12 +397,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px', width: '100%', maxWidth: '320px', marginTop: '6px' }}>
+            <div className="profile-actions-stack">
               <button
                 type="button"
-                className="davot-submit-btn"
+                className="profile-upload-btn"
                 onClick={() => fileInputRef.current?.click()}
-                style={{ flex: 1 }}
               >
                 <Upload size={18} color="#ffffff" />
                 <span>{userAvatar ? 'Upload New Photo' : 'Choose Photo'}</span>
@@ -407,12 +410,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               {userAvatar && (
                 <button
                   type="button"
-                  className="davot-cancel-btn"
+                  className="profile-remove-btn"
                   onClick={handleDeleteAvatar}
-                  style={{ color: '#dc2626', borderColor: '#fca5a5' }}
                 >
                   <Trash2 size={16} color="#dc2626" />
-                  <span>Remove</span>
+                  <span>Remove Custom Photo</span>
                 </button>
               )}
             </div>
@@ -751,16 +753,30 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             </div>
 
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label className="form-label">Default CPO Volume Unit</label>
+              <label className="form-label">Default Weight Unit (FFB & Solids)</label>
+              <select
+                className="davot-input"
+                value={defaultWeightUnit}
+                onChange={(e) => setDefaultWeightUnit(e.target.value)}
+              >
+                <option value="Kilograms (kg)">Kilograms (kg)</option>
+                <option value="Metric Tonnes (MT)">Metric Tonnes (MT)</option>
+                <option value="Pounds (lbs)">Pounds (lbs)</option>
+                <option value="Bags (50kg)">Bags (50kg)</option>
+              </select>
+            </div>
+
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label className="form-label">Default Volume Unit (CPO & Liquids)</label>
               <select
                 className="davot-input"
                 value={defaultUnit}
                 onChange={(e) => setDefaultUnit(e.target.value)}
               >
                 <option value="Litres">Litres (L)</option>
-                <option value="Tons">Metric Tons (t)</option>
+                <option value="Metric Tonnes (MT)">Metric Tonnes (MT)</option>
                 <option value="25L Kegs">25L Kegs</option>
-                <option value="Bags">Bags / Drums</option>
+                <option value="Drums (200L)">Drums / Barrels (200L)</option>
               </select>
             </div>
 

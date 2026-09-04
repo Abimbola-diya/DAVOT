@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   WorkflowSquare01Icon,
@@ -7,35 +7,56 @@ import {
   PackageIcon,
   Wallet01Icon,
 } from '@hugeicons/core-free-icons';
-import { ActiveTab } from '../types';
+import { Receipt } from 'lucide-react';
+import { ViewMode } from '../types';
 
 interface BottomNavProps {
-  activeTab: ActiveTab;
-  onSelectTab: (tab: ActiveTab) => void;
+  viewMode?: ViewMode;
+  activeTab: string;
+  onSelectTab: (tab: string) => void;
 }
 
 interface NavItem {
-  id: ActiveTab;
+  id: string;
   label: string;
   icon: any;
+  isLucide?: boolean;
 }
 
-const NAV_ITEMS: NavItem[] = [
+const VIEWER_NAV_ITEMS: NavItem[] = [
   { id: 'flow', label: 'Flow', icon: WorkflowSquare01Icon },
   { id: 'dashboard', label: 'Customers', icon: UserMultipleIcon },
   { id: 'inventory', label: 'Stock', icon: PackageIcon },
   { id: 'sales', label: 'Sales & Debt', icon: Wallet01Icon },
 ];
 
-export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onSelectTab }) => {
-  // If activeTab is 'expenses', treat tab 4 ('sales') as active
-  const currentTabId = activeTab === 'expenses' ? 'sales' : activeTab;
+const RECORDING_NAV_ITEMS: NavItem[] = [
+  { id: 'flow', label: 'Flow', icon: WorkflowSquare01Icon },
+  { id: 'stock', label: 'Stock', icon: PackageIcon },
+  { id: 'expenses', label: 'Expenses', icon: Receipt, isLucide: true },
+  { id: 'sales', label: 'Sales', icon: Wallet01Icon },
+];
+
+export const BottomNav: React.FC<BottomNavProps> = ({
+  viewMode = 'view',
+  activeTab,
+  onSelectTab,
+}) => {
+  const isEditMode = viewMode === 'edit';
+  const items = isEditMode ? RECORDING_NAV_ITEMS : VIEWER_NAV_ITEMS;
+
+  let currentTabId = activeTab;
+  if (!isEditMode && activeTab === 'expenses') {
+    currentTabId = 'sales';
+  }
 
   return (
     <div className="bottom-nav-container">
       <nav className="bottom-nav-floating">
-        {NAV_ITEMS.map((item) => {
+        {items.map((item) => {
           const isActive = currentTabId === item.id;
+          const IconComp = item.icon;
+
           return (
             <button
               key={item.id}
@@ -46,7 +67,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onSelectTab }) 
               {isActive && (
                 <motion.div
                   layoutId="floatingNavActivePill"
-                  className="floating-active-pill"
+                  className={`floating-active-pill ${isEditMode ? 'recording-theme' : ''}`}
                   transition={{
                     type: 'spring',
                     stiffness: 420,
@@ -56,15 +77,27 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onSelectTab }) 
               )}
 
               <div className="floating-nav-icon-wrap">
-                <HugeiconsIcon
-                  icon={item.icon}
-                  size={20}
-                  color={isActive ? '#008746' : '#64748b'}
-                  strokeWidth={isActive ? 2.2 : 1.6}
-                />
+                {item.isLucide ? (
+                  <IconComp
+                    size={20}
+                    color={isActive ? (isEditMode ? '#ea580c' : '#008746') : '#64748b'}
+                    strokeWidth={isActive ? 2.2 : 1.6}
+                  />
+                ) : (
+                  <HugeiconsIcon
+                    icon={item.icon}
+                    size={20}
+                    color={isActive ? (isEditMode ? '#ea580c' : '#008746') : '#64748b'}
+                    strokeWidth={isActive ? 2.2 : 1.6}
+                  />
+                )}
               </div>
 
-              <span className={`floating-nav-label ${isActive ? 'active' : ''}`}>
+              <span
+                className={`floating-nav-label ${isActive ? 'active' : ''} ${
+                  isEditMode ? 'recording-theme' : ''
+                }`}
+              >
                 {item.label}
               </span>
             </button>
