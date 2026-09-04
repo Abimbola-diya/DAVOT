@@ -8,6 +8,7 @@ import { FlowView } from './components/FlowView';
 import { DashboardView } from './components/DashboardView';
 import { InventoryView } from './components/InventoryView';
 import { SalesDebtView } from './components/SalesDebtView';
+import { SettingsView } from './components/SettingsView';
 import { EditHub } from './components/edit/EditHub';
 import { Modals } from './components/edit/Modals';
 import { AuthModeSelection } from './components/AuthModeSelection';
@@ -134,13 +135,18 @@ export const App: React.FC = () => {
           isAuthenticated ? (
             <div className="app-container">
               <Header 
-                viewMode={viewMode} 
-                onSelectRole={handleSelectRole}
-                onReturnToAuth={handleLogout}
+                onOpenSettings={() => setActiveTab('settings')}
               />
 
               <main className="content-area">
-                {viewMode === 'edit' ? (
+                {activeTab === 'settings' ? (
+                  <SettingsView 
+                    viewMode={viewMode}
+                    onSelectRole={handleSelectRole}
+                    onReturnToAuth={handleLogout}
+                    onClose={() => setActiveTab('flow')}
+                  />
+                ) : viewMode === 'edit' ? (
                   <EditHub onOpenForm={handleOpenForm} />
                 ) : (
                   <>
