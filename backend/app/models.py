@@ -4,6 +4,17 @@ from datetime import datetime
 
 Base = declarative_base()
 
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True)
+    hashed_password = Column(String, nullable=True)
+    full_name = Column(String, default="Seun")
+    role = Column(String, default="view")  # "view" or "edit"
+    is_active = Column(Integer, default=1)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
 class FarmBlock(Base):
     __tablename__ = "farm_blocks"
 

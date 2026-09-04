@@ -2,6 +2,31 @@ from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
+# --- Auth Schemas ---
+class UserLogin(BaseModel):
+    email: str
+    password: Optional[str] = None
+    role: str = "view"  # "view" or "edit"
+
+class GoogleAuthLogin(BaseModel):
+    token: Optional[str] = None
+    email: Optional[str] = None
+    name: Optional[str] = None
+    role: str = "view"
+
+class UserResponse(BaseModel):
+    id: int
+    email: str
+    full_name: str
+    role: str
+    model_config = ConfigDict(from_attributes=True)
+
+class AuthTokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
+
+
 # --- Farm Block Schemas ---
 class FarmBlockBase(BaseModel):
     name: str

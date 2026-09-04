@@ -7,13 +7,13 @@ interface DashboardViewProps {
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({ summary }) => {
-  if (!summary) return <div className="card">Loading farm summary...</div>;
+  if (!summary) return <div className="card">Loading customer & farm data...</div>;
 
   return (
     <div>
       <div className="section-header">
         <div className="section-title">
-          <TrendingUp size={18} /> Operational & Financial Summary
+          <TrendingUp size={18} /> Customer Insights & Farm Overview
         </div>
       </div>
 

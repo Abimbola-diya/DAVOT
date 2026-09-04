@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ViewMode, ActiveTab, FarmBlock, InventoryItem, InventoryLedger, Customer, Sale, Expense, Supplier, DashboardSummary, FlowNodeSummary } from './types';
 import { api } from './api';
 import { Header } from './components/Header';
@@ -7,14 +8,22 @@ import { FlowView } from './components/FlowView';
 import { DashboardView } from './components/DashboardView';
 import { InventoryView } from './components/InventoryView';
 import { SalesDebtView } from './components/SalesDebtView';
-import { ExpensesView } from './components/ExpensesView';
 import { EditHub } from './components/edit/EditHub';
 import { Modals } from './components/edit/Modals';
 import { AuthModeSelection } from './components/AuthModeSelection';
+import { LoginPage } from './components/LoginPage';
 
 export const App: React.FC = () => {
-  const [showAuthScreen, setShowAuthScreen] = useState<boolean>(true);
-  const [viewMode, setViewMode] = useState<ViewMode>('view');
+  const navigate = useNavigate();
+  
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem('davot_auth') === 'true';
+  });
+
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    return (localStorage.getItem('davot_role') as ViewMode) || 'view';
+  });
+
   const [activeTab, setActiveTab] = useState<ActiveTab>('flow');
 
   // Data states
@@ -60,88 +69,142 @@ export const App: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchAllData();
-  }, []);
+    if (isAuthenticated) {
+      fetchAllData();
+    }
+  }, [isAuthenticated]);
 
   const handleOpenForm = (formType: string) => {
     setActiveFormModal(formType);
   };
 
-  if (showAuthScreen) {
-    return (
-      <AuthModeSelection
-        currentMode={viewMode}
-        onSelectMode={(mode) => setViewMode(mode)}
-        onContinue={() => setShowAuthScreen(false)}
-      />
-    );
-  }
+  const handleSelectRole = (mode: ViewMode) => {
+    setViewMode(mode);
+    localStorage.setItem('davot_role', mode);
+  };
+
+  const handleLoginSuccess = (user?: any) => {
+    const roleToSet = user?.role || viewMode;
+    setViewMode(roleToSet);
+    localStorage.setItem('davot_role', roleToSet);
+    localStorage.setItem('davot_auth', 'true');
+    setIsAuthenticated(true);
+    navigate('/app');
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('davot_auth');
+    setIsAuthenticated(false);
+    navigate('/role');
+  };
 
   return (
-    <div className="app-container">
-      <Header 
-        viewMode={viewMode} 
-        onToggleMode={(mode) => setViewMode(mode)} 
-        onReturnToAuth={() => setShowAuthScreen(true)}
+    <Routes>
+      {/* Route 0: / - Landing on DAVOT shows Role Selection */}
+      <Route path="/" element={<Navigate to="/role" replace />} />
+
+      {/* Route 1: /role - Role Selection Page */}
+      <Route
+        path="/role"
+        element={
+          <AuthModeSelection
+            currentMode={viewMode}
+            onSelectMode={handleSelectRole}
+            onContinue={() => navigate('/login')}
+          />
+        }
       />
 
-      <main className="content-area">
-        {viewMode === 'edit' ? (
-          <EditHub onOpenForm={handleOpenForm} />
-        ) : (
-          <>
-            {activeTab === 'flow' && (
-              <FlowView flowData={flowData} summary={summary} />
-            )}
+      {/* Route 2: /login - Login Page */}
+      <Route
+        path="/login"
+        element={
+          <LoginPage
+            selectedRole={viewMode}
+            onBack={() => navigate('/role')}
+            onLoginSuccess={handleLoginSuccess}
+          />
+        }
+      />
 
-            {activeTab === 'dashboard' && (
-              <DashboardView summary={summary} />
-            )}
-
-            {activeTab === 'inventory' && (
-              <InventoryView items={inventoryItems} ledgers={ledgers} />
-            )}
-
-            {activeTab === 'sales' && (
-              <SalesDebtView 
-                customers={customers} 
-                sales={sales} 
-                onLogPaymentClick={() => {
-                  setViewMode('edit');
-                  setActiveFormModal('payment');
-                }}
+      {/* Route 3: /app - Authenticated Main Workspace */}
+      <Route
+        path="/app"
+        element={
+          isAuthenticated ? (
+            <div className="app-container">
+              <Header 
+                viewMode={viewMode} 
+                onSelectRole={handleSelectRole}
+                onReturnToAuth={handleLogout}
               />
-            )}
 
-            {activeTab === 'expenses' && (
-              <ExpensesView expenses={expenses} />
-            )}
-          </>
-        )}
-      </main>
+              <main className="content-area">
+                {viewMode === 'edit' ? (
+                  <EditHub onOpenForm={handleOpenForm} />
+                ) : (
+                  <>
+                    {activeTab === 'flow' && (
+                      <FlowView flowData={flowData} summary={summary} />
+                    )}
 
-      {/* Floating Modal for Edit Mode Forms */}
-      {activeFormModal && (
-        <Modals
-          formType={activeFormModal}
-          blocks={blocks}
-          customers={customers}
-          suppliers={suppliers}
-          sales={sales}
-          onClose={() => setActiveFormModal(null)}
-          onSuccess={fetchAllData}
-        />
-      )}
+                    {activeTab === 'dashboard' && (
+                      <DashboardView summary={summary} />
+                    )}
 
-      {/* Fixed Navigation for Mobile */}
-      <BottomNav 
-        activeTab={activeTab} 
-        onSelectTab={(tab) => {
-          setViewMode('view');
-          setActiveTab(tab);
-        }} 
+                    {activeTab === 'inventory' && (
+                      <InventoryView items={inventoryItems} ledgers={ledgers} />
+                    )}
+
+                    {(activeTab === 'sales' || activeTab === 'expenses') && (
+                      <SalesDebtView 
+                        customers={customers} 
+                        sales={sales} 
+                        expenses={expenses}
+                        onLogPaymentClick={() => {
+                          setActiveFormModal('payment');
+                        }}
+                      />
+                    )}
+                  </>
+                )}
+              </main>
+
+              {/* Floating Modal for Edit Mode Forms */}
+              {activeFormModal && (
+                <Modals
+                  formType={activeFormModal}
+                  blocks={blocks}
+                  customers={customers}
+                  suppliers={suppliers}
+                  sales={sales}
+                  onClose={() => setActiveFormModal(null)}
+                  onSuccess={fetchAllData}
+                />
+              )}
+
+              {/* Fixed Navigation for Mobile (Only for Viewer Mode) */}
+              {viewMode === 'view' && (
+                <BottomNav 
+                  activeTab={activeTab} 
+                  onSelectTab={(tab) => {
+                    setActiveTab(tab);
+                  }} 
+                />
+              )}
+            </div>
+          ) : (
+            <Navigate to="/role" replace />
+          )
+        }
       />
-    </div>
+
+      {/* Default Catch-All Route */}
+      <Route
+        path="*"
+        element={<Navigate to={isAuthenticated ? "/app" : "/role"} replace />}
+      />
+    </Routes>
   );
 };
 

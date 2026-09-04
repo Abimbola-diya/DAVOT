@@ -8,6 +8,12 @@ import {
 const API_BASE = '/api';
 
 export const api = {
+  // Auth
+  login: (data: { email: string; password?: string; role?: string }) => 
+    axios.post(`${API_BASE}/auth/login`, data).then(r => r.data),
+  googleAuth: (data: { email?: string; name?: string; token?: string; role?: string }) => 
+    axios.post(`${API_BASE}/auth/google`, data).then(r => r.data),
+
   // Analytics
   getDashboardSummary: () => axios.get<DashboardSummary>(`${API_BASE}/analytics/summary`).then(r => r.data),
   getFlowNodes: () => axios.get<FlowNodeSummary>(`${API_BASE}/analytics/flow-nodes`).then(r => r.data),
