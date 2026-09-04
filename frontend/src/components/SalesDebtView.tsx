@@ -416,35 +416,9 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
               <ArrowLeft size={15} /> Back to Categories
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span className="badge badge-paid" style={{ background: '#fff7ed', color: '#ea580c', border: '1.5px solid #0f172a', fontSize: '12px', padding: '5px 12px', fontWeight: 800 }}>
-                {formatBadgeCategory(selectedCategory)}
-              </span>
-
-              {selectedCategory && (
-                <button
-                  type="button"
-                  onClick={() => handleOpenDeleteCategory(selectedCategory)}
-                  title="Delete this category"
-                  style={{
-                    background: '#fef2f2',
-                    border: '1.5px solid #0f172a',
-                    borderRadius: '10px',
-                    padding: '5px 10px',
-                    fontSize: '11px',
-                    fontWeight: 800,
-                    color: '#dc2626',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    boxShadow: '1.5px 1.5px 0px #0f172a'
-                  }}
-                >
-                  <Trash2 size={13} /> Delete
-                </button>
-              )}
-            </div>
+            <span className="badge badge-paid" style={{ background: '#fff7ed', color: '#ea580c', border: '1.5px solid #0f172a', fontSize: '12px', padding: '5px 12px', fontWeight: 800 }}>
+              {formatBadgeCategory(selectedCategory)}
+            </span>
           </div>
 
           {/* CUSTOMERS DIRECTORY UNDER CATEGORY WITH RIGHT ALIGNED + ADD CUSTOMER BUTTON */}
