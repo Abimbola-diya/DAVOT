@@ -192,10 +192,10 @@ body {
 }
 
 .card-headline {
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 500;
   margin-bottom: 4px;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.2px;
 }
 
 .mode-select-card.active .card-headline {
