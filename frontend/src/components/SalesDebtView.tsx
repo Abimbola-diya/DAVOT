@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Customer, Sale, Expense } from '../types';
-import { Users, Package, Phone, MapPin, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Users, Package, Phone, MapPin, ChevronRight, ArrowLeft, Plus, X } from 'lucide-react';
 
 interface SalesDebtViewProps {
   customers: Customer[];
@@ -18,28 +18,63 @@ const formatSegmentName = (seg?: string) => {
   const lower = seg.toLowerCase();
   if (lower.includes('soap') || lower.includes('industrial')) return 'Industrial user';
   if (lower.includes('trader') || lower.includes('souvenir')) return 'Souvenir customer';
-  return 'Direct consumer';
+  if (lower.includes('consumer') || lower.includes('retail') || lower.includes('direct')) return 'Direct consumer';
+  return seg;
 };
 
 export const SalesDebtView: React.FC<SalesDebtViewProps> = ({ 
   customers, 
 }) => {
-  // Initially null -> shows 3 vertical category cards layout
+  // Initially null -> shows vertical category cards layout
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // Dynamic categories state
+  const [categories, setCategories] = useState<string[]>(() => {
+    const saved = localStorage.getItem('davot_custom_customer_categories');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return Array.from(new Set([...PRIMARY_CATEGORIES, ...parsed]));
+        }
+      } catch (e) {
+        console.error('Error reading custom categories:', e);
+      }
+    }
+    return [...PRIMARY_CATEGORIES];
+  });
+
+  // Modal State for Adding Category
+  const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
+  const [newCatName, setNewCatName] = useState('');
+
+  const handleAddCategory = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = newCatName.trim();
+    if (!trimmed) return;
+    if (!categories.includes(trimmed)) {
+      const updated = [...categories, trimmed];
+      setCategories(updated);
+      const customOnly = updated.filter(c => !(PRIMARY_CATEGORIES as readonly string[]).includes(c));
+      localStorage.setItem('davot_custom_customer_categories', JSON.stringify(customOnly));
+    }
+    setNewCatName('');
+    setIsAddCategoryOpen(false);
+  };
 
   // Filter customers by selected broad category
   const filteredCustomers = !selectedCategory || selectedCategory === 'All'
     ? customers 
     : customers.filter(c => {
         const formatted = formatSegmentName(c.segment);
-        return formatted.toLowerCase() === selectedCategory.toLowerCase();
+        return formatted.toLowerCase() === selectedCategory.toLowerCase() || c.segment?.toLowerCase() === selectedCategory.toLowerCase();
       });
 
   // Calculate count per category
   const getCategoryCount = (catName: string) => {
     return customers.filter(c => {
       const formatted = formatSegmentName(c.segment);
-      return formatted.toLowerCase() === catName.toLowerCase();
+      return formatted.toLowerCase() === catName.toLowerCase() || c.segment?.toLowerCase() === catName.toLowerCase();
     }).length;
   };
 
@@ -48,19 +83,16 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
       {/* SCENARIO 1: INITIAL LANDING - SPACIOUS FAINT ORANGE CARDS WITH GENEROUS BREATHING ROOM */}
       {selectedCategory === null ? (
         <div style={{ padding: '12px 0 32px 0' }}>
-          {/* HEADER SECTION WITH GENEROUS BOTTOM MARGIN */}
+          {/* HEADER SECTION - CLEAN SINGLE LINE TITLE */}
           <div className="section-header" style={{ marginBottom: '28px', marginTop: '4px' }}>
-            <div className="section-title" style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a' }}>
+            <div className="section-title" style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap' }}>
               <Users size={20} color="#ea580c" /> Customer Categories
             </div>
-            <span className="badge badge-paid" style={{ background: '#fff7ed', color: '#c2410c', border: '1px solid #ffedd5', padding: '5px 12px', fontSize: '11px' }}>
-              {customers.length} Total Registered
-            </span>
           </div>
 
-          {/* 3 FAINT ORANGE CARDS WITH AIRY 20PX GAP */}
+          {/* FAINT ORANGE CARDS WITH AIRY 20PX GAP */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {PRIMARY_CATEGORIES.map(cat => {
+            {categories.map(cat => {
               const count = getCategoryCount(cat);
               return (
                 <button
@@ -84,10 +116,10 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                     transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                     <div style={{ 
-                      width: '46px', 
-                      height: '46px', 
+                      width: '44px', 
+                      height: '44px', 
                       borderRadius: '12px', 
                       background: '#ffedd5', 
                       display: 'flex', 
@@ -102,7 +134,7 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                       <div style={{ fontSize: '17px', fontWeight: 800, letterSpacing: '-0.01em', color: '#7c2d12' }}>
                         {cat}
                       </div>
-                      <div style={{ fontSize: '12px', color: '#c2410c', fontWeight: 600, marginTop: '3px' }}>
+                      <div style={{ fontSize: '12px', color: '#c2410c', fontWeight: 600, marginTop: '2px' }}>
                         View registered category buyers
                       </div>
                     </div>
@@ -129,10 +161,36 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                 </button>
               );
             })}
+
+            {/* + DASHED CARD TO ADD CUSTOM CATEGORY */}
+            <button
+              type="button"
+              onClick={() => setIsAddCategoryOpen(true)}
+              style={{
+                width: '100%',
+                height: '64px',
+                padding: '0 20px',
+                borderRadius: '18px',
+                background: '#fff7ed',
+                border: '1.5px dashed #fdba74',
+                color: '#ea580c',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                fontSize: '14px',
+                fontWeight: 700,
+                transition: 'all 0.2s ease',
+                marginTop: '4px'
+              }}
+            >
+              <Plus size={18} /> Add New Customer Category
+            </button>
           </div>
         </div>
       ) : (
-        /* SCENARIO 2: CATEGORY SELECTED DRILL-DOWN VIEW (AIRY SPACING) */
+        /* SCENARIO 2: CATEGORY SELECTED DRILL-DOWN VIEW */
         <div style={{ padding: '8px 0 28px 0' }}>
           {/* Header & Back Button */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '22px' }}>
@@ -255,6 +313,86 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                 );
               })
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ADD CATEGORY MODAL */}
+      {isAddCategoryOpen && (
+        <div className="modal-overlay" onClick={() => setIsAddCategoryOpen(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '380px', padding: '24px', borderRadius: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ margin: 0, fontSize: '16px', color: '#0f172a', fontWeight: 800 }}>
+                Add Customer Category
+              </h3>
+              <button 
+                onClick={() => setIsAddCategoryOpen(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddCategory}>
+              <div className="form-group" style={{ marginBottom: '20px' }}>
+                <label className="form-label" style={{ fontWeight: 700, fontSize: '12px', color: '#475569' }}>
+                  Category Name
+                </label>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g. Wholesalers, Export Buyers..."
+                  value={newCatName}
+                  onChange={e => setNewCatName(e.target.value)}
+                  required
+                  autoFocus
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    borderRadius: '10px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  type="button"
+                  className="cancel-btn"
+                  onClick={() => setIsAddCategoryOpen(false)}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '10px',
+                    background: '#f1f5f9',
+                    color: '#475569',
+                    border: 'none',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #ea580c, #c2410c)',
+                    color: '#ffffff',
+                    border: 'none',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 6px rgba(234, 88, 12, 0.3)'
+                  }}
+                >
+                  Save Category
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
