@@ -12,10 +12,44 @@ interface ModalProps {
   onSuccess: () => void;
 }
 
+const DEFAULT_CATEGORIES = ['Direct buyers', 'Industrial user', 'Souvenir customers'];
+const PALM_PRODUCT_OPTIONS = [
+  'Crude Palm Oil (CPO)',
+  'Palm Kernel Oil (PKO)',
+  'Palm Kernel Cake (PKC)',
+  'Fresh Fruit Bunches (FFB)',
+  'Palm Kernels (PK)',
+  'Palm Biomass (Fibre & Shells)',
+  'All Palm Products'
+];
+
 export const Modals: React.FC<ModalProps> = ({
   formType, blocks, customers, onClose, onSuccess
 }) => {
   const [loading, setLoading] = useState(false);
+
+  // Broad Customer Categories state
+  const [customerCategories] = useState<string[]>(() => {
+    const saved = localStorage.getItem('davot_customer_categories');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return Array.from(new Set([...DEFAULT_CATEGORIES, ...parsed]));
+        }
+      } catch (e) {
+        console.error('Error parsing categories', e);
+      }
+    }
+    return DEFAULT_CATEGORIES;
+  });
+
+  // Customer state
+  const [custName, setCustName] = useState('');
+  const [custSegment, setCustSegment] = useState(customerCategories[0] || 'Direct buyers');
+  const [custPreferredProduct, setCustPreferredProduct] = useState(PALM_PRODUCT_OPTIONS[0]);
+  const [custPhone, setCustPhone] = useState('');
+  const [custLocation, setCustLocation] = useState('');
 
   // Harvest state
   const [blockId, setBlockId] = useState(blocks[0]?.id || 1);
@@ -57,7 +91,15 @@ export const Modals: React.FC<ModalProps> = ({
     setLoading(true);
 
     try {
-      if (formType === 'harvest') {
+      if (formType === 'customer') {
+        await api.createCustomer({
+          name: custName.trim(),
+          segment: custSegment,
+          preferred_product: custPreferredProduct,
+          phone: custPhone.trim() || undefined,
+          location: custLocation.trim() || undefined,
+        });
+      } else if (formType === 'harvest') {
         await api.createHarvest({
           block_id: Number(blockId),
           bunch_count: Number(bunchCount),
@@ -114,6 +156,7 @@ export const Modals: React.FC<ModalProps> = ({
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <div className="form-card">
           <h3 style={{ marginBottom: '14px', color: 'var(--primary-green-dark)' }}>
+            {formType === 'customer' && 'Add New Customer'}
             {formType === 'harvest' && 'Record Harvest'}
             {formType === 'cpo' && 'Record CPO Oil Processing'}
             {formType === 'kernel' && 'Record Kernel Oil Processing'}
@@ -123,6 +166,70 @@ export const Modals: React.FC<ModalProps> = ({
           </h3>
 
           <form onSubmit={handleSubmit}>
+            {/* CUSTOMER FORM */}
+            {formType === 'customer' && (
+              <>
+                <div className="form-group">
+                  <label className="form-label">Customer Name</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="e.g. Chief Okon / Sunshine Agro Ltd"
+                    value={custName}
+                    onChange={e => setCustName(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Broad Category Type</label>
+                  <select
+                    className="form-select"
+                    value={custSegment}
+                    onChange={e => setCustSegment(e.target.value)}
+                  >
+                    {customerCategories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Palm Product Bought / Interest</label>
+                  <select
+                    className="form-select"
+                    value={custPreferredProduct}
+                    onChange={e => setCustPreferredProduct(e.target.value)}
+                  >
+                    {PALM_PRODUCT_OPTIONS.map(prod => (
+                      <option key={prod} value={prod}>{prod}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Phone Number (Optional)</label>
+                  <input
+                    type="tel"
+                    className="form-input"
+                    placeholder="e.g. 08012345678"
+                    value={custPhone}
+                    onChange={e => setCustPhone(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Location (Optional)</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="e.g. Benin City / Aba Central Market"
+                    value={custLocation}
+                    onChange={e => setCustLocation(e.target.value)}
+                  />
+                </div>
+              </>
+            )}
             {/* HARVEST FORM */}
             {formType === 'harvest' && (
               <>

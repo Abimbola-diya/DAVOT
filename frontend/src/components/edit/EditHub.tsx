@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sprout, Factory, Nut, ShoppingBag, CreditCard, Receipt } from 'lucide-react';
+import { Sprout, Factory, Nut, ShoppingBag, CreditCard, Receipt, UserPlus } from 'lucide-react';
 
 interface EditHubProps {
   activeCategory?: string;
@@ -40,9 +40,18 @@ export const EditHub: React.FC<EditHubProps> = ({
       badgeBg: '#fef3c7',
     },
     {
+      id: 'customer',
+      category: 'customer',
+      categoryLabel: 'Customer Setup',
+      title: '+ Add New Customer',
+      desc: 'Add buyer into Direct buyers, Industrial user, or Souvenir customers',
+      icon: <UserPlus size={22} color="#ea580c" />,
+      badgeBg: '#ffedd5',
+    },
+    {
       id: 'sale',
-      category: 'sales',
-      categoryLabel: 'Sales',
+      category: 'customer',
+      categoryLabel: 'Customer Sales',
       title: '+ Record Product Sale',
       desc: 'Log sales of CPO, PKO, PKC or FFB to buyers/customers',
       icon: <ShoppingBag size={22} color="#0284c7" />,
@@ -50,8 +59,8 @@ export const EditHub: React.FC<EditHubProps> = ({
     },
     {
       id: 'payment',
-      category: 'sales',
-      categoryLabel: 'Sales',
+      category: 'customer',
+      categoryLabel: 'Customer Receipts',
       title: '+ Log Payment Received',
       desc: 'Record Cash, Bank Transfer, or POS payments from buyers',
       icon: <CreditCard size={22} color="#0369a1" />,
@@ -70,7 +79,11 @@ export const EditHub: React.FC<EditHubProps> = ({
 
   const filteredActions = (activeCategory === 'all' || !activeCategory)
     ? actions
-    : actions.filter(act => act.category === activeCategory);
+    : actions.filter(act => 
+        act.category === activeCategory || 
+        (activeCategory === 'customer' && (act.category === 'customer' || act.category === 'sales')) ||
+        (activeCategory === 'inventory' && (act.category === 'inventory' || act.category === 'flow'))
+      );
 
   return (
     <div>

@@ -83,6 +83,7 @@ export interface Customer {
   phone?: string;
   location?: string;
   segment: string;
+  preferred_product?: string;
   total_purchased: number;
   total_paid: number;
   balance_due: number;

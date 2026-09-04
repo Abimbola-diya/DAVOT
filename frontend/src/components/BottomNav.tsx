@@ -32,9 +32,9 @@ const VIEWER_NAV_ITEMS: NavItem[] = [
 
 const RECORDING_NAV_ITEMS: NavItem[] = [
   { id: 'flow', label: 'Flow', icon: WorkflowSquare01Icon },
-  { id: 'stock', label: 'Stock', icon: PackageIcon },
+  { id: 'inventory', label: 'Inventory', icon: PackageIcon },
+  { id: 'customer', label: 'Customer', icon: UserMultipleIcon },
   { id: 'expenses', label: 'Expenses', icon: Receipt, isLucide: true },
-  { id: 'sales', label: 'Sales', icon: Wallet01Icon },
 ];
 
 export const BottomNav: React.FC<BottomNavProps> = ({

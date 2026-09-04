@@ -120,7 +120,8 @@ class Customer(Base):
     name = Column(String, index=True)
     phone = Column(String, nullable=True)
     location = Column(String, nullable=True)
-    segment = Column(String, default="Consumer")  # Consumer, Soap/Industrial, Trader
+    segment = Column(String, default="Direct buyers")  # Direct buyers, Industrial user, Souvenir customers
+    preferred_product = Column(String, nullable=True, default="Crude Palm Oil (CPO)")
 
     sales = relationship("Sale", back_populates="customer")
     payments = relationship("Payment", back_populates="customer")

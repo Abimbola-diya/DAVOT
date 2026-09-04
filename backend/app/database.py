@@ -61,9 +61,9 @@ def init_db_and_seed():
         db.add_all([sup_agro, sup_fuel])
         db.commit()
 
-        cust_adebayo = Customer(name="Mrs. Adebayo (Retail)", phone="08055551122", location="Main Market, Benin", segment="Consumer")
-        cust_soap_co = Customer(name="Kofo Soap Industries Ltd", phone="08022223344", location="Industrial Layout, Aba", segment="Soap/Industrial")
-        cust_trader = Customer(name="Alhaji Musa Oil Depot", phone="08066667788", location="Milverton, Aba", segment="Trader")
+        cust_adebayo = Customer(name="Mrs. Adebayo (Retail)", phone="08055551122", location="Main Market, Benin", segment="Direct buyers", preferred_product="Crude Palm Oil (CPO)")
+        cust_soap_co = Customer(name="Kofo Soap Industries Ltd", phone="08022223344", location="Industrial Layout, Aba", segment="Industrial user", preferred_product="Palm Kernel Oil (PKO)")
+        cust_trader = Customer(name="Alhaji Musa Oil Depot", phone="08066667788", location="Milverton, Aba", segment="Souvenir customers", preferred_product="Fresh Fruit Bunches (FFB)")
         db.add_all([cust_adebayo, cust_soap_co, cust_trader])
         db.commit()
 

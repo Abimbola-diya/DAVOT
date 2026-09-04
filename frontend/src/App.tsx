@@ -5,7 +5,6 @@ import { api } from './api';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
 import { FlowView } from './components/FlowView';
-import { DashboardView } from './components/DashboardView';
 import { InventoryView } from './components/InventoryView';
 import { SalesDebtView } from './components/SalesDebtView';
 import { SettingsView } from './components/SettingsView';
@@ -170,72 +169,69 @@ export const App: React.FC = () => {
                 onOpenSettings={() => navigate('/app/settings')}
               />
 
-              <main className="content-area">
-                {activeTab === 'settings' ? (
-                  <SettingsView 
-                    viewMode={viewMode}
-                    onSelectRole={handleSelectRole}
-                    onReturnToAuth={handleLogout}
-                    onClose={() => navigate('/app/flow')}
-                  />
-                ) : viewMode === 'edit' ? (
-                  <EditHub 
-                    activeCategory={recordCategory}
-                    onOpenForm={handleOpenForm}
-                  />
-                ) : (
+              {/* Determine effective active tab across View and Edit modes */}
+              {(() => {
+                const effectiveTab = viewMode === 'edit' ? recordCategory : activeTab;
+
+                return (
                   <>
-                    {activeTab === 'flow' && (
-                      <FlowView flowData={flowData} summary={summary} />
-                    )}
+                    <main className="content-area">
+                      {activeTab === 'settings' ? (
+                        <SettingsView 
+                          viewMode={viewMode}
+                          onSelectRole={handleSelectRole}
+                          onReturnToAuth={handleLogout}
+                          onClose={() => navigate('/app/flow')}
+                        />
+                      ) : (effectiveTab === 'customer' || effectiveTab === 'sales' || effectiveTab === 'dashboard') ? (
+                        <SalesDebtView 
+                          customers={customers} 
+                          sales={sales} 
+                          expenses={expenses}
+                          viewMode={viewMode}
+                          onLogPaymentClick={() => {
+                            setActiveFormModal('payment');
+                          }}
+                          onRefreshData={fetchAllData}
+                        />
+                      ) : (effectiveTab === 'inventory' || effectiveTab === 'stock') ? (
+                        <InventoryView items={inventoryItems} ledgers={ledgers} />
+                      ) : (
+                        <FlowView flowData={flowData} summary={summary} />
+                      )}
+                    </main>
 
-                    {activeTab === 'dashboard' && (
-                      <DashboardView summary={summary} />
-                    )}
-
-                    {activeTab === 'inventory' && (
-                      <InventoryView items={inventoryItems} ledgers={ledgers} />
-                    )}
-
-                    {(activeTab === 'sales' || activeTab === 'expenses') && (
-                      <SalesDebtView 
-                        customers={customers} 
-                        sales={sales} 
-                        expenses={expenses}
-                        onLogPaymentClick={() => {
-                          setActiveFormModal('payment');
-                        }}
+                    {/* Floating Modal for Edit Mode Forms */}
+                    {activeFormModal && (
+                      <Modals
+                        formType={activeFormModal}
+                        blocks={blocks}
+                        customers={customers}
+                        suppliers={suppliers}
+                        sales={sales}
+                        onClose={() => setActiveFormModal(null)}
+                        onSuccess={fetchAllData}
                       />
                     )}
+
+                    {/* Fixed Navigation for Mobile */}
+                    <BottomNav 
+                      viewMode={viewMode}
+                      activeTab={effectiveTab} 
+                      onSelectTab={(tabId) => {
+                        if (viewMode === 'edit') {
+                          setRecordCategory(tabId);
+                          if (tabId === 'customer' || tabId === 'sales') navigate('/app/customers');
+                          else if (tabId === 'inventory' || tabId === 'stock') navigate('/app/stock');
+                          else navigate('/app/flow');
+                        } else {
+                          handleTabSelect(tabId as ActiveTab);
+                        }
+                      }} 
+                    />
                   </>
-                )}
-              </main>
-
-              {/* Floating Modal for Edit Mode Forms */}
-              {activeFormModal && (
-                <Modals
-                  formType={activeFormModal}
-                  blocks={blocks}
-                  customers={customers}
-                  suppliers={suppliers}
-                  sales={sales}
-                  onClose={() => setActiveFormModal(null)}
-                  onSuccess={fetchAllData}
-                />
-              )}
-
-              {/* Fixed Navigation for Mobile (Active in both Viewer & Recording modes) */}
-              <BottomNav 
-                viewMode={viewMode}
-                activeTab={viewMode === 'edit' ? recordCategory : activeTab} 
-                onSelectTab={(tabId) => {
-                  if (viewMode === 'edit') {
-                    setRecordCategory(tabId);
-                  } else {
-                    handleTabSelect(tabId as ActiveTab);
-                  }
-                }} 
-              />
+                );
+              })()}
             </div>
           ) : (
             <Navigate to="/role" replace />

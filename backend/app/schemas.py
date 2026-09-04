@@ -135,7 +135,8 @@ class CustomerBase(BaseModel):
     name: str
     phone: Optional[str] = None
     location: Optional[str] = None
-    segment: str = "Consumer"
+    segment: str = "Direct buyers"
+    preferred_product: Optional[str] = "Crude Palm Oil (CPO)"
 
 class CustomerCreate(CustomerBase):
     pass
