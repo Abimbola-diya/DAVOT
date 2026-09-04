@@ -24,7 +24,7 @@ const formatSegmentName = (seg?: string) => {
 export const SalesDebtView: React.FC<SalesDebtViewProps> = ({ 
   customers, 
 }) => {
-  // Initially null -> shows 3 vertical prominent category pills layout
+  // Initially null -> shows 3 vertical category cards layout
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   // Filter customers by selected broad category
@@ -45,20 +45,20 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
 
   return (
     <div>
-      {/* SCENARIO 1: INITIAL LANDING - 3 SPACIOUS SOPHISTICATED TERRACOTTA/AMBER CARDS */}
+      {/* SCENARIO 1: INITIAL LANDING - 3 IDENTICAL SIZED FAINT ORANGE CARDS */}
       {selectedCategory === null ? (
-        <div style={{ minHeight: '62vh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '8px 0 20px 0' }}>
-          <div className="section-header" style={{ marginBottom: '12px' }}>
+        <div style={{ padding: '8px 0 20px 0' }}>
+          <div className="section-header" style={{ marginBottom: '16px' }}>
             <div className="section-title" style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a' }}>
-              <Users size={20} color="#c2410c" /> Customer Categories
+              <Users size={20} color="#ea580c" /> Customer Categories
             </div>
             <span className="badge badge-paid" style={{ background: '#fff7ed', color: '#c2410c', border: '1px solid #ffedd5', padding: '4px 10px' }}>
               {customers.length} Total Registered
             </span>
           </div>
 
-          {/* 3 SPACIOUS, SOPHISTICATED CARDS SPANNING THE SCREEN HEIGHT */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', flex: 1, justifyContent: 'center' }}>
+          {/* 3 IDENTICAL SIZED FAINT ORANGE CARDS WITH EVEN GAP */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {PRIMARY_CATEGORIES.map(cat => {
               const count = getCategoryCount(cat);
               return (
@@ -68,60 +68,62 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                   onClick={() => setSelectedCategory(cat)}
                   style={{
                     width: '100%',
-                    padding: '24px 22px',
-                    borderRadius: '20px',
-                    background: 'linear-gradient(135deg, #c2410c, #9a3412)',
-                    color: '#ffffff',
-                    border: 'none',
-                    boxShadow: '0 12px 24px -6px rgba(194, 65, 12, 0.28), 0 4px 8px -2px rgba(154, 52, 18, 0.15)',
+                    height: '88px',
+                    padding: '0 20px',
+                    borderRadius: '18px',
+                    background: 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)',
+                    color: '#9a3412',
+                    border: '1.5px solid #fed7aa',
+                    boxShadow: '0 6px 16px -4px rgba(234, 88, 12, 0.12), 0 2px 4px -1px rgba(234, 88, 12, 0.06)',
                     cursor: 'pointer',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
+                    boxSizing: 'border-box',
                     transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                     <div style={{ 
-                      width: '46px', 
-                      height: '46px', 
-                      borderRadius: '14px', 
-                      background: 'rgba(255, 255, 255, 0.18)', 
+                      width: '44px', 
+                      height: '44px', 
+                      borderRadius: '12px', 
+                      background: '#ffedd5', 
                       display: 'flex', 
                       alignItems: 'center', 
                       justifyContent: 'center',
-                      backdropFilter: 'blur(4px)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)'
+                      border: '1px solid #fdba74',
+                      flexShrink: 0
                     }}>
-                      <Users size={24} color="#ffffff" />
+                      <Users size={22} color="#ea580c" />
                     </div>
                     <div style={{ textAlign: 'left' }}>
-                      <div style={{ fontSize: '18px', fontWeight: 800, letterSpacing: '-0.01em', color: '#ffffff' }}>
+                      <div style={{ fontSize: '17px', fontWeight: 800, letterSpacing: '-0.01em', color: '#7c2d12' }}>
                         {cat}
                       </div>
-                      <div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.82)', fontWeight: 500, marginTop: '3px' }}>
+                      <div style={{ fontSize: '12px', color: '#c2410c', fontWeight: 600, marginTop: '2px' }}>
                         View registered category buyers
                       </div>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
                     <span style={{
-                      fontSize: '15px',
+                      fontSize: '14px',
                       fontWeight: 800,
-                      background: '#ffffff',
-                      color: '#9a3412',
-                      width: '34px',
-                      height: '34px',
+                      background: '#ea580c',
+                      color: '#ffffff',
+                      width: '32px',
+                      height: '32px',
                       borderRadius: '50%',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      boxShadow: '0 3px 6px rgba(0,0,0,0.12)'
+                      boxShadow: '0 2px 6px rgba(234, 88, 12, 0.25)'
                     }}>
                       {count}
                     </span>
-                    <ChevronRight size={22} color="rgba(255, 255, 255, 0.9)" />
+                    <ChevronRight size={20} color="#ea580c" />
                   </div>
                 </button>
               );
@@ -129,21 +131,21 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
           </div>
         </div>
       ) : (
-        /* SCENARIO 2: CATEGORY SELECTED DRILL-DOWN VIEW */
+        /* SCENARIO 2: CATEGORY SELECTED DRILL-DOWN VIEW (NO SLIDING HEADER) */
         <div>
           {/* Header & Back Button */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <button
               type="button"
               onClick={() => setSelectedCategory(null)}
               style={{
                 background: '#ffffff',
-                border: '1px solid #e2e8f0',
+                border: '1px solid #cbd5e1',
                 borderRadius: '10px',
                 padding: '8px 14px',
                 fontSize: '12px',
                 fontWeight: 700,
-                color: '#475569',
+                color: '#334155',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -154,54 +156,9 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
               <ArrowLeft size={15} /> Back to Categories
             </button>
 
-            <span className="badge badge-paid" style={{ background: '#fff7ed', color: '#c2410c', border: '1px solid #ffedd5', fontSize: '12px', padding: '4px 10px' }}>
+            <span className="badge badge-paid" style={{ background: '#fff7ed', color: '#c2410c', border: '1px solid #ffedd5', fontSize: '12px', padding: '4px 12px' }}>
               {selectedCategory}
             </span>
-          </div>
-
-          {/* Quick Category Tabs */}
-          <div 
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              overflowX: 'auto',
-              padding: '4px 2px 14px 2px',
-              whiteSpace: 'nowrap',
-              WebkitOverflowScrolling: 'touch',
-              scrollbarWidth: 'none'
-            }}
-          >
-            {PRIMARY_CATEGORIES.map(cat => {
-              const count = getCategoryCount(cat);
-              const isSelected = selectedCategory?.toLowerCase() === cat.toLowerCase();
-              return (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setSelectedCategory(cat)}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '9999px',
-                    fontSize: '12px',
-                    fontWeight: 700,
-                    whiteSpace: 'nowrap',
-                    border: isSelected ? 'none' : '1px solid #e2e8f0',
-                    background: isSelected ? 'linear-gradient(135deg, #c2410c, #9a3412)' : '#ffffff',
-                    color: isSelected ? '#ffffff' : '#475569',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}
-                >
-                  {cat}
-                  <span style={{ fontSize: '10px', fontWeight: 800, background: isSelected ? 'rgba(255,255,255,0.25)' : '#f1f5f9', color: isSelected ? '#ffffff' : '#64748b', padding: '2px 6px', borderRadius: '10px' }}>
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
           </div>
 
           {/* CUSTOMERS DIRECTORY UNDER CATEGORY */}
