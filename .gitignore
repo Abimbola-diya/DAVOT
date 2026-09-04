@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+backend/venv/
+venv/
+.venv/
+
+# Environment / Secrets
+.env
+.env.*
+!.env.example
+
+# Python cache & build outputs
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+backend/*.db
+
+# Frontend build & packages
+frontend/dist/
+frontend/dist-ssr/
+frontend/node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDE & OS metadata
+.vscode/
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.sw?

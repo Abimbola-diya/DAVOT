@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { ViewMode } from '../types';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { TreePalmIcon, EyeIcon, Edit02Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons';
+import { TreePalmIcon, ArrowRight01Icon } from '@hugeicons/core-free-icons';
+import { EyeAnimatedIcon } from './icons/EyeAnimatedIcon';
+import { Settings01AnimatedIcon } from './icons/Settings01AnimatedIcon';
 
 interface AuthModeSelectionProps {
   currentMode: ViewMode;
@@ -55,16 +57,15 @@ export const AuthModeSelection: React.FC<AuthModeSelectionProps> = ({
             onClick={() => handleModeClick('view')}
           >
             <div className="card-icon-badge">
-              <HugeiconsIcon 
-                icon={EyeIcon} 
+              <EyeAnimatedIcon 
                 size={22} 
-                color={selectedMode === 'view' ? '#ffffff' : '#15803d'} 
+                style={{ color: selectedMode === 'view' ? '#ffffff' : 'var(--primary-green)' }} 
               />
             </div>
             <div className="card-text-group">
               <h3 className="card-headline">I want to view & monitor operations</h3>
               <p className="card-description">
-                View real-time physical flows, stock inventory levels, customer debts owed, and analytics.
+                View physical flows, stock inventory, debts owed, and analytics.
               </p>
             </div>
           </div>
@@ -75,16 +76,15 @@ export const AuthModeSelection: React.FC<AuthModeSelectionProps> = ({
             onClick={() => handleModeClick('edit')}
           >
             <div className="card-icon-badge">
-              <HugeiconsIcon 
-                icon={Edit02Icon} 
+              <Settings01AnimatedIcon 
                 size={22} 
-                color={selectedMode === 'edit' ? '#ffffff' : '#15803d'} 
+                style={{ color: selectedMode === 'edit' ? '#ffffff' : 'var(--primary-green)' }} 
               />
             </div>
             <div className="card-text-group">
               <h3 className="card-headline">I want to record farm operations</h3>
               <p className="card-description">
-                Record harvests, CPO & Kernel processing batches, sales, payments, and operational expenses.
+                Record harvests, processing, sales, payments, and expenses.
               </p>
             </div>
           </div>

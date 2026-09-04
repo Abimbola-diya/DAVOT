@@ -10,8 +10,10 @@ import { SalesDebtView } from './components/SalesDebtView';
 import { ExpensesView } from './components/ExpensesView';
 import { EditHub } from './components/edit/EditHub';
 import { Modals } from './components/edit/Modals';
+import { AuthModeSelection } from './components/AuthModeSelection';
 
 export const App: React.FC = () => {
+  const [showAuthScreen, setShowAuthScreen] = useState<boolean>(true);
   const [viewMode, setViewMode] = useState<ViewMode>('view');
   const [activeTab, setActiveTab] = useState<ActiveTab>('flow');
 
@@ -65,11 +67,22 @@ export const App: React.FC = () => {
     setActiveFormModal(formType);
   };
 
+  if (showAuthScreen) {
+    return (
+      <AuthModeSelection
+        currentMode={viewMode}
+        onSelectMode={(mode) => setViewMode(mode)}
+        onContinue={() => setShowAuthScreen(false)}
+      />
+    );
+  }
+
   return (
     <div className="app-container">
       <Header 
         viewMode={viewMode} 
         onToggleMode={(mode) => setViewMode(mode)} 
+        onReturnToAuth={() => setShowAuthScreen(true)}
       />
 
       <main className="content-area">
