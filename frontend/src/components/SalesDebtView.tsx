@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Customer, Sale, Expense } from '../types';
-import { AlertTriangle, Users, Plus, X, Package, Phone, MapPin } from 'lucide-react';
+import { Users, Plus, X, Package, Phone, MapPin } from 'lucide-react';
 
 interface SalesDebtViewProps {
   customers: Customer[];
@@ -13,10 +13,18 @@ interface SalesDebtViewProps {
 
 const DEFAULT_CATEGORIES = ['Direct buyers', 'Industrial user', 'Souvenir customers'];
 
+const formatSegmentName = (seg?: string) => {
+  if (!seg) return 'Direct buyers';
+  const lower = seg.toLowerCase();
+  if (lower.includes('soap') || lower.includes('industrial')) return 'Industrial user';
+  if (lower.includes('consumer') || lower.includes('retail')) return 'Direct buyers';
+  if (lower.includes('trader') || lower.includes('souvenir')) return 'Souvenir customers';
+  return seg;
+};
+
 export const SalesDebtView: React.FC<SalesDebtViewProps> = ({ 
   customers, 
-  viewMode = 'view',
-  onLogPaymentClick
+  viewMode = 'view'
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   
@@ -61,38 +69,42 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
   // Filter customers by selected broad category
   const filteredCustomers = selectedCategory === 'All' 
     ? customers 
-    : customers.filter(c => c.segment?.toLowerCase() === selectedCategory.toLowerCase());
-
-  const filteredDebtors = filteredCustomers.filter(c => c.balance_due > 0);
+    : customers.filter(c => {
+        const formatted = formatSegmentName(c.segment);
+        return formatted.toLowerCase() === selectedCategory.toLowerCase() || c.segment?.toLowerCase() === selectedCategory.toLowerCase();
+      });
 
   // Calculate count per category
   const getCategoryCount = (catName: string) => {
     if (catName === 'All') return customers.length;
-    return customers.filter(c => c.segment?.toLowerCase() === catName.toLowerCase()).length;
+    return customers.filter(c => {
+      const formatted = formatSegmentName(c.segment);
+      return formatted.toLowerCase() === catName.toLowerCase() || c.segment?.toLowerCase() === catName.toLowerCase();
+    }).length;
   };
 
   const themeColor = viewMode === 'edit' ? '#ea580c' : '#15803d';
 
   return (
     <div>
-      {/* CENTRALIZED CATEGORY PILLS (3 Broad Categories) */}
-      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-        <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', fontWeight: 700, marginBottom: '10px' }}>
-          Customer Broad Categories
+      {/* CENTRALIZED CATEGORY PILLS BAR (3 Broad Categories) */}
+      <div style={{ marginBottom: '20px' }}>
+        <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', fontWeight: 800, marginBottom: '12px', textAlign: 'center' }}>
+          Customer Categories
         </div>
         
+        {/* Horizontal Scroll Pill Track */}
         <div 
           style={{
-            display: 'inline-flex',
+            display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '6px',
-            flexWrap: 'wrap',
-            background: '#f8fafc',
-            padding: '6px 10px',
-            borderRadius: '30px',
-            border: '1px solid #e2e8f0',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.03)'
+            gap: '8px',
+            overflowX: 'auto',
+            padding: '4px 2px 10px 2px',
+            whiteSpace: 'nowrap',
+            WebkitOverflowScrolling: 'touch',
+            scrollbarWidth: 'none'
           }}
         >
           {/* 'All' Pill */}
@@ -100,34 +112,35 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
             type="button"
             onClick={() => setSelectedCategory('All')}
             style={{
-              padding: '6px 14px',
-              borderRadius: '20px',
-              fontSize: '12px',
+              padding: '8px 18px',
+              borderRadius: '9999px',
+              fontSize: '13px',
               fontWeight: 700,
               whiteSpace: 'nowrap',
-              border: 'none',
+              border: selectedCategory === 'All' ? 'none' : '1px solid #e2e8f0',
               background: selectedCategory === 'All' 
                 ? (viewMode === 'edit' ? 'linear-gradient(135deg, #ea580c, #c2410c)' : 'linear-gradient(135deg, #15803d, #166534)')
-                : 'transparent',
-              color: selectedCategory === 'All' ? '#ffffff' : '#64748b',
+                : '#ffffff',
+              color: selectedCategory === 'All' ? '#ffffff' : '#475569',
               boxShadow: selectedCategory === 'All' 
-                ? (viewMode === 'edit' ? '0 3px 10px rgba(234, 88, 12, 0.25)' : '0 3px 10px rgba(21, 128, 61, 0.25)') 
-                : 'none',
+                ? (viewMode === 'edit' ? '0 4px 14px rgba(234, 88, 12, 0.3)' : '0 4px 14px rgba(21, 128, 61, 0.3)') 
+                : '0 1px 3px rgba(0,0,0,0.04)',
               cursor: 'pointer',
-              transition: 'all 0.15s ease',
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '8px'
             }}
           >
             All
             <span 
               style={{ 
-                fontSize: '10px', 
-                background: selectedCategory === 'All' ? 'rgba(255,255,255,0.25)' : '#e2e8f0',
-                color: selectedCategory === 'All' ? '#fff' : '#475569',
-                padding: '1px 6px',
-                borderRadius: '10px'
+                fontSize: '11px', 
+                fontWeight: 800,
+                background: selectedCategory === 'All' ? 'rgba(255,255,255,0.25)' : '#f1f5f9',
+                color: selectedCategory === 'All' ? '#ffffff' : '#64748b',
+                padding: '2px 8px',
+                borderRadius: '12px'
               }}
             >
               {customers.length}
@@ -144,34 +157,35 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
                 type="button"
                 onClick={() => setSelectedCategory(cat)}
                 style={{
-                  padding: '6px 14px',
-                  borderRadius: '20px',
-                  fontSize: '12px',
+                  padding: '8px 18px',
+                  borderRadius: '9999px',
+                  fontSize: '13px',
                   fontWeight: 700,
                   whiteSpace: 'nowrap',
-                  border: 'none',
+                  border: isSelected ? 'none' : '1px solid #e2e8f0',
                   background: isSelected 
                     ? (viewMode === 'edit' ? 'linear-gradient(135deg, #ea580c, #c2410c)' : 'linear-gradient(135deg, #15803d, #166534)')
-                    : 'transparent',
-                  color: isSelected ? '#ffffff' : '#64748b',
+                    : '#ffffff',
+                  color: isSelected ? '#ffffff' : '#475569',
                   boxShadow: isSelected 
-                    ? (viewMode === 'edit' ? '0 3px 10px rgba(234, 88, 12, 0.25)' : '0 3px 10px rgba(21, 128, 61, 0.25)') 
-                    : 'none',
+                    ? (viewMode === 'edit' ? '0 4px 14px rgba(234, 88, 12, 0.3)' : '0 4px 14px rgba(21, 128, 61, 0.3)') 
+                    : '0 1px 3px rgba(0,0,0,0.04)',
                   cursor: 'pointer',
-                  transition: 'all 0.15s ease',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '6px'
+                  gap: '8px'
                 }}
               >
                 {cat}
                 <span 
                   style={{ 
-                    fontSize: '10px', 
-                    background: isSelected ? 'rgba(255,255,255,0.25)' : '#e2e8f0',
-                    color: isSelected ? '#fff' : '#475569',
-                    padding: '1px 6px',
-                    borderRadius: '10px'
+                    fontSize: '11px', 
+                    fontWeight: 800,
+                    background: isSelected ? 'rgba(255,255,255,0.25)' : '#f1f5f9',
+                    color: isSelected ? '#ffffff' : '#64748b',
+                    padding: '2px 8px',
+                    borderRadius: '12px'
                   }}
                 >
                   {count}
@@ -180,80 +194,32 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
             );
           })}
 
-          {/* + Add Category Option */}
+          {/* + Add Category Button */}
           <button
             type="button"
             onClick={() => setIsAddCategoryOpen(true)}
             style={{
-              padding: '6px 12px',
-              borderRadius: '20px',
+              padding: '8px 16px',
+              borderRadius: '9999px',
               fontSize: '12px',
-              fontWeight: 600,
+              fontWeight: 700,
               whiteSpace: 'nowrap',
-              border: '1px dashed #cbd5e1',
+              border: '1.5px dashed #cbd5e1',
               background: '#ffffff',
               color: '#0284c7',
               cursor: 'pointer',
-              transition: 'all 0.15s ease',
+              transition: 'all 0.2s ease',
               display: 'flex',
               alignItems: 'center',
               gap: '4px'
             }}
           >
-            <Plus size={13} /> Add Category
+            <Plus size={14} /> Add Category
           </button>
         </div>
       </div>
 
-      {/* SECTION 1: MONEY OWED / DEBTORS IN CATEGORY */}
-      {filteredDebtors.length > 0 && (
-        <div style={{ marginBottom: '20px' }}>
-          <div className="section-header">
-            <div className="section-title" style={{ color: '#b45309' }}>
-              <AlertTriangle size={18} /> Money Owed by Customers ({filteredDebtors.length})
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {filteredDebtors.map(c => (
-              <div key={c.id} className="card debt-card">
-                <div className="debt-header">
-                  <div>
-                    <div className="debt-name">{c.name}</div>
-                    <div style={{ fontSize: '11px', color: '#78350f', marginTop: '2px', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                      <span>Category: <strong>{c.segment}</strong></span>
-                      {c.preferred_product && (
-                        <span>• Palm Product: <strong>{c.preferred_product}</strong></span>
-                      )}
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div className="debt-amount">₦{c.balance_due.toLocaleString()}</div>
-                    <div style={{ fontSize: '10px', color: '#92400e' }}>Outstanding</div>
-                  </div>
-                </div>
-
-                {onLogPaymentClick && (
-                  <button
-                    className="submit-btn"
-                    style={{ 
-                      padding: '8px 12px', 
-                      fontSize: '12px', 
-                      background: '#d97706',
-                      marginTop: '8px'
-                    }}
-                    onClick={() => onLogPaymentClick(c.id)}
-                  >
-                    Log Payment Received (Offline)
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* SECTION 2: CUSTOMERS DIRECTORY UNDER CATEGORY */}
+      {/* CUSTOMERS DIRECTORY UNDER CATEGORY */}
       <div className="section-header">
         <div className="section-title">
           <Users size={18} /> {selectedCategory === 'All' ? 'All Registered Customers' : `${selectedCategory} Customers`} ({filteredCustomers.length})
@@ -266,80 +232,85 @@ export const SalesDebtView: React.FC<SalesDebtViewProps> = ({
             No customers registered under category <strong>"{selectedCategory}"</strong>.
           </div>
         ) : (
-          filteredCustomers.map(c => (
-            <div key={c.id} className="card" style={{ marginBottom: 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>
-                    {c.name}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
-                    <span 
-                      style={{
-                        fontSize: '10px',
-                        fontWeight: 700,
-                        background: '#ffedd5',
-                        color: '#9a3412',
-                        padding: '2px 9px',
-                        borderRadius: '12px'
-                      }}
-                    >
-                      {c.segment || 'General'}
-                    </span>
-
-                    {c.preferred_product && (
+          filteredCustomers.map(c => {
+            const displayCategory = formatSegmentName(c.segment);
+            return (
+              <div key={c.id} className="card" style={{ marginBottom: 0 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>
+                      {c.name}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
                       <span 
                         style={{
                           fontSize: '10px',
-                          fontWeight: 600,
-                          background: '#e0f2fe',
-                          color: '#0369a1',
+                          fontWeight: 700,
+                          background: '#fff7ed',
+                          color: '#c2410c',
+                          border: '1px solid #ffedd5',
                           padding: '2px 9px',
-                          borderRadius: '12px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '3px'
+                          borderRadius: '12px'
                         }}
                       >
-                        <Package size={10} /> {c.preferred_product}
+                        {displayCategory}
                       </span>
-                    )}
+
+                      {c.preferred_product && (
+                        <span 
+                          style={{
+                            fontSize: '10px',
+                            fontWeight: 600,
+                            background: '#f0f9ff',
+                            color: '#0369a1',
+                            border: '1px solid #e0f2fe',
+                            padding: '2px 9px',
+                            borderRadius: '12px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '3px'
+                          }}
+                        >
+                          <Package size={10} /> {c.preferred_product}
+                        </span>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '6px', fontSize: '11px', color: '#64748b' }}>
+                      {c.phone && (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <Phone size={11} /> {c.phone}
+                        </span>
+                      )}
+                      {c.location && (
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <MapPin size={11} /> {c.location}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '12px', marginTop: '6px', fontSize: '11px', color: '#64748b' }}>
-                    {c.phone && (
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                        <Phone size={11} /> {c.phone}
-                      </span>
-                    )}
-                    {c.location && (
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                        <MapPin size={11} /> {c.location}
-                      </span>
+                  <div style={{ textAlign: 'right' }}>
+                    {c.balance_due > 0 ? (
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 800, color: '#dc2626' }}>
+                          ₦{c.balance_due.toLocaleString()}
+                        </div>
+                        <div style={{ fontSize: '10px', color: '#b45309', fontWeight: 600 }}>Owes Balance</div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div style={{ fontSize: '12px', fontWeight: 700, color: '#16a34a' }}>
+                          Cleared
+                        </div>
+                        <div style={{ fontSize: '10px', color: '#64748b' }}>No Debt</div>
+                      </div>
                     )}
                   </div>
-                </div>
-
-                <div style={{ textAlign: 'right' }}>
-                  {c.balance_due > 0 ? (
-                    <div>
-                      <div style={{ fontSize: '14px', fontWeight: 800, color: '#dc2626' }}>
-                        ₦{c.balance_due.toLocaleString()}
-                      </div>
-                      <div style={{ fontSize: '10px', color: '#b45309', fontWeight: 600 }}>Owes Balance</div>
-                    </div>
-                  ) : (
-                    <div>
-                      <div style={{ fontSize: '12px', fontWeight: 700, color: '#16a34a' }}>
-                        Cleared
-                      </div>
-                      <div style={{ fontSize: '10px', color: '#64748b' }}>No Debt</div>
-                    </div>
-                  )}
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 

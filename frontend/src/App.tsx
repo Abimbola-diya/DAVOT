@@ -8,7 +8,6 @@ import { FlowView } from './components/FlowView';
 import { InventoryView } from './components/InventoryView';
 import { SalesDebtView } from './components/SalesDebtView';
 import { SettingsView } from './components/SettingsView';
-import { EditHub } from './components/edit/EditHub';
 import { Modals } from './components/edit/Modals';
 import { AuthModeSelection } from './components/AuthModeSelection';
 import { LoginPage } from './components/LoginPage';
@@ -101,10 +100,6 @@ export const App: React.FC = () => {
       fetchAllData();
     }
   }, [isAuthenticated]);
-
-  const handleOpenForm = (formType: string) => {
-    setActiveFormModal(formType);
-  };
 
   const handleSelectRole = (mode: ViewMode) => {
     setViewMode(mode);
