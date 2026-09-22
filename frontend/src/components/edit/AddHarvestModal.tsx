@@ -86,7 +86,7 @@ export const AddHarvestModal: React.FC<AddHarvestModalProps> = ({
               width: '40px',
               height: '40px',
               borderRadius: '12px',
-              background: '#fef08a',
+              background: '#ffffff',
               border: '2px solid #000000',
               boxShadow: '2.5px 2.5px 0px #000000',
               display: 'flex',
@@ -141,7 +141,8 @@ export const AddHarvestModal: React.FC<AddHarvestModalProps> = ({
                 padding: '10px',
                 borderRadius: '12px',
                 border: '2px solid #000000',
-                background: mode === 'existing' ? '#fef08a' : '#ffffff',
+                background: mode === 'existing' ? '#f97316' : '#ffffff',
+                color: mode === 'existing' ? '#ffffff' : '#000000',
                 fontWeight: 800,
                 fontSize: '13px',
                 cursor: 'pointer',
@@ -159,7 +160,8 @@ export const AddHarvestModal: React.FC<AddHarvestModalProps> = ({
                 padding: '10px',
                 borderRadius: '12px',
                 border: '2px solid #000000',
-                background: mode === 'new' ? '#ffe4e6' : '#ffffff',
+                background: mode === 'new' ? '#f97316' : '#ffffff',
+                color: mode === 'new' ? '#ffffff' : '#000000',
                 fontWeight: 800,
                 fontSize: '13px',
                 cursor: 'pointer',
@@ -244,8 +246,8 @@ export const AddHarvestModal: React.FC<AddHarvestModalProps> = ({
                   onClick={() => setWeightUnit('Kg')}
                   style={{
                     padding: '0 16px',
-                    background: weightUnit === 'Kg' ? '#38bdf8' : '#ffffff',
-                    color: weightUnit === 'Kg' ? '#000000' : '#475569',
+                    background: weightUnit === 'Kg' ? '#f97316' : '#ffffff',
+                    color: weightUnit === 'Kg' ? '#ffffff' : '#475569',
                     fontWeight: 800,
                     fontSize: '14px',
                     border: 'none',
@@ -260,8 +262,8 @@ export const AddHarvestModal: React.FC<AddHarvestModalProps> = ({
                   onClick={() => setWeightUnit('Tonnes')}
                   style={{
                     padding: '0 16px',
-                    background: weightUnit === 'Tonnes' ? '#38bdf8' : '#ffffff',
-                    color: weightUnit === 'Tonnes' ? '#000000' : '#475569',
+                    background: weightUnit === 'Tonnes' ? '#f97316' : '#ffffff',
+                    color: weightUnit === 'Tonnes' ? '#ffffff' : '#475569',
                     fontWeight: 800,
                     fontSize: '14px',
                     borderLeft: '2px solid #000000',
@@ -344,8 +346,8 @@ export const AddHarvestModal: React.FC<AddHarvestModalProps> = ({
           </div>
 
           {/* Submit Button */}
-          <button type="submit" className="neobrutal-btn-yellow" style={{ width: '100%', marginTop: '8px', height: '54px', fontSize: '16px' }}>
-            <HugeiconsIcon icon={PlusSignIcon} size={20} color="#000000" />
+          <button type="submit" className="neobrutal-btn-orange" style={{ width: '100%', marginTop: '8px', height: '54px', fontSize: '16px' }}>
+            <HugeiconsIcon icon={PlusSignIcon} size={20} color="#ffffff" />
             <span>{mode === 'new' ? 'Save Harvest & Batch A' : `Save ${nextBatchLetter} to Harvest`}</span>
           </button>
         </form>
