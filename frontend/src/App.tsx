@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { ViewMode, DomainMode, ActiveTab, FarmBlock, InventoryItem, InventoryLedger, Customer, Sale, Expense, Supplier, DashboardSummary, FlowNodeSummary } from './types';
+import { ViewMode, DomainMode, ActiveTab, FarmBlock, InventoryItem, InventoryLedger, Customer, Sale, Expense, Supplier, DashboardSummary, FlowNodeSummary, HarvestRecord, HarvestBatch } from './types';
 import { api } from './api';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
@@ -13,6 +13,9 @@ import { Modals } from './components/edit/Modals';
 import { AuthModeSelection } from './components/AuthModeSelection';
 import { DomainSelection } from './components/DomainSelection';
 import { LoginPage } from './components/LoginPage';
+import { HarvestView } from './components/HarvestView';
+import { AddHarvestModal } from './components/edit/AddHarvestModal';
+
 
 const getTabFromPath = (pathname: string): ActiveTab => {
   if (pathname.includes('/settings')) return 'settings';
@@ -110,6 +113,56 @@ const INITIAL_INVENTORY: InventoryItem[] = [
   { id: 4, name: 'Fresh Fruit Bunches (FFB)', category: 'Raw Harvest', unit: 'kg', current_stock: 980, reorder_level: 200 }
 ];
 
+const INITIAL_HARVESTS: HarvestRecord[] = [
+  {
+    id: 'h_1',
+    name: 'Block A - Main Plantation',
+    created_at: '2026-09-20',
+    batches: [
+      {
+        id: 'b_101',
+        batch_name: 'Batch A',
+        date: '2026-09-20',
+        ffb_weight: 1250,
+        weight_unit: 'Kg',
+        bunch_count: 180,
+        destination: 'Palm Oil Mill 1 (Hydraulic Press)',
+        status: 'Processed into CPO/PKO',
+        notes: 'High oil extraction efficiency (21.5% CPO yield)',
+      },
+      {
+        id: 'b_102',
+        batch_name: 'Batch B',
+        date: '2026-09-21',
+        ffb_weight: 1.45,
+        weight_unit: 'Tonnes',
+        bunch_count: 210,
+        destination: 'Central Factory Processing Depot',
+        status: 'In Processing',
+        notes: 'Transported via tractor trailer 2',
+      },
+    ],
+  },
+  {
+    id: 'h_2',
+    name: 'Block C - Young Palms Field',
+    created_at: '2026-09-22',
+    batches: [
+      {
+        id: 'b_201',
+        batch_name: 'Batch A',
+        date: '2026-09-22',
+        ffb_weight: 980,
+        weight_unit: 'Kg',
+        bunch_count: 140,
+        destination: 'Palm Oil Mill 1 (Hydraulic Press)',
+        status: 'Awaiting Processing',
+        notes: 'First harvest cycle from new planting',
+      },
+    ],
+  },
+];
+
 export const App: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -146,8 +199,48 @@ export const App: React.FC = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
+  // Harvest state
+  const [harvestRecords, setHarvestRecords] = useState<HarvestRecord[]>(INITIAL_HARVESTS);
+  const [isAddHarvestModalOpen, setIsAddHarvestModalOpen] = useState<boolean>(false);
+  const [selectedHarvestForBatch, setSelectedHarvestForBatch] = useState<string | undefined>(undefined);
+
+  const handleSaveNewHarvest = (harvestName: string, batchData: Omit<HarvestBatch, 'id' | 'batch_name'>) => {
+    const newRecord: HarvestRecord = {
+      id: `h_${Date.now()}`,
+      name: harvestName,
+      created_at: new Date().toISOString().split('T')[0],
+      batches: [
+        {
+          id: `b_${Date.now()}_1`,
+          batch_name: 'Batch A',
+          ...batchData,
+        },
+      ],
+    };
+    setHarvestRecords((prev) => [newRecord, ...prev]);
+  };
+
+  const handleAddBatchToExisting = (harvestId: string, batchData: Omit<HarvestBatch, 'id' | 'batch_name'>) => {
+    setHarvestRecords((prev) =>
+      prev.map((rec) => {
+        if (rec.id !== harvestId) return rec;
+        const nextLetter = String.fromCharCode(65 + rec.batches.length);
+        const newBatch: HarvestBatch = {
+          id: `b_${Date.now()}_${rec.batches.length + 1}`,
+          batch_name: `Batch ${nextLetter}`,
+          ...batchData,
+        };
+        return {
+          ...rec,
+          batches: [...rec.batches, newBatch],
+        };
+      })
+    );
+  };
+
+
   // Recording mode category filter state
-  const [recordCategory, setRecordCategory] = useState<string>('all');
+  const [recordCategory, setRecordCategory] = useState<string>('harvest');
   const [activeFormModal, setActiveFormModal] = useState<string | null>(null);
 
   const fetchAllData = async () => {
@@ -299,7 +392,19 @@ export const App: React.FC = () => {
                         />
                       ) : domainMode === 'farm' ? (
                         /* Farm Domain Workspace Views */
-                        (effectiveTab === 'inventory' || effectiveTab === 'stock') ? (
+                        (effectiveTab === 'harvest') ? (
+                          <HarvestView
+                            records={harvestRecords}
+                            onOpenAddHarvestModal={() => {
+                              setSelectedHarvestForBatch(undefined);
+                              setIsAddHarvestModalOpen(true);
+                            }}
+                            onOpenAddBatchModal={(harvestId) => {
+                              setSelectedHarvestForBatch(harvestId);
+                              setIsAddHarvestModalOpen(true);
+                            }}
+                          />
+                        ) : (effectiveTab === 'inventory' || effectiveTab === 'stock') ? (
                           <InventoryView items={inventoryItems} ledgers={ledgers} />
                         ) : (
                           <FlowView flowData={flowData} summary={summary} />
@@ -323,6 +428,20 @@ export const App: React.FC = () => {
                       )}
                     </main>
 
+                    {/* Add Harvest / Batch Modal */}
+                    {isAddHarvestModalOpen && (
+                      <AddHarvestModal
+                        onClose={() => {
+                          setIsAddHarvestModalOpen(false);
+                          setSelectedHarvestForBatch(undefined);
+                        }}
+                        onSaveNewHarvest={handleSaveNewHarvest}
+                        onAddBatchToExisting={handleAddBatchToExisting}
+                        existingRecords={harvestRecords}
+                        initialHarvestId={selectedHarvestForBatch}
+                      />
+                    )}
+
                     {/* Floating Modal for Edit Mode Forms */}
                     {activeFormModal && (
                       <Modals
@@ -336,13 +455,16 @@ export const App: React.FC = () => {
                       />
                     )}
 
+
                     {/* Fixed Navigation for Mobile */}
                     <BottomNav 
                       viewMode={viewMode}
                       domainMode={domainMode}
-                      activeTab={effectiveTab} 
+                      activeTab={domainMode === 'farm' ? (recordCategory || 'harvest') : effectiveTab} 
                       onSelectTab={(tabId) => {
-                        if (viewMode === 'edit') {
+                        if (domainMode === 'farm') {
+                          setRecordCategory(tabId);
+                        } else if (viewMode === 'edit') {
                           setRecordCategory(tabId);
                           if (tabId === 'customer' || tabId === 'sales') navigate('/app/sales');
                           else if (tabId === 'expenses') navigate('/app/expenses');

@@ -2,9 +2,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  WorkflowSquare01Icon,
+  WheatIcon,
+  ContainerIcon,
+  ProductLoadingIcon,
+  ToolsIcon,
   UserMultipleIcon,
-  PackageIcon,
   Wallet01Icon,
 } from '@hugeicons/core-free-icons';
 import { Receipt } from 'lucide-react';
@@ -24,14 +26,12 @@ interface NavItem {
   isLucide?: boolean;
 }
 
-const FARM_VIEWER_ITEMS: NavItem[] = [
-  { id: 'flow', label: 'Farm Flow', icon: WorkflowSquare01Icon },
-  { id: 'inventory', label: 'Stock Levels', icon: PackageIcon },
-];
-
 const FARM_RECORDING_ITEMS: NavItem[] = [
-  { id: 'flow', label: 'Harvest & Process', icon: WorkflowSquare01Icon },
-  { id: 'inventory', label: 'Stock Ledger', icon: PackageIcon },
+  { id: 'harvest', label: 'Harvest', icon: WheatIcon },
+  { id: 'inputs', label: 'Inputs', icon: ContainerIcon },
+  { id: 'product', label: 'Product', icon: ProductLoadingIcon },
+  { id: 'tools', label: 'Tools', icon: ToolsIcon },
+  { id: 'workers', label: 'Workers', icon: UserMultipleIcon },
 ];
 
 const EXPENSES_VIEWER_ITEMS: NavItem[] = [
@@ -55,7 +55,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   
   let items: NavItem[];
   if (domainMode === 'farm') {
-    items = isEditMode ? FARM_RECORDING_ITEMS : FARM_VIEWER_ITEMS;
+    items = FARM_RECORDING_ITEMS;
   } else {
     items = isEditMode ? EXPENSES_RECORDING_ITEMS : EXPENSES_VIEWER_ITEMS;
   }
@@ -95,15 +95,15 @@ export const BottomNav: React.FC<BottomNavProps> = ({
                 {item.isLucide ? (
                   <IconComp
                     size={20}
-                    color={isActive ? '#ea580c' : '#64748b'}
-                    strokeWidth={isActive ? 2.2 : 1.6}
+                    color={isActive ? '#ffffff' : '#000000'}
+                    strokeWidth={isActive ? 2.4 : 1.8}
                   />
                 ) : (
                   <HugeiconsIcon
                     icon={item.icon}
                     size={20}
-                    color={isActive ? '#ea580c' : '#64748b'}
-                    strokeWidth={isActive ? 2.2 : 1.6}
+                    color={isActive ? '#ffffff' : '#000000'}
+                    strokeWidth={isActive ? 2.4 : 1.8}
                   />
                 )}
               </div>

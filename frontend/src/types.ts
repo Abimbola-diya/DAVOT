@@ -34,6 +34,25 @@ export interface InventoryLedger {
   unit?: string;
 }
 
+export interface HarvestBatch {
+  id: string;
+  batch_name: string;
+  date: string;
+  ffb_weight: number;
+  weight_unit: 'Kg' | 'Tonnes';
+  bunch_count: number;
+  destination: string;
+  status: 'Awaiting Processing' | 'In Processing' | 'Processed into CPO/PKO' | 'Stored';
+  notes?: string;
+}
+
+export interface HarvestRecord {
+  id: string;
+  name: string;
+  created_at: string;
+  batches: HarvestBatch[];
+}
+
 export interface Harvest {
   id: number;
   batch_number: string;
