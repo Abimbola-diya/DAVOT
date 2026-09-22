@@ -124,7 +124,7 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
         {/* Harvest Summary Card Header */}
         <div
           className="neobrutal-card"
-          style={{ background: '#ffedd5', padding: '20px', borderRadius: '18px' }}
+          style={{ background: '#f3e8ff', padding: '20px', borderRadius: '18px' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
             <div
@@ -153,13 +153,55 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '12px' }}>
-            <span className="neobrutal-badge-blue" style={{ fontSize: '13px', padding: '6px 12px' }}>
-              Total Weight: {formatTotalWeight(harvestTotalWeightKg)}
-            </span>
-            <span className="neobrutal-badge-orange" style={{ fontSize: '13px', padding: '6px 12px', color: '#000000' }}>
-              Total Bunches: {harvestTotalBunches.toLocaleString()}
-            </span>
+          {/* Metrics Row - Clean inline text side-by-side, no boxes */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '16px',
+              flexWrap: 'wrap',
+              marginTop: '12px',
+              paddingTop: '12px',
+              borderTop: '2px solid rgba(0, 0, 0, 0.12)',
+            }}
+          >
+            <div>
+              <span
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  color: '#475569',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.4px',
+                  display: 'block',
+                }}
+              >
+                Total Weight
+              </span>
+              <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>
+                {formatTotalWeight(harvestTotalWeightKg)}
+              </span>
+            </div>
+
+            <div style={{ width: '2px', height: '26px', background: '#000000', opacity: 0.2 }} />
+
+            <div>
+              <span
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  color: '#475569',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.4px',
+                  display: 'block',
+                }}
+              >
+                Total Bunches
+              </span>
+              <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>
+                {harvestTotalBunches.toLocaleString()}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -420,7 +462,10 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {records.map((record) => {
+          {records.map((record, index) => {
+            const cardBgColors = ['#f3e8ff', '#e0f2fe', '#fef9c3']; // Purple, Blue, Yellow
+            const cardBg = cardBgColors[index % cardBgColors.length];
+
             const harvestTotalWeightKg = record.batches.reduce((sum, b) => {
               return sum + (b.weight_unit === 'Tonnes' ? b.ffb_weight * 1000 : b.ffb_weight);
             }, 0);
@@ -434,7 +479,7 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
                 onClick={() => setActiveHarvestIdDetail(record.id)}
                 style={{
                   padding: '24px',
-                  background: '#ffffff',
+                  background: cardBg,
                   cursor: 'pointer',
                   display: 'flex',
                   flexDirection: 'column',
@@ -466,29 +511,59 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
                     <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#000000', margin: 0, lineHeight: 1.2 }}>
                       {record.name}
                     </h3>
-                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', marginTop: '4px' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#334155', marginTop: '4px' }}>
                       Created: {record.created_at} • <strong style={{ color: '#000000' }}>{record.batches.length} Batch{record.batches.length > 1 ? 'es' : ''} Logged</strong>
                     </div>
                   </div>
                 </div>
 
-                {/* Totals Badge */}
-                <div style={{ marginTop: '2px' }}>
-                  <span
-                    style={{
-                      fontSize: '13px',
-                      fontWeight: 900,
-                      padding: '6px 14px',
-                      background: '#ffffff',
-                      color: '#000000',
-                      borderRadius: '8px',
-                      border: '1.5px solid #000000',
-                      boxShadow: '2px 2px 0px #000000',
-                      display: 'inline-block',
-                    }}
-                  >
-                    Total: {formatTotalWeight(harvestTotalWeightKg)} ({harvestTotalBunches} Bunches)
-                  </span>
+                {/* Metrics Row (Total Weight & Total Bunches) - Clean inline writing, no boxes */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '16px',
+                    flexWrap: 'wrap',
+                    marginTop: '2px',
+                  }}
+                >
+                  <div>
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        color: '#475569',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.4px',
+                        display: 'block',
+                      }}
+                    >
+                      Total Weight
+                    </span>
+                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>
+                      {formatTotalWeight(harvestTotalWeightKg)}
+                    </span>
+                  </div>
+
+                  <div style={{ width: '2px', height: '26px', background: '#000000', opacity: 0.2 }} />
+
+                  <div>
+                    <span
+                      style={{
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        color: '#475569',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.4px',
+                        display: 'block',
+                      }}
+                    >
+                      Total Bunches
+                    </span>
+                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>
+                      {harvestTotalBunches} Bunches
+                    </span>
+                  </div>
                 </div>
 
                 {/* Action CTA row */}
