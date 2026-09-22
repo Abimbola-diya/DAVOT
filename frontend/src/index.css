@@ -230,6 +230,9 @@ body {
 
 .davot-input {
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
   height: 54px;
   padding: 0 18px;
   border-radius: 16px;
@@ -241,6 +244,29 @@ body {
   outline: none;
   transition: all 0.15s ease;
   box-shadow: var(--neobrutal-shadow-sm);
+}
+
+.davot-input[type="date"] {
+  appearance: none;
+  -webkit-appearance: none;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  display: block;
+}
+
+.davot-input[type="date"]::-webkit-date-and-time-value {
+  text-align: left;
+  margin: 0;
+  padding: 0;
+  min-height: 1.2em;
+  display: flex;
+  align-items: center;
+}
+
+.davot-input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.8;
 }
 
 .davot-input::placeholder {
@@ -1884,6 +1910,8 @@ body {
   max-width: 440px;
   max-height: 90vh;
   overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
   background: rgba(226, 232, 240, 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);

@@ -104,7 +104,19 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
             className="neobrutal-btn-orange"
             style={{ height: '40px', padding: '0 14px', fontSize: '13px', whiteSpace: 'nowrap' }}
           >
-            <HugeiconsIcon icon={PlusSignIcon} size={16} color="#ffffff" />
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#ffffff"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
             <span style={{ whiteSpace: 'nowrap' }}>Add Batch ({String.fromCharCode(65 + activeRecord.batches.length)})</span>
           </button>
         </div>
@@ -506,7 +518,19 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
                       justifyContent: 'center',
                     }}
                   >
-                    <HugeiconsIcon icon={PlusSignIcon} size={15} color="#ffffff" />
+                    <svg
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#ffffff"
+                      strokeWidth="3.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
                     <span style={{ whiteSpace: 'nowrap' }}>Add Batch ({String.fromCharCode(65 + record.batches.length)})</span>
                   </button>
 

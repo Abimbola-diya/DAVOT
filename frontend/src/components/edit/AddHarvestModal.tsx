@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { HarvestRecord, HarvestBatch } from '../../types';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Cancel01Icon, WheatIcon, PlusSignIcon } from '@hugeicons/core-free-icons';
+import { Cancel01Icon, WheatIcon } from '@hugeicons/core-free-icons';
 
 interface AddHarvestModalProps {
   onClose: () => void;
@@ -347,7 +347,19 @@ export const AddHarvestModal: React.FC<AddHarvestModalProps> = ({
 
           {/* Submit Button */}
           <button type="submit" className="neobrutal-btn-orange" style={{ width: '100%', marginTop: '8px', height: '54px', fontSize: '16px' }}>
-            <HugeiconsIcon icon={PlusSignIcon} size={20} color="#ffffff" />
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#ffffff"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
             <span>{mode === 'new' ? 'Save Harvest & Batch A' : `Save ${nextBatchLetter} to Harvest`}</span>
           </button>
         </form>
