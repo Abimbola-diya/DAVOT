@@ -8,10 +8,11 @@ import {
   Wallet01Icon,
 } from '@hugeicons/core-free-icons';
 import { Receipt } from 'lucide-react';
-import { ViewMode } from '../types';
+import { ViewMode, DomainMode } from '../types';
 
 interface BottomNavProps {
   viewMode?: ViewMode;
+  domainMode?: DomainMode;
   activeTab: string;
   onSelectTab: (tab: string) => void;
 }
@@ -23,27 +24,41 @@ interface NavItem {
   isLucide?: boolean;
 }
 
-const VIEWER_NAV_ITEMS: NavItem[] = [
-  { id: 'flow', label: 'Flow', icon: WorkflowSquare01Icon },
-  { id: 'dashboard', label: 'Customers', icon: UserMultipleIcon },
-  { id: 'inventory', label: 'Stock', icon: PackageIcon },
-  { id: 'sales', label: 'Sales & Debt', icon: Wallet01Icon },
+const FARM_VIEWER_ITEMS: NavItem[] = [
+  { id: 'flow', label: 'Farm Flow', icon: WorkflowSquare01Icon },
+  { id: 'inventory', label: 'Stock Levels', icon: PackageIcon },
 ];
 
-const RECORDING_NAV_ITEMS: NavItem[] = [
-  { id: 'flow', label: 'Flow', icon: WorkflowSquare01Icon },
-  { id: 'inventory', label: 'Inventory', icon: PackageIcon },
-  { id: 'customer', label: 'Customer', icon: UserMultipleIcon },
-  { id: 'expenses', label: 'Expenses', icon: Receipt, isLucide: true },
+const FARM_RECORDING_ITEMS: NavItem[] = [
+  { id: 'flow', label: 'Harvest & Process', icon: WorkflowSquare01Icon },
+  { id: 'inventory', label: 'Stock Ledger', icon: PackageIcon },
+];
+
+const EXPENSES_VIEWER_ITEMS: NavItem[] = [
+  { id: 'sales', label: 'Sales & Debt', icon: Wallet01Icon },
+  { id: 'dashboard', label: 'Customers', icon: UserMultipleIcon },
+];
+
+const EXPENSES_RECORDING_ITEMS: NavItem[] = [
+  { id: 'expenses', label: 'Record Expenses', icon: Receipt, isLucide: true },
+  { id: 'sales', label: 'Record Sales', icon: Wallet01Icon },
+  { id: 'customer', label: 'Customers', icon: UserMultipleIcon },
 ];
 
 export const BottomNav: React.FC<BottomNavProps> = ({
   viewMode = 'view',
+  domainMode = 'farm',
   activeTab,
   onSelectTab,
 }) => {
   const isEditMode = viewMode === 'edit';
-  const items = isEditMode ? RECORDING_NAV_ITEMS : VIEWER_NAV_ITEMS;
+  
+  let items: NavItem[];
+  if (domainMode === 'farm') {
+    items = isEditMode ? FARM_RECORDING_ITEMS : FARM_VIEWER_ITEMS;
+  } else {
+    items = isEditMode ? EXPENSES_RECORDING_ITEMS : EXPENSES_VIEWER_ITEMS;
+  }
 
   let currentTabId = activeTab;
   if (!isEditMode && activeTab === 'expenses') {
@@ -80,14 +95,14 @@ export const BottomNav: React.FC<BottomNavProps> = ({
                 {item.isLucide ? (
                   <IconComp
                     size={20}
-                    color={isActive ? (isEditMode ? '#ea580c' : '#008746') : '#64748b'}
+                    color={isActive ? '#ea580c' : '#64748b'}
                     strokeWidth={isActive ? 2.2 : 1.6}
                   />
                 ) : (
                   <HugeiconsIcon
                     icon={item.icon}
                     size={20}
-                    color={isActive ? (isEditMode ? '#ea580c' : '#008746') : '#64748b'}
+                    color={isActive ? '#ea580c' : '#64748b'}
                     strokeWidth={isActive ? 2.2 : 1.6}
                   />
                 )}

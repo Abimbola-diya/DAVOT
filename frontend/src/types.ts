@@ -1,4 +1,5 @@
 export type ViewMode = 'view' | 'edit';
+export type DomainMode = 'farm' | 'expenses';
 export type ActiveTab = 'flow' | 'dashboard' | 'inventory' | 'sales' | 'expenses' | 'settings';
 
 export interface FarmBlock {

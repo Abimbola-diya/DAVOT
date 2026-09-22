@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Settings01Icon } from '@hugeicons/core-free-icons';
+import { Settings01Icon, TractorIcon, Estimate01Icon } from '@hugeicons/core-free-icons';
+import { DomainMode } from '../types';
 
 interface HeaderProps {
   onOpenSettings?: () => void;
+  domainMode?: DomainMode;
+  onToggleDomain?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenSettings, domainMode = 'farm', onToggleDomain }) => {
   const [userName, setUserName] = useState(() => {
     return localStorage.getItem('davot_user_name') || 'Seun';
   });
@@ -52,8 +55,27 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings }) => {
   return (
     <header className="app-header-clean">
       <div className="header-user-welcome">
-        <h1 className="header-greeting">{timeOfDay} {userName}</h1>
-        <p className="header-subtitle">How are you doing today</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+          <h1 className="header-greeting">{timeOfDay} {userName}</h1>
+          {onToggleDomain && (
+            <button
+              onClick={onToggleDomain}
+              className="header-domain-badge-btn"
+              title="Click to switch domain workspace"
+              type="button"
+            >
+              <HugeiconsIcon
+                icon={domainMode === 'farm' ? TractorIcon : Estimate01Icon}
+                size={14}
+                color="#000000"
+              />
+              <span>{domainMode === 'farm' ? 'Farm' : 'Expenses'}</span>
+            </button>
+          )}
+        </div>
+        <p className="header-subtitle">
+          {domainMode === 'farm' ? 'Farm Operations & Flow' : 'Expenses & Financial Accounts'}
+        </p>
       </div>
 
       <div className="header-right-actions">

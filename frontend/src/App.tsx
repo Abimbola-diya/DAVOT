@@ -1,22 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { ViewMode, ActiveTab, FarmBlock, InventoryItem, InventoryLedger, Customer, Sale, Expense, Supplier, DashboardSummary, FlowNodeSummary } from './types';
+import { ViewMode, DomainMode, ActiveTab, FarmBlock, InventoryItem, InventoryLedger, Customer, Sale, Expense, Supplier, DashboardSummary, FlowNodeSummary } from './types';
 import { api } from './api';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
 import { FlowView } from './components/FlowView';
 import { InventoryView } from './components/InventoryView';
 import { SalesDebtView } from './components/SalesDebtView';
+import { ExpensesView } from './components/ExpensesView';
 import { SettingsView } from './components/SettingsView';
 import { Modals } from './components/edit/Modals';
 import { AuthModeSelection } from './components/AuthModeSelection';
+import { DomainSelection } from './components/DomainSelection';
 import { LoginPage } from './components/LoginPage';
 
 const getTabFromPath = (pathname: string): ActiveTab => {
   if (pathname.includes('/settings')) return 'settings';
   if (pathname.includes('/customers') || pathname.includes('/dashboard')) return 'dashboard';
   if (pathname.includes('/stock') || pathname.includes('/inventory')) return 'inventory';
-  if (pathname.includes('/sales') || pathname.includes('/expenses')) return 'sales';
+  if (pathname.includes('/expenses')) return 'expenses';
+  if (pathname.includes('/sales')) return 'sales';
   return 'flow';
 };
 
@@ -28,8 +31,9 @@ const getPathFromTab = (tab: ActiveTab): string => {
       return '/app/customers';
     case 'inventory':
       return '/app/stock';
-    case 'sales':
     case 'expenses':
+      return '/app/expenses';
+    case 'sales':
       return '/app/sales';
     case 'flow':
     default:
@@ -124,6 +128,10 @@ export const App: React.FC = () => {
     return (localStorage.getItem('davot_role') as ViewMode) || 'view';
   });
 
+  const [domainMode, setDomainMode] = useState<DomainMode>(() => {
+    return (localStorage.getItem('davot_domain') as DomainMode) || 'farm';
+  });
+
   // Active tab synchronized with URL path
   const activeTab = getTabFromPath(location.pathname);
 
@@ -189,19 +197,32 @@ export const App: React.FC = () => {
     localStorage.setItem('davot_role', mode);
   };
 
+  const handleSelectDomain = (domain: DomainMode) => {
+    setDomainMode(domain);
+    localStorage.setItem('davot_domain', domain);
+  };
+
   const handleLoginSuccess = (user?: any) => {
     const roleToSet = user?.role || viewMode;
     setViewMode(roleToSet);
     localStorage.setItem('davot_role', roleToSet);
+    navigate('/role-selection');
+  };
+
+  const handleEnterWorkspace = () => {
     localStorage.setItem('davot_auth', 'true');
     setIsAuthenticated(true);
-    navigate('/app/flow');
+    if (domainMode === 'farm') {
+      navigate('/app/flow');
+    } else {
+      navigate('/app/sales');
+    }
   };
 
   const handleLogout = () => {
     localStorage.removeItem('davot_auth');
     setIsAuthenticated(false);
-    navigate('/role');
+    navigate('/login');
   };
 
   const handleTabSelect = (tab: ActiveTab) => {
@@ -210,34 +231,47 @@ export const App: React.FC = () => {
 
   return (
     <Routes>
-      {/* Route 0: / - Landing on DAVOT shows Role Selection */}
-      <Route path="/" element={<Navigate to="/app/flow" replace />} />
+      {/* Route 0: Default Root Landing goes to Step 1: Login */}
+      <Route path="/" element={<Navigate to={isAuthenticated ? "/app/flow" : "/login"} replace />} />
 
-      {/* Route 1: /role - Role Selection Page */}
-      <Route
-        path="/role"
-        element={
-          <AuthModeSelection
-            currentMode={viewMode}
-            onSelectMode={handleSelectRole}
-            onContinue={() => navigate('/login')}
-          />
-        }
-      />
-
-      {/* Route 2: /login - Login Page */}
+      {/* Step 1: /login - Login Page */}
       <Route
         path="/login"
         element={
           <LoginPage
             selectedRole={viewMode}
-            onBack={() => navigate('/role')}
             onLoginSuccess={handleLoginSuccess}
           />
         }
       />
 
-      {/* Route 3: /app/* - Authenticated Main Workspace Sub-Routes */}
+      {/* Step 2: /role-selection - Role Selection Page */}
+      <Route
+        path="/role-selection"
+        element={
+          <AuthModeSelection
+            currentMode={viewMode}
+            onSelectMode={handleSelectRole}
+            onContinue={() => navigate('/domain-selection')}
+            onBack={() => navigate('/login')}
+          />
+        }
+      />
+
+      {/* Step 3: /domain-selection - Domain Selection Page (Farm vs Expenses) */}
+      <Route
+        path="/domain-selection"
+        element={
+          <DomainSelection
+            currentDomain={domainMode}
+            onSelectDomain={handleSelectDomain}
+            onContinue={handleEnterWorkspace}
+            onBack={() => navigate('/role-selection')}
+          />
+        }
+      />
+
+      {/* Authenticated Workspace Sub-Routes */}
       <Route
         path="/app/*"
         element={
@@ -245,6 +279,8 @@ export const App: React.FC = () => {
             <div className="app-container">
               <Header 
                 onOpenSettings={() => navigate('/app/settings')}
+                domainMode={domainMode}
+                onToggleDomain={() => navigate('/domain-selection')}
               />
 
               {/* Determine effective active tab across View and Edit modes */}
@@ -259,23 +295,31 @@ export const App: React.FC = () => {
                           viewMode={viewMode}
                           onSelectRole={handleSelectRole}
                           onReturnToAuth={handleLogout}
-                          onClose={() => navigate('/app/flow')}
+                          onClose={() => navigate(domainMode === 'farm' ? '/app/flow' : '/app/sales')}
                         />
-                      ) : (effectiveTab === 'customer' || effectiveTab === 'sales' || effectiveTab === 'dashboard') ? (
-                        <SalesDebtView 
-                          customers={customers} 
-                          sales={sales} 
-                          expenses={expenses}
-                          viewMode={viewMode}
-                          onLogPaymentClick={() => {
-                            setActiveFormModal('payment');
-                          }}
-                          onRefreshData={fetchAllData}
-                        />
-                      ) : (effectiveTab === 'inventory' || effectiveTab === 'stock') ? (
-                        <InventoryView items={inventoryItems} ledgers={ledgers} />
+                      ) : domainMode === 'farm' ? (
+                        /* Farm Domain Workspace Views */
+                        (effectiveTab === 'inventory' || effectiveTab === 'stock') ? (
+                          <InventoryView items={inventoryItems} ledgers={ledgers} />
+                        ) : (
+                          <FlowView flowData={flowData} summary={summary} />
+                        )
                       ) : (
-                        <FlowView flowData={flowData} summary={summary} />
+                        /* Expenses & Financials Workspace Views */
+                        effectiveTab === 'expenses' ? (
+                          <ExpensesView expenses={expenses} />
+                        ) : (
+                          <SalesDebtView 
+                            customers={customers} 
+                            sales={sales} 
+                            expenses={expenses}
+                            viewMode={viewMode}
+                            onLogPaymentClick={() => {
+                              setActiveFormModal('payment');
+                            }}
+                            onRefreshData={fetchAllData}
+                          />
+                        )
                       )}
                     </main>
 
@@ -295,11 +339,13 @@ export const App: React.FC = () => {
                     {/* Fixed Navigation for Mobile */}
                     <BottomNav 
                       viewMode={viewMode}
+                      domainMode={domainMode}
                       activeTab={effectiveTab} 
                       onSelectTab={(tabId) => {
                         if (viewMode === 'edit') {
                           setRecordCategory(tabId);
-                          if (tabId === 'customer' || tabId === 'sales') navigate('/app/customers');
+                          if (tabId === 'customer' || tabId === 'sales') navigate('/app/sales');
+                          else if (tabId === 'expenses') navigate('/app/expenses');
                           else if (tabId === 'inventory' || tabId === 'stock') navigate('/app/stock');
                           else navigate('/app/flow');
                         } else {
@@ -312,7 +358,7 @@ export const App: React.FC = () => {
               })()}
             </div>
           ) : (
-            <Navigate to="/role" replace />
+            <Navigate to="/login" replace />
           )
         }
       />
@@ -320,7 +366,7 @@ export const App: React.FC = () => {
       {/* Default Catch-All Route */}
       <Route
         path="*"
-        element={<Navigate to="/app/flow" replace />}
+        element={<Navigate to="/login" replace />}
       />
     </Routes>
   );

@@ -1,19 +1,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-  --primary-green: #00a859;
-  --primary-green-dark: #008746;
-  --primary-green-light: #22c55e;
-  --accent-mint: #dcfce7;
-  --accent-mint-subtle: #f0fdf4;
+  --primary-orange: #ea580c;
+  --primary-orange-dark: #c2410c;
+  --primary-orange-light: #fb923c;
+  --primary-green: #ea580c;
+  --primary-green-dark: #c2410c;
+  --primary-green-light: #fb923c;
+  --accent-orange: #f97316;
+  --accent-mint: #ffedd5;
+  --accent-mint-subtle: #fff7ed;
 
-  --bg-gradient: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  --neobrutal-black: #000000;
+  --neobrutal-border: 2.5px solid #000000;
+  --neobrutal-shadow: 4px 4px 0px #000000;
+  --neobrutal-shadow-sm: 2px 2px 0px #000000;
+  --neobrutal-shadow-lg: 6px 6px 0px #000000;
+
+  --bg-gradient: linear-gradient(180deg, #ffffff 0%, #fff7ed 100%);
   --card-bg: #ffffff;
-  --card-border: #e2e8f0;
-  --card-shadow: 0 4px 20px -2px rgba(0, 168, 89, 0.12);
+  --card-border: #000000;
+  --card-shadow: 4px 4px 0px #000000;
 
-  --text-main: #0a0a0a;
-  --text-muted: #2e435d;
+  --text-main: #000000;
+  --text-muted: #334155;
   --text-inverse: #ffffff;
 
   --badge-danger: #ef4444;
@@ -49,7 +59,7 @@ body {
   background: #ffffff;
 }
 
-/* Auth / Mode Selection Screen (Matching PP Neue Montreal Geometry) */
+/* Auth / Mode Selection Screen (Neobrutalism Styling) */
 .auth-screen-container {
   min-height: 100vh;
   display: flex;
@@ -75,30 +85,37 @@ body {
 }
 
 .auth-logo-badge {
-  width: 60px;
-  height: 60px;
-  background: var(--primary-green);
-  border-radius: 16px;
+  width: 68px;
+  height: 68px;
+  background: var(--primary-orange);
+  border-radius: 18px;
+  border: var(--neobrutal-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 22px rgba(0, 168, 89, 0.28);
+  box-shadow: var(--neobrutal-shadow);
+  transform: rotate(-2deg);
+  transition: transform 0.2s ease;
+}
+
+.auth-logo-badge:hover {
+  transform: rotate(0deg) scale(1.05);
 }
 
 .auth-title {
   font-size: 32px;
-  font-weight: 500;
+  font-weight: 800;
   text-align: center;
-  color: #0a0a0a;
-  letter-spacing: -0.5px;
+  color: #000000;
+  letter-spacing: -0.6px;
   margin-bottom: 8px;
   line-height: 1.2;
 }
 
 .auth-subtitle {
   font-size: 15px;
-  font-weight: 400;
-  color: #2b4669;
+  font-weight: 500;
+  color: #475569;
   text-align: center;
   margin-bottom: 32px;
 }
@@ -113,53 +130,63 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .auth-back-btn {
   width: 44px;
   height: 44px;
-  border-radius: 50%;
-  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  border: var(--neobrutal-border);
   background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease;
+  box-shadow: var(--neobrutal-shadow-sm);
 }
 
 .auth-back-btn:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  transform: translateX(-2px);
+  background: #fff7ed;
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0px #000000;
+}
+
+.auth-back-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px #000000;
 }
 
 /* Google Sign-in Button */
 .google-signin-btn {
   width: 100%;
-  height: 52px;
-  border-radius: 26px;
-  border: 1.5px solid #e2e8f0;
+  height: 54px;
+  border-radius: 16px;
+  border: var(--neobrutal-border);
   background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
   font-size: 15px;
-  font-weight: 500;
-  color: #1e293b;
+  font-weight: 700;
+  color: #000000;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   margin-bottom: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  box-shadow: var(--neobrutal-shadow);
 }
 
 .google-signin-btn:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
+  background: #fff7ed;
+  transform: translate(-2px, -2px);
+  box-shadow: var(--neobrutal-shadow-lg);
+}
+
+.google-signin-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--neobrutal-shadow-sm);
 }
 
 /* OR Divider */
@@ -173,15 +200,19 @@ body {
 
 .divider-text {
   font-size: 12px;
-  font-weight: 700;
-  color: #2b4669;
-  letter-spacing: 0.5px;
+  font-weight: 800;
+  color: #000000;
+  letter-spacing: 0.8px;
+  background: #ffedd5;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1.5px solid #000000;
 }
 
 .divider-line {
   flex: 1;
-  height: 1.5px;
-  background: #f1f5f9;
+  height: 2.5px;
+  background: #000000;
 }
 
 /* Login Form & Inputs */
@@ -202,23 +233,26 @@ body {
   height: 54px;
   padding: 0 18px;
   border-radius: 16px;
-  border: 1.5px solid #f1f5f9;
-  background: #f8fafc;
+  border: var(--neobrutal-border);
+  background: #ffffff;
   font-size: 15px;
-  font-weight: 400;
-  color: #0f172a;
+  font-weight: 600;
+  color: #000000;
   outline: none;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  box-shadow: var(--neobrutal-shadow-sm);
 }
 
 .davot-input::placeholder {
-  color: #94a3b8;
+  color: #64748b;
+  font-weight: 500;
 }
 
 .davot-input:focus {
-  border-color: var(--primary-green);
+  border-color: #000000;
   background: #ffffff;
-  box-shadow: 0 0 0 4px rgba(0, 168, 89, 0.12);
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0px var(--primary-orange);
 }
 
 .password-input-wrapper {
@@ -230,53 +264,69 @@ body {
   right: 14px;
   top: 50%;
   transform: translateY(-50%);
-  background: none;
-  border: none;
+  background: #ffffff;
+  border: 1.5px solid #000000;
+  border-radius: 8px;
   cursor: pointer;
   padding: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.password-toggle-btn:hover {
+  background: #ffedd5;
 }
 
 /* Primary Davot Action Button */
 .davot-submit-btn {
   width: 100%;
-  height: 54px;
-  border-radius: 27px;
-  border: none;
-  background: var(--primary-green);
+  height: 56px;
+  border-radius: 16px;
+  border: var(--neobrutal-border);
+  background: var(--primary-orange);
   color: #ffffff;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 8px 24px -4px rgba(0, 168, 89, 0.35);
+  transition: all 0.15s ease;
+  box-shadow: var(--neobrutal-shadow);
   margin-top: 8px;
+  letter-spacing: -0.2px;
 }
 
 .davot-submit-btn:hover {
-  background: var(--primary-green-dark);
-  transform: translateY(-1px);
+  background: var(--primary-orange-dark);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--neobrutal-shadow-lg);
+}
+
+.davot-submit-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--neobrutal-shadow-sm);
 }
 
 .davot-submit-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: var(--neobrutal-shadow-sm);
 }
 
 .auth-error-banner {
   padding: 12px 16px;
   border-radius: 12px;
   background: #fef2f2;
-  border: 1px solid #fecaca;
+  border: 2px solid #ef4444;
+  box-shadow: var(--neobrutal-shadow-sm);
   color: #ef4444;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 700;
   text-align: center;
 }
 
@@ -294,39 +344,42 @@ body {
   min-height: 136px;
   padding: 22px 20px;
   border-radius: 20px;
-  border: 1.5px solid #e2e8f0;
-  background: #f8fafc;
+  border: var(--neobrutal-border);
+  background: #ffffff;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.15s ease;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 12px;
+  box-shadow: var(--neobrutal-shadow);
 }
 
 .mode-select-card:hover {
-  border-color: var(--primary-green);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--neobrutal-shadow-lg);
 }
 
 .mode-select-card.active {
-  background: var(--primary-green);
-  border-color: var(--primary-green);
+  background: var(--primary-orange);
+  border-color: #000000;
   color: #ffffff;
-  box-shadow: 0 10px 25px -4px rgba(0, 168, 89, 0.35);
+  box-shadow: 5px 5px 0px #000000;
 }
 
 .card-icon-badge {
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.2);
+  border: 1.5px solid #000000;
+  background: rgba(255, 255, 255, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .mode-select-card:not(.active) .card-icon-badge {
-  background: #e2e8f0;
+  background: #ffedd5;
 }
 
 /* Non-stop Continuous Icon Animations */
@@ -370,7 +423,7 @@ body {
 
 .card-headline {
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 700;
   margin-bottom: 4px;
   letter-spacing: -0.2px;
 }
@@ -386,7 +439,7 @@ body {
 .card-description {
   font-size: 13px;
   line-height: 1.45;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 .mode-select-card.active .card-description {
@@ -400,29 +453,31 @@ body {
 /* Action Button */
 .auth-continue-btn {
   width: 100%;
-  padding: 16px 24px;
-  border-radius: 40px;
-  border: none;
-  background: var(--primary-green);
+  padding: 18px 24px;
+  border-radius: 20px;
+  border: var(--neobrutal-border);
+  background: var(--primary-orange);
   color: #ffffff;
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 6px 20px rgba(0, 168, 89, 0.35);
+  transition: all 0.15s ease;
+  box-shadow: var(--neobrutal-shadow);
 }
 
 .auth-continue-btn:hover {
-  background: var(--primary-green-dark);
-  transform: translateY(-1px);
+  background: var(--primary-orange-dark);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--neobrutal-shadow-lg);
 }
 
 .auth-continue-btn:active {
-  transform: translateY(0);
+  transform: translate(2px, 2px);
+  box-shadow: var(--neobrutal-shadow-sm);
 }
 
 /* Clean Minimal Main Header */
@@ -444,10 +499,33 @@ body {
 
 .header-greeting {
   font-size: 18px;
-  font-weight: 500;
-  color: #1e293b;
+  font-weight: 700;
+  color: #000000;
   letter-spacing: -0.3px;
   line-height: 1.25;
+}
+
+.header-domain-badge-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  border: 1.5px solid #000000;
+  background: #ffedd5;
+  color: #000000;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px #000000;
+  transition: all 0.15s ease;
+}
+
+.header-domain-badge-btn:hover {
+  background: var(--primary-orange);
+  color: #ffffff;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px #000000;
 }
 
 .header-subtitle {

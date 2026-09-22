@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ViewMode } from '../types';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { TreePalmIcon, ArrowRight01Icon } from '@hugeicons/core-free-icons';
+import { TreePalmIcon, ArrowRight01Icon, ArrowLeft01Icon } from '@hugeicons/core-free-icons';
 import { EyeAnimatedIcon } from './icons/EyeAnimatedIcon';
 import { Settings01AnimatedIcon } from './icons/Settings01AnimatedIcon';
 
@@ -9,12 +9,14 @@ interface AuthModeSelectionProps {
   currentMode: ViewMode;
   onSelectMode: (mode: ViewMode) => void;
   onContinue: () => void;
+  onBack?: () => void;
 }
 
 export const AuthModeSelection: React.FC<AuthModeSelectionProps> = ({
   currentMode,
   onSelectMode,
   onContinue,
+  onBack,
 }) => {
   const [greeting, setGreeting] = useState('');
   const [selectedMode, setSelectedMode] = useState<ViewMode>(currentMode);
@@ -38,6 +40,15 @@ export const AuthModeSelection: React.FC<AuthModeSelectionProps> = ({
   return (
     <div className="auth-screen-container">
       <div className="auth-content">
+        {/* Top Navigation */}
+        {onBack && (
+          <div className="auth-top-nav">
+            <button className="auth-back-btn" onClick={onBack} aria-label="Go back to login">
+              <HugeiconsIcon icon={ArrowLeft01Icon} size={20} color="#000000" />
+            </button>
+          </div>
+        )}
+
         {/* Top Centered Palm Tree Icon */}
         <div className="auth-logo-wrapper">
           <div className="auth-logo-badge">
@@ -59,7 +70,7 @@ export const AuthModeSelection: React.FC<AuthModeSelectionProps> = ({
             <div className="card-icon-badge">
               <EyeAnimatedIcon 
                 size={22} 
-                style={{ color: selectedMode === 'view' ? '#ffffff' : 'var(--primary-green)' }} 
+                style={{ color: selectedMode === 'view' ? '#ffffff' : 'var(--primary-orange)' }} 
               />
             </div>
             <div className="card-text-group">
@@ -78,7 +89,7 @@ export const AuthModeSelection: React.FC<AuthModeSelectionProps> = ({
             <div className="card-icon-badge">
               <Settings01AnimatedIcon 
                 size={22} 
-                style={{ color: selectedMode === 'edit' ? '#ffffff' : 'var(--primary-green)' }} 
+                style={{ color: selectedMode === 'edit' ? '#ffffff' : 'var(--primary-orange)' }} 
               />
             </div>
             <div className="card-text-group">

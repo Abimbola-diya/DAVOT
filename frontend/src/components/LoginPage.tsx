@@ -4,8 +4,8 @@ import { ArrowLeft01Icon, ArrowRight01Icon, TreePalmIcon, EyeIcon, ViewOffSlashI
 import { api } from '../api';
 
 interface LoginPageProps {
-  selectedRole: string;
-  onBack: () => void;
+  selectedRole?: string;
+  onBack?: () => void;
   onLoginSuccess: (user?: any) => void;
   googleClientId?: string;
 }
@@ -17,7 +17,7 @@ declare global {
 }
 
 export const LoginPage: React.FC<LoginPageProps> = ({
-  selectedRole,
+  selectedRole = 'view',
   onBack,
   onLoginSuccess,
   googleClientId = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
@@ -110,17 +110,19 @@ export const LoginPage: React.FC<LoginPageProps> = ({
     <div className="auth-screen-container">
       <div className="auth-content login-content-wrapper">
         {/* Top Left Back Navigation Button */}
-        <div className="auth-top-nav">
-          <button className="auth-back-btn" onClick={onBack} aria-label="Go back">
-            <HugeiconsIcon icon={ArrowLeft01Icon} size={20} color="#334155" />
-          </button>
-        </div>
+        {onBack && (
+          <div className="auth-top-nav">
+            <button className="auth-back-btn" onClick={onBack} aria-label="Go back">
+              <HugeiconsIcon icon={ArrowLeft01Icon} size={20} color="#000000" />
+            </button>
+          </div>
+        )}
 
         {/* Brand Logo Container (Placeholder for user's custom SVG) */}
         <div className="auth-logo-wrapper">
           <div className="auth-logo-badge">
             {/* User can swap this placeholder SVG anytime */}
-            <HugeiconsIcon icon={TreePalmIcon} size={32} color="#ffffff" />
+            <HugeiconsIcon icon={TreePalmIcon} size={34} color="#ffffff" />
           </div>
         </div>
 
@@ -192,7 +194,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               <HugeiconsIcon
                 icon={showPassword ? ViewOffSlashIcon : EyeIcon}
                 size={18}
-                color="#94a3b8"
+                color="#000000"
               />
             </button>
           </div>
