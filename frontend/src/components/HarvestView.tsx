@@ -51,15 +51,15 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
   const getStatusBadgeClass = (status: HarvestBatch['status']) => {
     switch (status) {
       case 'Awaiting Processing':
-        return 'neobrutal-badge-yellow';
+        return 'neobrutal-badge-orange';
       case 'In Processing':
         return 'neobrutal-badge-blue';
       case 'Processed into CPO/PKO':
         return 'neobrutal-badge-teal';
       case 'Stored':
-        return 'neobrutal-badge-pink';
+        return 'neobrutal-badge-orange';
       default:
-        return 'neobrutal-badge-yellow';
+        return 'neobrutal-badge-orange';
     }
   };
 
@@ -112,7 +112,7 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
         {/* Harvest Summary Card Header */}
         <div
           className="neobrutal-card"
-          style={{ background: '#fef08a', padding: '20px', borderRadius: '18px' }}
+          style={{ background: '#ffedd5', padding: '20px', borderRadius: '18px' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
             <div
@@ -145,7 +145,7 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
             <span className="neobrutal-badge-blue" style={{ fontSize: '13px', padding: '6px 12px' }}>
               Total Weight: {formatTotalWeight(harvestTotalWeightKg)}
             </span>
-            <span className="neobrutal-badge-pink" style={{ fontSize: '13px', padding: '6px 12px' }}>
+            <span className="neobrutal-badge-orange" style={{ fontSize: '13px', padding: '6px 12px', color: '#000000' }}>
               Total Bunches: {harvestTotalBunches.toLocaleString()}
             </span>
           </div>
@@ -176,7 +176,7 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
               {/* Batch Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span className="neobrutal-badge-pink" style={{ fontSize: '14px', fontWeight: 900 }}>
+                  <span className="neobrutal-badge-orange" style={{ fontSize: '14px', fontWeight: 900, color: '#000000' }}>
                     {batch.batch_name}
                   </span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 800, color: '#475569' }}>
@@ -200,7 +200,7 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
               <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', fontSize: '13px', fontWeight: 700 }}>
                 <div>
                   <span style={{ color: '#64748b' }}>Weight: </span>
-                  <span style={{ background: '#fef08a', padding: '3px 8px', borderRadius: '6px', border: '1.5px solid #000' }}>
+                  <span style={{ background: '#ffedd5', padding: '3px 8px', borderRadius: '6px', border: '1.5px solid #000' }}>
                     {batch.ffb_weight.toLocaleString()} {batch.weight_unit}
                   </span>
                 </div>
@@ -247,41 +247,7 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
   // MAIN HARVEST OVERVIEW LIST VIEW
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '100px' }}>
-      {/* Top Banner Header */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '12px',
-        }}
-      >
-        <div>
-          <h1
-            style={{
-              fontSize: '22px',
-              fontWeight: 900,
-              color: '#000000',
-              margin: 0,
-              letterSpacing: '-0.5px',
-            }}
-          >
-            Harvest & Batch Management
-          </h1>
-        </div>
-
-        <button
-          onClick={onOpenAddHarvestModal}
-          className="neobrutal-btn-yellow"
-          style={{ height: '42px', padding: '0 16px', fontSize: '14px' }}
-        >
-          <HugeiconsIcon icon={PlusSignIcon} size={18} color="#000000" />
-          <span>Add New Harvest</span>
-        </button>
-      </div>
-
-      {/* Overview Stat Cards - 2 Cards Side-by-Side */}
+      {/* 2x2 Grid: Add New Harvest Button + 3 Stat Cards */}
       <div
         style={{
           display: 'grid',
@@ -289,6 +255,59 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
           gap: '10px',
         }}
       >
+        {/* Slot 1 (Top Left): Add New Harvest Action Button */}
+        <button
+          type="button"
+          onClick={onOpenAddHarvestModal}
+          className="neobrutal-btn-yellow"
+          style={{
+            height: '100%',
+            minHeight: '64px',
+            padding: '12px 14px',
+            borderRadius: '14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            boxShadow: '3px 3px 0px #000000',
+            cursor: 'pointer',
+          }}
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#000000"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          <span style={{ fontSize: '13px', fontWeight: 900, color: '#000000', whiteSpace: 'nowrap' }}>
+            Add New Harvest
+          </span>
+        </button>
+
+        {/* Slot 2 (Top Right): Logged Harvests */}
+        <div
+          className="neobrutal-card"
+          style={{ background: '#ffedd5', padding: '12px 14px', borderRadius: '14px' }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+            <HugeiconsIcon icon={Calendar01Icon} size={18} color="#000000" />
+            <span style={{ fontSize: '12px', fontWeight: 800, color: '#000000', whiteSpace: 'nowrap' }}>
+              Logged Harvests
+            </span>
+          </div>
+          <div style={{ fontSize: '18px', fontWeight: 900, color: '#000000', lineHeight: 1.2 }}>
+            {records.length} <span style={{ fontSize: '12px', fontWeight: 700 }}>harvests</span>
+          </div>
+        </div>
+
+        {/* Slot 3 (Bottom Left): Total Weight */}
         <div
           className="neobrutal-card"
           style={{ background: '#e0f2fe', padding: '12px 14px', borderRadius: '14px' }}
@@ -304,6 +323,7 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
           </div>
         </div>
 
+        {/* Slot 4 (Bottom Right): Total Bunches */}
         <div
           className="neobrutal-card"
           style={{ background: '#f3e8ff', padding: '12px 14px', borderRadius: '14px' }}
@@ -320,34 +340,12 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
         </div>
       </div>
 
-      {/* Section Divider & Header introducing Logged Harvests */}
-      {records.length > 0 && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '10px', marginBottom: '2px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#000000', margin: 0 }}>
-              Logged Harvests
-            </h2>
-            <span
-              style={{
-                fontSize: '11px',
-                fontWeight: 900,
-                background: '#fef08a',
-                color: '#000000',
-                padding: '2px 8px',
-                borderRadius: '6px',
-                border: '1.5px solid #000000',
-                boxShadow: '1.5px 1.5px 0px #000000',
-              }}
-            >
-              {records.length} Records
-            </span>
-          </div>
-
-          <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748b' }}>
-            Tap card for details
-          </span>
-        </div>
-      )}
+      {/* Section Header: Harvest & Batch Management */}
+      <div style={{ marginTop: '10px', marginBottom: '4px' }}>
+        <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#000000', margin: 0 }}>
+          Harvest & Batch Management
+        </h2>
+      </div>
 
       {/* Content Area: Empty State OR Clean Harvest Cards */}
       {records.length === 0 ? (
@@ -371,7 +369,7 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
               width: '72px',
               height: '72px',
               borderRadius: '20px',
-              background: '#fef08a',
+              background: '#ffedd5',
               border: '2.5px solid #000000',
               boxShadow: '4px 4px 0px #000000',
               display: 'flex',
@@ -398,12 +396,13 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
             >
               Start recording your fresh fruit bunch (FFB) harvests. Each harvest can contain multiple sequential batches (Batch A, Batch B...) with destination and processing status.
             </p>
-          </div>          <button
+          </div>
+          <button
             onClick={onOpenAddHarvestModal}
-            className="neobrutal-btn-yellow"
+            className="neobrutal-btn-orange"
             style={{ height: '50px', padding: '0 24px', fontSize: '15px', marginTop: '8px' }}
           >
-            <HugeiconsIcon icon={PlusSignIcon} size={20} color="#000000" />
+            <HugeiconsIcon icon={PlusSignIcon} size={20} color="#ffffff" />
             <span>Record First Harvest</span>
           </button>
         </div>
@@ -439,7 +438,7 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
                       width: '44px',
                       height: '44px',
                       borderRadius: '14px',
-                      background: '#fef08a',
+                      background: '#ffffff',
                       border: '2.5px solid #000000',
                       boxShadow: '3px 3px 0px #000000',
                       display: 'flex',
@@ -463,7 +462,19 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
 
                 {/* Totals Badge */}
                 <div style={{ marginTop: '2px' }}>
-                  <span className="neobrutal-badge-pink" style={{ fontSize: '13px', padding: '6px 14px' }}>
+                  <span
+                    style={{
+                      fontSize: '13px',
+                      fontWeight: 900,
+                      padding: '6px 14px',
+                      background: '#ffffff',
+                      color: '#000000',
+                      borderRadius: '8px',
+                      border: '1.5px solid #000000',
+                      boxShadow: '2px 2px 0px #000000',
+                      display: 'inline-block',
+                    }}
+                  >
                     Total: {formatTotalWeight(harvestTotalWeightKg)} ({harvestTotalBunches} Bunches)
                   </span>
                 </div>
