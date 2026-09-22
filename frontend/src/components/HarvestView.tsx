@@ -101,11 +101,11 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
 
           <button
             onClick={() => onOpenAddBatchModal(activeRecord.id)}
-            className="neobrutal-btn-yellow"
-            style={{ height: '40px', padding: '0 14px', fontSize: '13px' }}
+            className="neobrutal-btn-orange"
+            style={{ height: '40px', padding: '0 14px', fontSize: '13px', whiteSpace: 'nowrap' }}
           >
-            <HugeiconsIcon icon={PlusSignIcon} size={16} color="#000000" />
-            <span>Add Batch ({String.fromCharCode(65 + activeRecord.batches.length)})</span>
+            <HugeiconsIcon icon={PlusSignIcon} size={16} color="#ffffff" />
+            <span style={{ whiteSpace: 'nowrap' }}>Add Batch ({String.fromCharCode(65 + activeRecord.batches.length)})</span>
           </button>
         </div>
 
@@ -320,6 +320,35 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
         </div>
       </div>
 
+      {/* Section Divider & Header introducing Logged Harvests */}
+      {records.length > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '10px', marginBottom: '2px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#000000', margin: 0 }}>
+              Logged Harvests
+            </h2>
+            <span
+              style={{
+                fontSize: '11px',
+                fontWeight: 900,
+                background: '#fef08a',
+                color: '#000000',
+                padding: '2px 8px',
+                borderRadius: '6px',
+                border: '1.5px solid #000000',
+                boxShadow: '1.5px 1.5px 0px #000000',
+              }}
+            >
+              {records.length} Records
+            </span>
+          </div>
+
+          <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748b' }}>
+            Tap card for details
+          </span>
+        </div>
+      )}
+
       {/* Content Area: Empty State OR Clean Harvest Cards */}
       {records.length === 0 ? (
         <div
@@ -369,9 +398,7 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
             >
               Start recording your fresh fruit bunch (FFB) harvests. Each harvest can contain multiple sequential batches (Batch A, Batch B...) with destination and processing status.
             </p>
-          </div>
-
-          <button
+          </div>          <button
             onClick={onOpenAddHarvestModal}
             className="neobrutal-btn-yellow"
             style={{ height: '50px', padding: '0 24px', fontSize: '15px', marginTop: '8px' }}
@@ -381,7 +408,7 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
           </button>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {records.map((record) => {
             const harvestTotalWeightKg = record.batches.reduce((sum, b) => {
               return sum + (b.weight_unit === 'Tonnes' ? b.ffb_weight * 1000 : b.ffb_weight);
@@ -395,47 +422,48 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
                 className="neobrutal-card"
                 onClick={() => setActiveHarvestIdDetail(record.id)}
                 style={{
-                  padding: '16px 18px',
+                  padding: '24px',
                   background: '#ffffff',
                   cursor: 'pointer',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '10px',
+                  gap: '16px',
+                  borderRadius: '24px',
                   transition: 'transform 0.15s ease, boxShadow 0.15s ease',
                 }}
               >
-                {/* Title Row */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                {/* Title & Icon Header */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div
                     style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '10px',
+                      width: '44px',
+                      height: '44px',
+                      borderRadius: '14px',
                       background: '#fef08a',
-                      border: '2px solid #000000',
-                      boxShadow: '2px 2px 0px #000000',
+                      border: '2.5px solid #000000',
+                      boxShadow: '3px 3px 0px #000000',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       flexShrink: 0,
                     }}
                   >
-                    <HugeiconsIcon icon={WheatIcon} size={20} color="#000000" />
+                    <HugeiconsIcon icon={WheatIcon} size={24} color="#000000" />
                   </div>
 
-                  <h3 style={{ fontSize: '18px', fontWeight: 900, color: '#000000', margin: 0, lineHeight: 1.2 }}>
-                    {record.name}
-                  </h3>
-                </div>
-
-                {/* Subtitle Line */}
-                <div style={{ fontSize: '12px', fontWeight: 700, color: '#64748b' }}>
-                  Created: {record.created_at} • <strong style={{ color: '#000000' }}>{record.batches.length} Batch{record.batches.length > 1 ? 'es' : ''} Logged</strong>
+                  <div>
+                    <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#000000', margin: 0, lineHeight: 1.2 }}>
+                      {record.name}
+                    </h3>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', marginTop: '4px' }}>
+                      Created: {record.created_at} • <strong style={{ color: '#000000' }}>{record.batches.length} Batch{record.batches.length > 1 ? 'es' : ''} Logged</strong>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Totals Badge */}
-                <div>
-                  <span className="neobrutal-badge-pink" style={{ fontSize: '12px' }}>
+                <div style={{ marginTop: '2px' }}>
+                  <span className="neobrutal-badge-pink" style={{ fontSize: '13px', padding: '6px 14px' }}>
                     Total: {formatTotalWeight(harvestTotalWeightKg)} ({harvestTotalBunches} Bunches)
                   </span>
                 </div>
@@ -446,10 +474,11 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    gap: '10px',
-                    paddingTop: '10px',
-                    borderTop: '1.5px solid #000000',
-                    marginTop: '2px',
+                    gap: '8px',
+                    flexWrap: 'wrap',
+                    paddingTop: '14px',
+                    borderTop: '2px solid #000000',
+                    marginTop: '4px',
                   }}
                   onClick={(e) => e.stopPropagation()}
                 >
@@ -457,10 +486,17 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
                     type="button"
                     onClick={() => onOpenAddBatchModal(record.id)}
                     className="neobrutal-btn-orange"
-                    style={{ height: '36px', padding: '0 12px', fontSize: '12px' }}
+                    style={{
+                      height: '40px',
+                      padding: '0 12px',
+                      fontSize: '12px',
+                      whiteSpace: 'nowrap',
+                      flex: 1,
+                      justifyContent: 'center',
+                    }}
                   >
                     <HugeiconsIcon icon={PlusSignIcon} size={15} color="#ffffff" />
-                    <span>Add Batch ({String.fromCharCode(65 + record.batches.length)})</span>
+                    <span style={{ whiteSpace: 'nowrap' }}>Add Batch ({String.fromCharCode(65 + record.batches.length)})</span>
                   </button>
 
                   <button
@@ -469,20 +505,23 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
                     style={{
                       background: '#ffffff',
                       border: '2.5px solid #000000',
-                      borderRadius: '12px',
+                      borderRadius: '14px',
                       padding: '0 12px',
-                      height: '36px',
+                      height: '40px',
                       fontWeight: 800,
                       fontSize: '12px',
                       color: '#000000',
                       display: 'flex',
                       alignItems: 'center',
+                      justifyContent: 'center',
                       gap: '4px',
                       cursor: 'pointer',
-                      boxShadow: '2.5px 2.5px 0px #000000',
+                      boxShadow: '3px 3px 0px #000000',
+                      whiteSpace: 'nowrap',
+                      flex: 1,
                     }}
                   >
-                    <span>View Batches ({record.batches.length})</span>
+                    <span style={{ whiteSpace: 'nowrap' }}>View Batches ({record.batches.length})</span>
                     <HugeiconsIcon icon={ArrowRight02Icon} size={14} color="#000000" />
                   </button>
                 </div>
