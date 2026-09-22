@@ -252,14 +252,18 @@ body {
   max-width: 100%;
   box-sizing: border-box;
   min-width: 0;
-  display: block;
+  display: flex;
+  align-items: center;
+  line-height: 49px;
 }
 
 .davot-input[type="date"]::-webkit-date-and-time-value {
   text-align: left;
   margin: 0;
   padding: 0;
-  min-height: 1.2em;
+  height: 100%;
+  min-height: 100%;
+  line-height: 49px;
   display: flex;
   align-items: center;
 }
