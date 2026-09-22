@@ -7,7 +7,6 @@ import {
   FactoryIcon,
   Calendar01Icon,
   ScaleIcon,
-  Sorting01Icon,
   CheckmarkCircle02Icon,
   Clock01Icon,
 } from '@hugeicons/core-free-icons';
@@ -24,8 +23,6 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
   onOpenAddBatchModal,
 }) => {
   // Calculate aggregate metrics
-  const totalBatches = records.reduce((sum, r) => sum + r.batches.length, 0);
-
   const totalWeightKg = records.reduce((sum, r) => {
     return (
       sum +
@@ -63,7 +60,7 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '100px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '100px' }}>
       {/* Top Banner Header */}
       <div
         style={{
@@ -71,34 +68,16 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: '16px',
+          gap: '12px',
         }}
       >
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span
-              style={{
-                fontSize: '12px',
-                fontWeight: 900,
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                background: '#fef08a',
-                color: '#000000',
-                padding: '4px 10px',
-                borderRadius: '8px',
-                border: '2px solid #000000',
-                boxShadow: '2px 2px 0px #000000',
-              }}
-            >
-              Farm Operations Mode
-            </span>
-          </div>
           <h1
             style={{
-              fontSize: '26px',
+              fontSize: '22px',
               fontWeight: 900,
               color: '#000000',
-              margin: '6px 0 0 0',
+              margin: 0,
               letterSpacing: '-0.5px',
             }}
           >
@@ -109,63 +88,48 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
         <button
           onClick={onOpenAddHarvestModal}
           className="neobrutal-btn-yellow"
-          style={{ height: '48px', padding: '0 20px', fontSize: '15px' }}
+          style={{ height: '42px', padding: '0 16px', fontSize: '14px' }}
         >
-          <HugeiconsIcon icon={PlusSignIcon} size={20} color="#000000" />
+          <HugeiconsIcon icon={PlusSignIcon} size={18} color="#000000" />
           <span>Add New Harvest</span>
         </button>
       </div>
 
-      {/* Overview Stat Cards */}
+      {/* Overview Stat Cards - 2 Cards Side-by-Side */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '14px',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '10px',
         }}
       >
         <div
           className="neobrutal-card"
-          style={{ background: '#fef08a', padding: '16px', borderRadius: '16px' }}
+          style={{ background: '#e0f2fe', padding: '12px 14px', borderRadius: '14px' }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-            <HugeiconsIcon icon={WheatIcon} size={22} color="#000000" />
-            <span style={{ fontSize: '13px', fontWeight: 800, color: '#000000' }}>
-              Total Harvest Weight
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+            <HugeiconsIcon icon={WheatIcon} size={18} color="#000000" />
+            <span style={{ fontSize: '12px', fontWeight: 800, color: '#000000', whiteSpace: 'nowrap' }}>
+              Total Weight
             </span>
           </div>
-          <div style={{ fontSize: '24px', fontWeight: 900, color: '#000000' }}>
+          <div style={{ fontSize: '18px', fontWeight: 900, color: '#000000', lineHeight: 1.2 }}>
             {formatTotalWeight(totalWeightKg)}
           </div>
         </div>
 
         <div
           className="neobrutal-card"
-          style={{ background: '#e0f2fe', padding: '16px', borderRadius: '16px' }}
+          style={{ background: '#f3e8ff', padding: '12px 14px', borderRadius: '14px' }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-            <HugeiconsIcon icon={ScaleIcon} size={22} color="#000000" />
-            <span style={{ fontSize: '13px', fontWeight: 800, color: '#000000' }}>
-              Total FFB Bunches
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+            <HugeiconsIcon icon={ScaleIcon} size={18} color="#000000" />
+            <span style={{ fontSize: '12px', fontWeight: 800, color: '#000000', whiteSpace: 'nowrap' }}>
+              Total Bunches
             </span>
           </div>
-          <div style={{ fontSize: '24px', fontWeight: 900, color: '#000000' }}>
-            {totalBunches.toLocaleString()} <span style={{ fontSize: '14px' }}>bunches</span>
-          </div>
-        </div>
-
-        <div
-          className="neobrutal-card"
-          style={{ background: '#ffe4e6', padding: '16px', borderRadius: '16px' }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-            <HugeiconsIcon icon={Sorting01Icon} size={22} color="#000000" />
-            <span style={{ fontSize: '13px', fontWeight: 800, color: '#000000' }}>
-              Logged Batches
-            </span>
-          </div>
-          <div style={{ fontSize: '24px', fontWeight: 900, color: '#000000' }}>
-            {totalBatches} <span style={{ fontSize: '14px' }}>batches ({records.length} harvests)</span>
+          <div style={{ fontSize: '18px', fontWeight: 900, color: '#000000', lineHeight: 1.2 }}>
+            {totalBunches.toLocaleString()} <span style={{ fontSize: '12px', fontWeight: 700 }}>bunches</span>
           </div>
         </div>
       </div>
