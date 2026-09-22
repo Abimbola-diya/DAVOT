@@ -63,7 +63,8 @@ export const AddHarvestModal: React.FC<AddHarvestModalProps> = ({
     };
 
     if (mode === 'new') {
-      const finalName = harvestName.trim() || `Harvest ${new Date().toLocaleDateString()}`;
+      const defaultLetter = String.fromCharCode(65 + existingRecords.length);
+      const finalName = harvestName.trim() || `Harvest ${defaultLetter}`;
       onSaveNewHarvest(finalName, batchData);
     } else {
       if (!selectedHarvestId) {
@@ -194,12 +195,12 @@ export const AddHarvestModal: React.FC<AddHarvestModalProps> = ({
           ) : (
             <div>
               <label style={{ display: 'block', fontSize: '13px', fontWeight: 800, color: '#000000', marginBottom: '6px' }}>
-                Harvest Name / Block Title:
+                Harvest Name:
               </label>
               <input
                 type="text"
                 className="davot-input"
-                placeholder="e.g. Block A Palm Harvest - Main Field"
+                placeholder={`e.g. Harvest ${String.fromCharCode(65 + existingRecords.length)}`}
                 value={harvestName}
                 onChange={(e) => setHarvestName(e.target.value)}
                 required

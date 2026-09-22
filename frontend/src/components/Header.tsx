@@ -54,28 +54,24 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSettings, domainMode = 'fa
 
   return (
     <header className="app-header-clean">
-      <div className="header-user-welcome">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
-          <h1 className="header-greeting">{timeOfDay} {userName}</h1>
-          {onToggleDomain && (
-            <button
-              onClick={onToggleDomain}
-              className="header-domain-badge-btn"
-              title="Click to switch domain workspace"
-              type="button"
-            >
-              <HugeiconsIcon
-                icon={domainMode === 'farm' ? TractorIcon : Estimate01Icon}
-                size={14}
-                color="#000000"
-              />
-              <span>{domainMode === 'farm' ? 'Farm' : 'Expenses'}</span>
-            </button>
-          )}
-        </div>
-        <p className="header-subtitle">
-          {domainMode === 'farm' ? 'Farm Operations & Flow' : 'Expenses & Financial Accounts'}
-        </p>
+      <div className="header-user-welcome" style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-start' }}>
+        <h1 className="header-greeting" style={{ margin: 0 }}>{timeOfDay} {userName}</h1>
+        {onToggleDomain && (
+          <button
+            onClick={onToggleDomain}
+            className="header-domain-badge-btn"
+            title="Click to switch domain workspace"
+            type="button"
+            style={{ marginTop: '2px' }}
+          >
+            <HugeiconsIcon
+              icon={domainMode === 'farm' ? TractorIcon : Estimate01Icon}
+              size={14}
+              color="#000000"
+            />
+            <span>{domainMode === 'farm' ? 'Farm' : 'Expenses'}</span>
+          </button>
+        )}
       </div>
 
       <div className="header-right-actions">

@@ -116,7 +116,7 @@ const INITIAL_INVENTORY: InventoryItem[] = [
 const INITIAL_HARVESTS: HarvestRecord[] = [
   {
     id: 'h_1',
-    name: 'Block A - Main Plantation',
+    name: 'Harvest A',
     created_at: '2026-09-20',
     batches: [
       {
@@ -145,7 +145,7 @@ const INITIAL_HARVESTS: HarvestRecord[] = [
   },
   {
     id: 'h_2',
-    name: 'Block C - Young Palms Field',
+    name: 'Harvest B',
     created_at: '2026-09-22',
     batches: [
       {
