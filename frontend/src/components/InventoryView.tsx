@@ -3,11 +3,12 @@ import { InventoryItem, InventoryLedger, InputType } from '../types';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   ContainerIcon,
-  PlusSignIcon,
   ArrowLeft02Icon,
   ShoppingCart01Icon,
   Sorting01Icon,
-  InformationCircleIcon
+  InformationCircleIcon,
+  AlertCircleIcon,
+  CancelCircleIcon
 } from '@hugeicons/core-free-icons';
 
 interface InventoryViewProps {
@@ -519,72 +520,129 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
   // MAIN INPUTS LIST PAGE
   return (
     <div style={{ paddingBottom: '30px' }}>
-      {/* Page Title & Add Button */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <div>
-          <h1 style={{ fontSize: '20px', fontWeight: 900, color: '#000000', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <HugeiconsIcon icon={ContainerIcon} size={22} color="#000000" />
-            Farm Inputs
-          </h1>
-          <p style={{ fontSize: '12px', fontWeight: 700, color: '#64748b', margin: '2px 0 0 0' }}>
-            Track fertilizers, chemicals & fuel stock levels
-          </p>
-        </div>
-
+      {/* 2x2 Grid: Add Input Action Button + 3 Stat Cards (Placed at the top, matching Harvest page) */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '10px',
+          marginBottom: '16px',
+        }}
+      >
+        {/* Slot 1 (Top Left): Add Input Action Button */}
         <button
-          onClick={() => setIsAddInputModalOpen(true)}
           type="button"
+          onClick={() => setIsAddInputModalOpen(true)}
+          className="neobrutal-btn-yellow"
           style={{
-            background: '#ffffff',
-            color: '#000000',
-            border: '2px solid #000000',
-            borderRadius: '10px',
-            padding: '8px 14px',
-            fontSize: '13px',
-            fontWeight: 900,
-            boxShadow: '2.5px 2.5px 0px #000000',
-            cursor: 'pointer',
+            height: '100%',
+            minHeight: '64px',
+            padding: '12px 14px',
+            borderRadius: '14px',
             display: 'flex',
             alignItems: 'center',
-            gap: '4px'
+            justifyContent: 'center',
+            gap: '8px',
+            background: '#facc15',
+            border: '2.5px solid #000000',
+            boxShadow: '3.5px 3.5px 0px #000000',
+            cursor: 'pointer',
           }}
         >
-          <HugeiconsIcon icon={PlusSignIcon} size={16} color="#000000" />
-          + Add Input
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#000000"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          <span style={{ fontSize: '14px', fontWeight: 900, color: '#000000', whiteSpace: 'nowrap' }}>
+            Add Input
+          </span>
         </button>
+
+        {/* Slot 2 (Top Right): Total Inputs (Cream #ffedd5) */}
+        <div
+          className="neobrutal-card"
+          style={{
+            background: '#ffedd5',
+            border: '2.5px solid #000000',
+            boxShadow: '3.5px 3.5px 0px #000000',
+            padding: '12px 14px',
+            borderRadius: '14px'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+            <HugeiconsIcon icon={ContainerIcon} size={18} color="#000000" />
+            <span style={{ fontSize: '13px', fontWeight: 800, color: '#000000', whiteSpace: 'nowrap' }}>
+              Total Inputs
+            </span>
+          </div>
+          <div style={{ fontSize: '20px', fontWeight: 900, color: '#000000', lineHeight: 1.2 }}>
+            {totalInputsCount} <span style={{ fontSize: '13px', fontWeight: 700 }}>{totalInputsCount === 1 ? 'item' : 'items'}</span>
+          </div>
+        </div>
+
+        {/* Slot 3 (Bottom Left): Low Stock (Soft Blue #e0f2fe - Matches Harvest Slot 3) */}
+        <div
+          className="neobrutal-card"
+          style={{
+            background: '#e0f2fe',
+            border: '2.5px solid #000000',
+            boxShadow: '3.5px 3.5px 0px #000000',
+            padding: '12px 14px',
+            borderRadius: '14px'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+            <HugeiconsIcon icon={AlertCircleIcon} size={18} color="#000000" />
+            <span style={{ fontSize: '13px', fontWeight: 800, color: '#000000', whiteSpace: 'nowrap' }}>
+              Low Stock
+            </span>
+          </div>
+          <div style={{ fontSize: '20px', fontWeight: 900, color: '#000000', lineHeight: 1.2 }}>
+            {lowStockCount} <span style={{ fontSize: '13px', fontWeight: 700 }}>{lowStockCount === 1 ? 'item' : 'items'}</span>
+          </div>
+        </div>
+
+        {/* Slot 4 (Bottom Right): Out of Stock (Soft Lavender #f3e8ff - Matches Harvest Slot 4) */}
+        <div
+          className="neobrutal-card"
+          style={{
+            background: '#f3e8ff',
+            border: '2.5px solid #000000',
+            boxShadow: '3.5px 3.5px 0px #000000',
+            padding: '12px 14px',
+            borderRadius: '14px'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+            <HugeiconsIcon icon={CancelCircleIcon} size={18} color="#000000" />
+            <span style={{ fontSize: '13px', fontWeight: 800, color: '#000000', whiteSpace: 'nowrap' }}>
+              Out of Stock
+            </span>
+          </div>
+          <div style={{ fontSize: '20px', fontWeight: 900, color: '#000000', lineHeight: 1.2 }}>
+            {outOfStockCount} <span style={{ fontSize: '13px', fontWeight: 700 }}>{outOfStockCount === 1 ? 'item' : 'items'}</span>
+          </div>
+        </div>
       </div>
 
-      {/* Top Summary KPI Cards (Neobrutalism) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '18px' }}>
-        {/* Total Inputs */}
-        <div style={{ background: '#ffffff', border: '2px solid #000000', borderRadius: '14px', padding: '12px', boxShadow: '3px 3px 0px #000000' }}>
-          <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
-            Total Inputs
-          </span>
-          <span style={{ fontSize: '22px', fontWeight: 900, color: '#000000' }}>
-            {totalInputsCount}
-          </span>
-        </div>
-
-        {/* Low Stock */}
-        <div style={{ background: '#fff7ed', border: '2px solid #000000', borderRadius: '14px', padding: '12px', boxShadow: '3px 3px 0px #000000' }}>
-          <span style={{ fontSize: '10px', fontWeight: 800, color: '#9a3412', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
-            Low Stock
-          </span>
-          <span style={{ fontSize: '22px', fontWeight: 900, color: '#c2410c' }}>
-            {lowStockCount}
-          </span>
-        </div>
-
-        {/* Out of Stock */}
-        <div style={{ background: '#fef2f2', border: '2px solid #000000', borderRadius: '14px', padding: '12px', boxShadow: '3px 3px 0px #000000' }}>
-          <span style={{ fontSize: '10px', fontWeight: 800, color: '#991b1b', textTransform: 'uppercase', display: 'block', marginBottom: '2px' }}>
-            Out of Stock
-          </span>
-          <span style={{ fontSize: '22px', fontWeight: 900, color: '#dc2626' }}>
-            {outOfStockCount}
-          </span>
-        </div>
+      {/* Title & Subtitle Section (Placed after the 4 metric cards) */}
+      <div style={{ marginTop: '14px', marginBottom: '14px' }}>
+        <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#000000', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <HugeiconsIcon icon={ContainerIcon} size={20} color="#000000" />
+          Farm Inputs & Inventory.
+        </h2>
+        <p style={{ fontSize: '12px', fontWeight: 700, color: '#64748b', margin: '4px 0 0 0' }}>
+          Track fertilizers, chemicals & fuel stock levels
+        </p>
       </div>
 
       {/* Inputs List Table/Cards */}
