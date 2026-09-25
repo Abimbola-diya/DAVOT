@@ -215,7 +215,7 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
     const pct = product.lastMonthProduced > 0 ? Math.round((diff / product.lastMonthProduced) * 100) : 0;
 
     return (
-      <div style={{ padding: '16px', maxWidth: '800px', margin: '0 auto', paddingBottom: '90px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '100px' }}>
         {/* Back Button */}
         <button
           onClick={() => setSelectedProductKey(null)}
@@ -478,14 +478,13 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
   // VIEW 2: MAIN PRODUCTS OVERVIEW PAGE (3 Product Cards + Metric Cards)
   // -------------------------------------------------------------
   return (
-    <div style={{ padding: '16px', maxWidth: '800px', margin: '0 auto', paddingBottom: '90px' }}>
-      {/* 2x2 Grid: Record Batch Action Button + 3 Product Stock Cards */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '100px' }}>
+      {/* 2x2 Grid: Record Batch Action Button + 3 Product Stock Cards (Matching Harvest page layout) */}
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           gap: '10px',
-          marginBottom: '20px',
         }}
       >
         {/* Slot 1 (Top Left): Record Batch Action Button */}
@@ -495,16 +494,16 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
           className="neobrutal-btn-yellow"
           style={{
             height: '100%',
-            minHeight: '68px',
+            minHeight: '64px',
             padding: '12px 14px',
-            borderRadius: '16px',
+            borderRadius: '14px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '8px',
             background: '#facc15',
             border: '2.5px solid #000000',
-            boxShadow: '3.5px 3.5px 0px #000000',
+            boxShadow: '3px 3px 0px #000000',
             cursor: 'pointer',
           }}
         >
@@ -521,7 +520,7 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
-          <span style={{ fontSize: '14px', fontWeight: 900, color: '#000000', whiteSpace: 'nowrap' }}>
+          <span style={{ fontSize: '13px', fontWeight: 900, color: '#000000', whiteSpace: 'nowrap' }}>
             Record Batch
           </span>
         </button>
@@ -535,12 +534,12 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
             border: '2.5px solid #000000',
             boxShadow: '3.5px 3.5px 0px #000000',
             padding: '12px 14px',
-            borderRadius: '16px',
+            borderRadius: '14px',
             cursor: 'pointer',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-            <HugeiconsIcon icon={ProductLoadingIcon} size={16} color="#000000" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+            <HugeiconsIcon icon={ProductLoadingIcon} size={18} color="#000000" />
             <span style={{ fontSize: '12px', fontWeight: 800, color: '#000000', whiteSpace: 'nowrap' }}>
               CPO Stock
             </span>
@@ -559,12 +558,12 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
             border: '2.5px solid #000000',
             boxShadow: '3.5px 3.5px 0px #000000',
             padding: '12px 14px',
-            borderRadius: '16px',
+            borderRadius: '14px',
             cursor: 'pointer',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-            <HugeiconsIcon icon={ProductLoadingIcon} size={16} color="#000000" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+            <HugeiconsIcon icon={ProductLoadingIcon} size={18} color="#000000" />
             <span style={{ fontSize: '12px', fontWeight: 800, color: '#000000', whiteSpace: 'nowrap' }}>
               PKO Stock
             </span>
@@ -583,12 +582,12 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
             border: '2.5px solid #000000',
             boxShadow: '3.5px 3.5px 0px #000000',
             padding: '12px 14px',
-            borderRadius: '16px',
+            borderRadius: '14px',
             cursor: 'pointer',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-            <HugeiconsIcon icon={ProductLoadingIcon} size={16} color="#000000" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+            <HugeiconsIcon icon={ProductLoadingIcon} size={18} color="#000000" />
             <span style={{ fontSize: '12px', fontWeight: 800, color: '#000000', whiteSpace: 'nowrap' }}>
               PKC Stock
             </span>
@@ -599,25 +598,11 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
         </div>
       </div>
 
-      {/* Header & Title (Placed under the 4 metric cards) */}
-      <div style={{ marginBottom: '16px' }}>
-        <h1
-          style={{
-            fontSize: '22px',
-            fontWeight: 900,
-            color: '#000000',
-            margin: '0 0 4px 0',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-          }}
-        >
-          <HugeiconsIcon icon={ProductLoadingIcon} size={24} color="#000000" />
+      {/* Subheader / Title */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '4px 0 2px 0' }}>
+        <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#000000', margin: 0 }}>
           Products & Production
-        </h1>
-        <p style={{ fontSize: '13px', fontWeight: 700, color: '#475569', margin: 0 }}>
-          Track production output, yields, and processing batches by product
-        </p>
+        </h2>
       </div>
 
       {/* List of 3 Main Finished Product Cards */}
