@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { HarvestRecord, HarvestBatch } from '../types';
+import { HarvestRecord } from '../types';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   WheatIcon,
@@ -7,7 +7,6 @@ import {
   FactoryIcon,
   Calendar01Icon,
   ScaleIcon,
-  CheckmarkCircle02Icon,
   Clock01Icon,
   ArrowLeft02Icon,
   ArrowRight02Icon,
@@ -25,6 +24,7 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
   onOpenAddBatchModal,
 }) => {
   const [activeHarvestIdDetail, setActiveHarvestIdDetail] = useState<string | null>(null);
+  const [activeBatchIdDetail, setActiveBatchIdDetail] = useState<string | null>(null);
 
   // Calculate overall aggregate metrics
   const totalWeightKg = records.reduce((sum, r) => {
@@ -48,26 +48,259 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
     return `${kg.toLocaleString()} Kg`;
   };
 
-  const getStatusBadgeClass = (status: HarvestBatch['status']) => {
-    switch (status) {
-      case 'Awaiting Processing':
-        return 'neobrutal-badge-orange';
-      case 'In Processing':
-        return 'neobrutal-badge-blue';
-      case 'Processed into CPO/PKO':
-        return 'neobrutal-badge-teal';
-      case 'Stored':
-        return 'neobrutal-badge-orange';
-      default:
-        return 'neobrutal-badge-orange';
-    }
-  };
-
   // If viewing details for a specific harvest
   const activeRecord = activeHarvestIdDetail
     ? records.find((r) => r.id === activeHarvestIdDetail)
     : null;
 
+  // If viewing details for a specific batch within a harvest
+  const activeBatch = activeRecord && activeBatchIdDetail
+    ? activeRecord.batches.find((b) => b.id === activeBatchIdDetail)
+    : null;
+
+  // 1. SPECIFIC BATCH DETAIL VIEW
+  if (activeRecord && activeBatch) {
+    const batchWeightInKg = activeBatch.weight_unit === 'Tonnes' ? activeBatch.ffb_weight * 1000 : activeBatch.ffb_weight;
+    const avgBunchWeightKg = activeBatch.bunch_count > 0 ? (batchWeightInKg / activeBatch.bunch_count).toFixed(2) : '0';
+
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '100px' }}>
+        {/* Navigation Header */}
+        <div>
+          <button
+            onClick={() => setActiveBatchIdDetail(null)}
+            style={{
+              background: '#ffffff',
+              border: '2.5px solid #000000',
+              borderRadius: '12px',
+              padding: '8px 14px',
+              fontWeight: 800,
+              fontSize: '13px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              boxShadow: '3px 3px 0px #000000',
+            }}
+          >
+            <HugeiconsIcon icon={ArrowLeft02Icon} size={18} color="#000000" />
+            <span>Back to Batches ({activeRecord.name})</span>
+          </button>
+        </div>
+
+        {/* Batch Summary Header Card */}
+        <div
+          className="neobrutal-card"
+          style={{
+            background: '#ffffff',
+            padding: '20px',
+            borderRadius: '20px',
+            border: '2.5px solid #000000',
+            boxShadow: '4px 4px 0px #000000',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            flexWrap: 'wrap',
+            gap: '12px',
+          }}
+        >
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <span style={{ fontSize: '12px', fontWeight: 800, color: '#f97316', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                {activeRecord.name}
+              </span>
+              <span style={{ fontSize: '12px', color: '#64748b' }}>•</span>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748b' }}>
+                Logged {activeBatch.date}
+              </span>
+            </div>
+            <h1 style={{ fontSize: '26px', fontWeight: 900, color: '#000000', margin: 0, lineHeight: 1.1 }}>
+              {activeBatch.batch_name}
+            </h1>
+          </div>
+
+          <span
+            style={{
+              background: '#ffffff',
+              color: '#000000',
+              border: '2px solid #000000',
+              borderRadius: '10px',
+              padding: '6px 12px',
+              fontSize: '12px',
+              fontWeight: 900,
+              boxShadow: '2px 2px 0px #000000',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#f97316' }} />
+            {activeBatch.status}
+          </span>
+        </div>
+
+        {/* Batch Metrics List Out Section */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 900, color: '#000000', margin: '4px 0 2px 0' }}>
+            Batch Metrics & Breakdown
+          </h2>
+
+          {/* Metric 1: Weight */}
+          <div
+            style={{
+              background: '#ffffff',
+              border: '2.5px solid #000000',
+              borderRadius: '16px',
+              padding: '16px 18px',
+              boxShadow: '3.5px 3.5px 0px #000000',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <div>
+              <span style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginBottom: '2px' }}>
+                FFB Harvest Weight
+              </span>
+              <span style={{ fontSize: '18px', fontWeight: 900, color: '#000000' }}>
+                {activeBatch.ffb_weight.toLocaleString()} {activeBatch.weight_unit}
+              </span>
+            </div>
+            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#ffedd5', border: '2px solid #000000', boxShadow: '2px 2px 0px #000000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <HugeiconsIcon icon={ScaleIcon} size={20} color="#000000" />
+            </div>
+          </div>
+
+          {/* Metric 2: Bunches */}
+          <div
+            style={{
+              background: '#ffffff',
+              border: '2.5px solid #000000',
+              borderRadius: '16px',
+              padding: '16px 18px',
+              boxShadow: '3.5px 3.5px 0px #000000',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <div>
+              <span style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginBottom: '2px' }}>
+                Number of FFB Bunches
+              </span>
+              <span style={{ fontSize: '18px', fontWeight: 900, color: '#000000' }}>
+                {activeBatch.bunch_count.toLocaleString()} Bunches
+              </span>
+            </div>
+            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#ffffff', border: '2px solid #000000', boxShadow: '2px 2px 0px #000000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <HugeiconsIcon icon={WheatIcon} size={20} color="#000000" />
+            </div>
+          </div>
+
+          {/* Metric 3: Calculated Avg Weight Per Bunch */}
+          <div
+            style={{
+              background: '#ffffff',
+              border: '2.5px solid #000000',
+              borderRadius: '16px',
+              padding: '16px 18px',
+              boxShadow: '3.5px 3.5px 0px #000000',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <div>
+              <span style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginBottom: '2px' }}>
+                Average Bunch Weight
+              </span>
+              <span style={{ fontSize: '18px', fontWeight: 900, color: '#000000' }}>
+                {avgBunchWeightKg} Kg / bunch
+              </span>
+            </div>
+            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#ffedd5', border: '2px solid #000000', boxShadow: '2px 2px 0px #000000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <HugeiconsIcon icon={ScaleIcon} size={20} color="#000000" />
+            </div>
+          </div>
+
+          {/* Metric 4: Destination */}
+          <div
+            style={{
+              background: '#ffffff',
+              border: '2.5px solid #000000',
+              borderRadius: '16px',
+              padding: '16px 18px',
+              boxShadow: '3.5px 3.5px 0px #000000',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <div>
+              <span style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginBottom: '2px' }}>
+                Transport Destination
+              </span>
+              <span style={{ fontSize: '15px', fontWeight: 900, color: '#000000' }}>
+                {activeBatch.destination}
+              </span>
+            </div>
+            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#ffffff', border: '2px solid #000000', boxShadow: '2px 2px 0px #000000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <HugeiconsIcon icon={FactoryIcon} size={20} color="#000000" />
+            </div>
+          </div>
+
+          {/* Metric 5: Processing Status */}
+          <div
+            style={{
+              background: '#ffffff',
+              border: '2.5px solid #000000',
+              borderRadius: '16px',
+              padding: '16px 18px',
+              boxShadow: '3.5px 3.5px 0px #000000',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <div>
+              <span style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginBottom: '2px' }}>
+                Batch Processing Status
+              </span>
+              <span style={{ fontSize: '15px', fontWeight: 900, color: '#000000' }}>
+                {activeBatch.status}
+              </span>
+            </div>
+            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#ffedd5', border: '2px solid #000000', boxShadow: '2px 2px 0px #000000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <HugeiconsIcon icon={Clock01Icon} size={20} color="#000000" />
+            </div>
+          </div>
+
+          {/* Batch Notes (if present) */}
+          {activeBatch.notes && (
+            <div
+              style={{
+                background: '#ffffff',
+                border: '2.5px solid #000000',
+                borderRadius: '16px',
+                padding: '16px 18px',
+                boxShadow: '3.5px 3.5px 0px #000000',
+                marginTop: '4px',
+              }}
+            >
+              <span style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginBottom: '4px' }}>
+                Batch Notes & Remarks
+              </span>
+              <span style={{ fontSize: '14px', fontWeight: 700, color: '#000000', lineHeight: 1.5, display: 'block' }}>
+                {activeBatch.notes}
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // 2. HARVEST BATCHES LIST VIEW
   if (activeRecord) {
     const harvestTotalWeightKg = activeRecord.batches.reduce((sum, b) => {
       return sum + (b.weight_unit === 'Tonnes' ? b.ffb_weight * 1000 : b.ffb_weight);
@@ -212,85 +445,82 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
           </h2>
         </div>
 
-        {/* Batches List for Active Harvest */}
+        {/* Batches Overview List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {activeRecord.batches.map((batch) => (
             <div
               key={batch.id}
               className="neobrutal-card"
+              onClick={() => setActiveBatchIdDetail(batch.id)}
               style={{
                 background: '#ffffff',
-                padding: '16px',
-                borderRadius: '16px',
+                padding: '18px 20px',
+                borderRadius: '18px',
+                border: '2.5px solid #000000',
+                boxShadow: '4px 4px 0px #000000',
+                cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '12px',
+                gap: '14px',
+                transition: 'transform 0.15s ease, boxShadow 0.15s ease',
               }}
             >
-              {/* Batch Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span className="neobrutal-badge-orange" style={{ fontSize: '14px', fontWeight: 900, color: '#000000' }}>
+              {/* Batch Header: Name + Date + Status Badge */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>
                     {batch.batch_name}
                   </span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 800, color: '#475569' }}>
-                    <HugeiconsIcon icon={Calendar01Icon} size={14} color="#000000" />
-                    {batch.date}
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748b' }}>
+                    • {batch.date}
                   </span>
                 </div>
 
-                <span className={getStatusBadgeClass(batch.status)} style={{ fontSize: '12px' }}>
-                  {batch.status === 'Awaiting Processing' && (
-                    <HugeiconsIcon icon={Clock01Icon} size={13} color="#000000" style={{ marginRight: '4px' }} />
-                  )}
-                  {batch.status === 'Processed into CPO/PKO' && (
-                    <HugeiconsIcon icon={CheckmarkCircle02Icon} size={13} color="#000000" style={{ marginRight: '4px' }} />
-                  )}
+                <span
+                  style={{
+                    background: '#ffffff',
+                    color: '#000000',
+                    border: '1.5px solid #000000',
+                    borderRadius: '8px',
+                    padding: '3px 10px',
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    boxShadow: '1.5px 1.5px 0px #000000',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                  }}
+                >
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#f97316' }} />
                   {batch.status}
                 </span>
               </div>
 
-              {/* Batch Metrics Details */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', fontSize: '13px', fontWeight: 700 }}>
+              {/* Overview Row (3 Key Metrics) */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', paddingTop: '10px', borderTop: '2px solid rgba(0, 0, 0, 0.08)' }}>
                 <div>
-                  <span style={{ color: '#64748b' }}>Weight: </span>
-                  <span style={{ background: '#ffedd5', padding: '3px 8px', borderRadius: '6px', border: '1.5px solid #000' }}>
-                    {batch.ffb_weight.toLocaleString()} {batch.weight_unit}
+                  <span style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block' }}>Weight</span>
+                  <span style={{ fontSize: '14px', fontWeight: 900, color: '#000000' }}>{batch.ffb_weight.toLocaleString()} {batch.weight_unit}</span>
+                </div>
+
+                <div style={{ width: '1.5px', height: '22px', background: '#000000', opacity: 0.15 }} />
+
+                <div>
+                  <span style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block' }}>Bunches</span>
+                  <span style={{ fontSize: '14px', fontWeight: 900, color: '#000000' }}>{batch.bunch_count} Bunches</span>
+                </div>
+
+                <div style={{ width: '1.5px', height: '22px', background: '#000000', opacity: 0.15 }} />
+
+                <div>
+                  <span style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block' }}>Destination</span>
+                  <span style={{ fontSize: '14px', fontWeight: 900, color: '#000000', maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>
+                    {batch.destination.split(' ')[0]} {batch.destination.split(' ')[1] || ''}
                   </span>
                 </div>
 
-                <div>
-                  <span style={{ color: '#64748b' }}>Bunches: </span>
-                  <span style={{ background: '#e0f2fe', padding: '3px 8px', borderRadius: '6px', border: '1.5px solid #000' }}>
-                    {batch.bunch_count} Bunches
-                  </span>
-                </div>
-
-                <div>
-                  <span style={{ color: '#64748b' }}>Destination: </span>
-                  <span className="neobrutal-badge-teal" style={{ fontSize: '12px' }}>
-                    <HugeiconsIcon icon={FactoryIcon} size={13} color="#000000" style={{ marginRight: '4px' }} />
-                    {batch.destination}
-                  </span>
-                </div>
+                <HugeiconsIcon icon={ArrowRight02Icon} size={16} color="#000000" />
               </div>
-
-              {/* Notes */}
-              {batch.notes && (
-                <div
-                  style={{
-                    fontSize: '12px',
-                    fontWeight: 600,
-                    color: '#475569',
-                    background: '#f8fafc',
-                    padding: '8px 12px',
-                    borderRadius: '8px',
-                    border: '1.5px solid #000000',
-                  }}
-                >
-                  <strong style={{ color: '#000000' }}>Note:</strong> {batch.notes}
-                </div>
-              )}
             </div>
           ))}
         </div>
@@ -462,10 +692,7 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {records.map((record, index) => {
-            const cardBgColors = ['#f3e8ff', '#e0f2fe', '#fef9c3']; // Purple, Blue, Yellow
-            const cardBg = cardBgColors[index % cardBgColors.length];
-
+          {records.map((record) => {
             const harvestTotalWeightKg = record.batches.reduce((sum, b) => {
               return sum + (b.weight_unit === 'Tonnes' ? b.ffb_weight * 1000 : b.ffb_weight);
             }, 0);
@@ -479,7 +706,7 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
                 onClick={() => setActiveHarvestIdDetail(record.id)}
                 style={{
                   padding: '24px',
-                  background: cardBg,
+                  background: '#ffffff',
                   cursor: 'pointer',
                   display: 'flex',
                   flexDirection: 'column',
@@ -511,59 +738,29 @@ export const HarvestView: React.FC<HarvestViewProps> = ({
                     <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#000000', margin: 0, lineHeight: 1.2 }}>
                       {record.name}
                     </h3>
-                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#334155', marginTop: '4px' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#64748b', marginTop: '4px' }}>
                       Created: {record.created_at} • <strong style={{ color: '#000000' }}>{record.batches.length} Batch{record.batches.length > 1 ? 'es' : ''} Logged</strong>
                     </div>
                   </div>
                 </div>
 
-                {/* Metrics Row (Total Weight & Total Bunches) - Clean inline writing, no boxes */}
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '16px',
-                    flexWrap: 'wrap',
-                    marginTop: '2px',
-                  }}
-                >
-                  <div>
-                    <span
-                      style={{
-                        fontSize: '11px',
-                        fontWeight: 800,
-                        color: '#475569',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.4px',
-                        display: 'block',
-                      }}
-                    >
-                      Total Weight
-                    </span>
-                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>
-                      {formatTotalWeight(harvestTotalWeightKg)}
-                    </span>
-                  </div>
-
-                  <div style={{ width: '2px', height: '26px', background: '#000000', opacity: 0.2 }} />
-
-                  <div>
-                    <span
-                      style={{
-                        fontSize: '11px',
-                        fontWeight: 800,
-                        color: '#475569',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.4px',
-                        display: 'block',
-                      }}
-                    >
-                      Total Bunches
-                    </span>
-                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>
-                      {harvestTotalBunches} Bunches
-                    </span>
-                  </div>
+                {/* Totals Badge */}
+                <div style={{ marginTop: '2px' }}>
+                  <span
+                    style={{
+                      fontSize: '13px',
+                      fontWeight: 900,
+                      padding: '6px 14px',
+                      background: '#ffffff',
+                      color: '#000000',
+                      borderRadius: '8px',
+                      border: '1.5px solid #000000',
+                      boxShadow: '2px 2px 0px #000000',
+                      display: 'inline-block',
+                    }}
+                  >
+                    Total: {formatTotalWeight(harvestTotalWeightKg)} ({harvestTotalBunches} Bunches)
+                  </span>
                 </div>
 
                 {/* Action CTA row */}
