@@ -310,8 +310,8 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                 onClick={() => openPurchaseFor(selectedItem)}
                 type="button"
                 style={{
-                  background: '#dcfce7',
-                  color: '#000000',
+                  background: '#f97316',
+                  color: '#ffffff',
                   border: '2px solid #000000',
                   borderRadius: '10px',
                   padding: '8px 12px',
@@ -324,7 +324,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                   gap: '4px'
                 }}
               >
-                <HugeiconsIcon icon={ShoppingCart01Icon} size={15} color="#000000" />
+                <HugeiconsIcon icon={ShoppingCart01Icon} size={15} color="#ffffff" />
                 Record Purchase
               </button>
 
@@ -332,7 +332,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                 onClick={() => openUsageFor(selectedItem)}
                 type="button"
                 style={{
-                  background: '#ffedd5',
+                  background: '#ffffff',
                   color: '#000000',
                   border: '2px solid #000000',
                   borderRadius: '10px',
@@ -999,8 +999,8 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                   type="submit"
                   style={{
                     flex: 1,
-                    background: '#dcfce7',
-                    color: '#000000',
+                    background: '#f97316',
+                    color: '#ffffff',
                     border: '2px solid #000000',
                     borderRadius: '10px',
                     padding: '10px',
@@ -1132,7 +1132,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
                   type="submit"
                   style={{
                     flex: 1,
-                    background: '#ffedd5',
+                    background: '#ffffff',
                     color: '#000000',
                     border: '2px solid #000000',
                     borderRadius: '10px',
