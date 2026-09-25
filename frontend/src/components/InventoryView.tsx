@@ -66,7 +66,6 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
   // Form states for Record Usage
   const [usageItemId, setUsageItemId] = useState<number>(items[0]?.id || 1);
   const [usageQty, setUsageQty] = useState<number | ''>('');
-  const [usageBlock, setUsageBlock] = useState('Block B');
   const [usageDate, setUsageDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [usageNotes, setUsageNotes] = useState('');
 
@@ -160,7 +159,6 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
       onRecordUsage({
         item_id: targetId,
         quantity: qty,
-        block_name: usageBlock,
         date: usageDate,
         notes: usageNotes.trim() || undefined,
       });
