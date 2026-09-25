@@ -107,10 +107,76 @@ const INITIAL_FLOW: FlowNodeSummary = {
 };
 
 const INITIAL_INVENTORY: InventoryItem[] = [
-  { id: 1, name: 'Crude Palm Oil (CPO)', category: 'Finished Product', unit: 'litres', current_stock: 640, reorder_level: 100 },
-  { id: 2, name: 'Palm Kernel Oil (PKO)', category: 'Finished Product', unit: 'litres', current_stock: 210, reorder_level: 50 },
-  { id: 3, name: 'Palm Kernel Cake (PKC)', category: 'By-Product', unit: 'bags', current_stock: 25, reorder_level: 5 },
-  { id: 4, name: 'Fresh Fruit Bunches (FFB)', category: 'Raw Harvest', unit: 'kg', current_stock: 980, reorder_level: 200 }
+  {
+    id: 1,
+    name: 'NPK 15-15-15 Fertilizer',
+    category: 'Input',
+    item_type: 'Fertilizer',
+    unit: 'Bags',
+    current_stock: 14,
+    reorder_level: 5,
+    last_purchased_date: '02 Sept 2026',
+    last_cost: 45000,
+    usage_this_month: 11,
+    usage_last_month: 7,
+    bought_this_month: 20
+  },
+  {
+    id: 2,
+    name: 'Glyphosate Herbicide',
+    category: 'Input',
+    item_type: 'Chemical',
+    unit: 'Litres',
+    current_stock: 6,
+    reorder_level: 5,
+    last_purchased_date: '28 Aug 2026',
+    last_cost: 8500,
+    usage_this_month: 4,
+    usage_last_month: 3,
+    bought_this_month: 0
+  },
+  {
+    id: 3,
+    name: 'Urea Fertilizer',
+    category: 'Input',
+    item_type: 'Fertilizer',
+    unit: 'Bags',
+    current_stock: 3,
+    reorder_level: 5,
+    last_purchased_date: '15 Jul 2026',
+    last_cost: 38000,
+    usage_this_month: 5,
+    usage_last_month: 2,
+    bought_this_month: 0
+  },
+  {
+    id: 4,
+    name: 'Diesel Fuel (Tractor/Mill)',
+    category: 'Input',
+    item_type: 'Fuel',
+    unit: 'Litres',
+    current_stock: 0,
+    reorder_level: 50,
+    last_purchased_date: '15 Aug 2026',
+    last_cost: 1300,
+    usage_this_month: 50,
+    usage_last_month: 65,
+    bought_this_month: 0
+  },
+  {
+    id: 5,
+    name: 'Cypermethrin Insecticide',
+    category: 'Input',
+    item_type: 'Chemical',
+    unit: 'Bottles',
+    current_stock: 12,
+    reorder_level: 4,
+    last_purchased_date: '01 Sept 2026',
+    last_cost: 4200,
+    usage_this_month: 2,
+    usage_last_month: 1,
+    bought_this_month: 5
+  }
 ];
 
 const INITIAL_HARVESTS: HarvestRecord[] = [
@@ -127,7 +193,7 @@ const INITIAL_HARVESTS: HarvestRecord[] = [
         weight_unit: 'Kg',
         bunch_count: 180,
         destination: 'Palm Oil Mill 1 (Hydraulic Press)',
-        status: 'Processed into CPO/PKO',
+        status: 'Processed',
         notes: 'High oil extraction efficiency (21.5% CPO yield)',
       },
       {
@@ -238,6 +304,93 @@ export const App: React.FC = () => {
     );
   };
 
+
+  const handleAddInputItem = (newItem: Omit<InventoryItem, 'id'>) => {
+    const item: InventoryItem = {
+      ...newItem,
+      id: Date.now(),
+    };
+    setInventoryItems(prev => [item, ...prev]);
+    api.createInventoryItem(item).catch(() => null);
+  };
+
+  const handleRecordPurchase = (data: {
+    item_id: number;
+    quantity: number;
+    total_cost?: number;
+    cost_per_unit?: number;
+    supplier?: string;
+    date?: string;
+    notes?: string;
+  }) => {
+    const costPerUnit = data.cost_per_unit || (data.total_cost && data.quantity > 0 ? data.total_cost / data.quantity : undefined);
+
+    setInventoryItems(prev => prev.map(item => {
+      if (item.id !== data.item_id) return item;
+      const newStock = item.current_stock + data.quantity;
+      return {
+        ...item,
+        current_stock: newStock,
+        last_purchased_date: data.date ? new Date(data.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : item.last_purchased_date,
+        last_cost: costPerUnit || item.last_cost,
+        bought_this_month: (item.bought_this_month || 0) + data.quantity,
+      };
+    }));
+
+    const targetItem = inventoryItems.find(i => i.id === data.item_id);
+    const newLedger: InventoryLedger = {
+      id: Date.now(),
+      item_id: data.item_id,
+      item_name: targetItem?.name || 'Input',
+      unit: targetItem?.unit || 'Units',
+      timestamp: data.date ? new Date(data.date).toISOString() : new Date().toISOString(),
+      change_type: 'IN',
+      quantity: data.quantity,
+      balance_after: (targetItem?.current_stock || 0) + data.quantity,
+      reference_type: 'Purchase',
+      notes: data.notes || (data.supplier ? `Bought from ${data.supplier}` : 'Stock purchase'),
+      unit_cost: costPerUnit,
+      total_cost: data.total_cost,
+    };
+    setLedgers(prev => [newLedger, ...prev]);
+
+    api.recordPurchase(data).catch(() => null);
+  };
+
+  const handleRecordUsage = (data: {
+    item_id: number;
+    quantity: number;
+    block_name?: string;
+    date?: string;
+    notes?: string;
+  }) => {
+    setInventoryItems(prev => prev.map(item => {
+      if (item.id !== data.item_id) return item;
+      const newStock = Math.max(0, item.current_stock - data.quantity);
+      return {
+        ...item,
+        current_stock: newStock,
+        usage_this_month: (item.usage_this_month || 0) + data.quantity,
+      };
+    }));
+
+    const targetItem = inventoryItems.find(i => i.id === data.item_id);
+    const newLedger: InventoryLedger = {
+      id: Date.now(),
+      item_id: data.item_id,
+      item_name: targetItem?.name || 'Input',
+      unit: targetItem?.unit || 'Units',
+      timestamp: data.date ? new Date(data.date).toISOString() : new Date().toISOString(),
+      change_type: 'OUT',
+      quantity: data.quantity,
+      balance_after: Math.max(0, (targetItem?.current_stock || 0) - data.quantity),
+      reference_type: 'Usage',
+      notes: data.notes || (data.block_name ? `Applied on ${data.block_name}` : 'Field usage'),
+    };
+    setLedgers(prev => [newLedger, ...prev]);
+
+    api.recordUsage(data).catch(() => null);
+  };
 
   // Recording mode category filter state
   const [recordCategory, setRecordCategory] = useState<string>('harvest');
@@ -404,8 +557,14 @@ export const App: React.FC = () => {
                               setIsAddHarvestModalOpen(true);
                             }}
                           />
-                        ) : (effectiveTab === 'inventory' || effectiveTab === 'stock') ? (
-                          <InventoryView items={inventoryItems} ledgers={ledgers} />
+                        ) : (effectiveTab === 'inventory' || effectiveTab === 'stock' || effectiveTab === 'inputs') ? (
+                          <InventoryView 
+                            items={inventoryItems} 
+                            ledgers={ledgers} 
+                            onAddItem={handleAddInputItem}
+                            onRecordPurchase={handleRecordPurchase}
+                            onRecordUsage={handleRecordUsage}
+                          />
                         ) : (
                           <FlowView flowData={flowData} summary={summary} />
                         )

@@ -37,7 +37,9 @@ class InventoryItem(Base):
     category = Column(String, index=True)  # Raw, Finished, Input, By-Product
     unit = Column(String)  # kg, litres, bags, jerrycans, drums, sacks
     current_stock = Column(Float, default=0.0)
-    reorder_level = Column(Float, default=10.0)
+    item_type = Column(String, default="Other")  # Fertilizer, Chemical, Fuel, Other
+    last_purchased_date = Column(String, nullable=True)  # e.g. "02 Sept 2026"
+    last_cost = Column(Float, nullable=True)  # e.g. 45000.0
 
     ledgers = relationship("InventoryLedger", back_populates="item")
 
@@ -51,9 +53,11 @@ class InventoryLedger(Base):
     change_type = Column(String)  # IN, OUT
     quantity = Column(Float)
     balance_after = Column(Float)
-    reference_type = Column(String)  # Harvest, Processing, Sale, Purchase, Adjustment
+    reference_type = Column(String)  # Harvest, Processing, Sale, Purchase, Usage, Adjustment
     reference_id = Column(String, nullable=True)
     notes = Column(Text, nullable=True)
+    unit_cost = Column(Float, nullable=True)
+    total_cost = Column(Float, nullable=True)
 
     item = relationship("InventoryItem", back_populates="ledgers")
 

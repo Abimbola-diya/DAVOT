@@ -31,8 +31,13 @@ export const api = {
   getKernelBatches: () => axios.get<KernelProcessingBatch[]>(`${API_BASE}/processing/kernel-batches`).then(r => r.data),
   createKernelBatch: (data: Partial<KernelProcessingBatch>) => axios.post<KernelProcessingBatch>(`${API_BASE}/processing/kernel-batches`, data).then(r => r.data),
 
-  // Inventory
+  // Inventory & Inputs
   getInventoryItems: () => axios.get<InventoryItem[]>(`${API_BASE}/inventory/items`).then(r => r.data),
+  createInventoryItem: (data: Partial<InventoryItem>) => axios.post<InventoryItem>(`${API_BASE}/inventory/items`, data).then(r => r.data),
+  recordPurchase: (data: { item_id: number; quantity: number; total_cost?: number; cost_per_unit?: number; supplier?: string; date?: string; notes?: string }) => 
+    axios.post(`${API_BASE}/inventory/purchase`, data).then(r => r.data),
+  recordUsage: (data: { item_id: number; quantity: number; block_name?: string; date?: string; notes?: string }) => 
+    axios.post(`${API_BASE}/inventory/usage`, data).then(r => r.data),
   getInventoryLedger: () => axios.get<InventoryLedger[]>(`${API_BASE}/inventory/ledger`).then(r => r.data),
 
   // Sales & Debt

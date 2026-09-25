@@ -11,6 +11,8 @@ export interface FarmBlock {
   status: string;
 }
 
+export type InputType = 'Fertilizer' | 'Chemical' | 'Fuel' | 'Other';
+
 export interface InventoryItem {
   id: number;
   name: string;
@@ -18,6 +20,12 @@ export interface InventoryItem {
   unit: string;
   current_stock: number;
   reorder_level: number;
+  item_type?: InputType;
+  last_purchased_date?: string;
+  last_cost?: number;
+  usage_this_month?: number;
+  usage_last_month?: number;
+  bought_this_month?: number;
 }
 
 export interface InventoryLedger {
@@ -32,6 +40,8 @@ export interface InventoryLedger {
   notes?: string;
   item_name?: string;
   unit?: string;
+  unit_cost?: number;
+  total_cost?: number;
 }
 
 export interface HarvestBatch {
@@ -42,7 +52,7 @@ export interface HarvestBatch {
   weight_unit: 'Kg' | 'Tonnes';
   bunch_count: number;
   destination: string;
-  status: 'Awaiting Processing' | 'In Processing' | 'Processed into CPO/PKO' | 'Stored';
+  status: 'Awaiting Processing' | 'In Processing' | 'Processed' | 'Stored';
   notes?: string;
 }
 

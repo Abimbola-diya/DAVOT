@@ -326,7 +326,7 @@ export const AddHarvestModal: React.FC<AddHarvestModalProps> = ({
             >
               <option value="Awaiting Processing">Awaiting Processing</option>
               <option value="In Processing">In Processing</option>
-              <option value="Processed into CPO/PKO">Processed into CPO/PKO</option>
+              <option value="Processed">Processed</option>
               <option value="Stored">Stored</option>
             </select>
           </div>

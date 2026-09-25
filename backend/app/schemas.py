@@ -43,20 +43,43 @@ class FarmBlockResponse(FarmBlockBase):
     model_config = ConfigDict(from_attributes=True)
 
 
-# --- Inventory Schemas ---
 class InventoryItemBase(BaseModel):
     name: str
-    category: str
+    category: str = "Input"
     unit: str
     current_stock: float = 0.0
     reorder_level: float = 10.0
+    item_type: Optional[str] = "Other"
+    last_purchased_date: Optional[str] = None
+    last_cost: Optional[float] = None
 
-class InventoryItemCreate(InventoryItemBase):
-    pass
+class InventoryItemCreate(BaseModel):
+    name: str
+    item_type: str = "Other"
+    unit: str
+    current_stock: float = 0.0
+    reorder_level: float = 5.0
+    category: str = "Input"
 
 class InventoryItemResponse(InventoryItemBase):
     id: int
     model_config = ConfigDict(from_attributes=True)
+
+class RecordPurchaseRequest(BaseModel):
+    item_id: int
+    quantity: float
+    total_cost: Optional[float] = None
+    cost_per_unit: Optional[float] = None
+    supplier: Optional[str] = None
+    date: Optional[str] = None
+    notes: Optional[str] = None
+
+class RecordUsageRequest(BaseModel):
+    item_id: int
+    quantity: float
+    block_name: Optional[str] = None
+    date: Optional[str] = None
+    notes: Optional[str] = None
 
 class InventoryLedgerResponse(BaseModel):
     id: int
@@ -70,6 +93,8 @@ class InventoryLedgerResponse(BaseModel):
     notes: Optional[str] = None
     item_name: Optional[str] = None
     unit: Optional[str] = None
+    unit_cost: Optional[float] = None
+    total_cost: Optional[float] = None
 
     model_config = ConfigDict(from_attributes=True)
 
