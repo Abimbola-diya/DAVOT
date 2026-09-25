@@ -9,6 +9,7 @@ import {
   AlertCircleIcon,
   Cancel01Icon,
 } from '@hugeicons/core-free-icons';
+
 import { Tool, ToolCategory, ToolCondition } from '../types';
 
 const INITIAL_TOOLS: Tool[] = [
@@ -183,19 +184,32 @@ export const ToolsView: React.FC = () => {
       {/* ── 4 Metric Cards (2×2 grid, matching Product page exactly) ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
 
-        {/* Card 1 – Total Items */}
-        <div
-          className="neobrutal-card"
-          style={{ background: '#ffedd5', border: '2.5px solid #000000', boxShadow: '3.5px 3.5px 0px #000000', padding: '12px 14px', borderRadius: '14px' }}
+        {/* Slot 1 – Add Tool Action Button (matches Product page Record Batch style) */}
+        <button
+          type="button"
+          onClick={handleOpenAddModal}
+          className="neobrutal-btn-yellow"
+          style={{
+            height: '100%',
+            minHeight: '64px',
+            padding: '12px 14px',
+            borderRadius: '14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            background: '#facc15',
+            border: '2.5px solid #000000',
+            boxShadow: '3px 3px 0px #000000',
+            cursor: 'pointer',
+          }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-            <HugeiconsIcon icon={ToolsIcon} size={18} color="#000000" />
-            <span style={{ fontSize: '12px', fontWeight: 800, color: '#000000', whiteSpace: 'nowrap' }}>Total Items</span>
-          </div>
-          <div style={{ fontSize: '20px', fontWeight: 900, color: '#000000', lineHeight: 1.2 }}>
-            {summaryMetrics.totalTools} <span style={{ fontSize: '12px', fontWeight: 700 }}>Units</span>
-          </div>
-        </div>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          <span style={{ fontSize: '13px', fontWeight: 900, color: '#000000', whiteSpace: 'nowrap' }}>Add Tool</span>
+        </button>
 
         {/* Card 2 – Good Condition */}
         <div
@@ -240,36 +254,12 @@ export const ToolsView: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Section Header + Add Tool Button ── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px' }}>
-        <div>
-          <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#000000', margin: 0 }}>Farm Tools & Equipment</h2>
-          <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748b' }}>
-            Inventory of tools currently owned by the farm
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={handleOpenAddModal}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            background: '#facc15',
-            border: '2.5px solid #000000',
-            borderRadius: '12px',
-            padding: '9px 16px',
-            boxShadow: '3px 3px 0px #000000',
-            cursor: 'pointer',
-            flexShrink: 0,
-          }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          <span style={{ fontSize: '13px', fontWeight: 900, color: '#000000', whiteSpace: 'nowrap' }}>Add Tool</span>
-        </button>
+      {/* ── Section Header ── */}
+      <div style={{ marginTop: '4px' }}>
+        <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#000000', margin: '0 0 2px 0' }}>Farm Tools & Equipment</h2>
+        <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748b' }}>
+          Inventory of tools currently owned by the farm
+        </span>
       </div>
 
       {/* ── Search ── */}
