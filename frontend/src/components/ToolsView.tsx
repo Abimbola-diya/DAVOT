@@ -7,7 +7,6 @@ import {
   PencilEdit01Icon,
   CheckmarkCircle02Icon,
   AlertCircleIcon,
-  CancelCircleIcon,
 } from '@hugeicons/core-free-icons';
 import { Tool, ToolCategory, ToolCondition } from '../types';
 
@@ -318,7 +317,7 @@ export const ToolsView: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. Subheader Section (Below 2x2 Metric Cards) */}
+      {/* 2. Subheader Title */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '4px 0 2px 0' }}>
         <div>
           <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#000000', margin: 0 }}>
@@ -330,51 +329,43 @@ export const ToolsView: React.FC = () => {
         </div>
       </div>
 
-      {/* 3. Search and Category Filter Section */}
-      <div
-        style={{
-          background: '#ffffff',
-          border: '2.5px solid #000000',
-          borderRadius: '20px',
-          padding: '14px 16px',
-          boxShadow: '3.5px 3.5px 0px #000000',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '12px',
-        }}
-      >
-        {/* Search Bar */}
-        <div style={{ position: 'relative', width: '100%' }}>
-          <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', display: 'flex' }}>
-            <HugeiconsIcon icon={Search01Icon} size={18} color="#64748b" />
-          </span>
-          <input
-            type="text"
-            placeholder="Search tools by name or notes..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="davot-input"
-            style={{ paddingLeft: '40px', width: '100%', height: '42px', fontSize: '13px' }}
-          />
-        </div>
+      {/* 3. Search Input */}
+      <div style={{ position: 'relative', width: '100%' }}>
+        <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', display: 'flex' }}>
+          <HugeiconsIcon icon={Search01Icon} size={18} color="#64748b" />
+        </span>
+        <input
+          type="text"
+          placeholder="Search tools by name or notes..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="davot-input"
+          style={{ paddingLeft: '40px', width: '100%', height: '44px', fontSize: '13px' }}
+        />
+      </div>
 
-        {/* Category Pills & Condition Filter */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-          {/* Category Filter Pills */}
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+      {/* 4. Filter Rows: Category & Condition Pills (Clean, Spacious Layout) */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {/* Category Pills Bar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '11px', fontWeight: 900, color: '#000000', textTransform: 'uppercase', letterSpacing: '0.4px', width: '75px', flexShrink: 0 }}>
+            Category:
+          </span>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', flex: 1 }}>
             {(['All', 'Hand Tool', 'Equipment', 'Other'] as const).map((cat) => (
               <button
                 key={cat}
                 type="button"
                 onClick={() => setSelectedCategory(cat)}
                 style={{
-                  background: selectedCategory === cat ? '#000000' : '#f1f5f9',
+                  background: selectedCategory === cat ? '#000000' : '#ffffff',
                   color: selectedCategory === cat ? '#ffffff' : '#000000',
-                  border: '1.5px solid #000000',
+                  border: '2px solid #000000',
                   borderRadius: '10px',
-                  padding: '6px 12px',
+                  padding: '6px 14px',
                   fontSize: '12px',
                   fontWeight: 800,
+                  boxShadow: selectedCategory === cat ? '2px 2px 0px #000000' : 'none',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
                 }}
@@ -383,65 +374,69 @@ export const ToolsView: React.FC = () => {
               </button>
             ))}
           </div>
+        </div>
 
-          {/* Condition Filter */}
-          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-            <span style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Condition:</span>
-            {(['All', 'Good', 'Fair', 'Bad'] as const).map((cond) => (
-              <button
-                key={cond}
-                type="button"
-                onClick={() => setSelectedConditionFilter(cond)}
-                style={{
-                  background:
-                    selectedConditionFilter === cond
-                      ? cond === 'Good'
-                        ? '#16a34a'
-                        : cond === 'Fair'
-                        ? '#ea580c'
-                        : cond === 'Bad'
-                        ? '#dc2626'
-                        : '#000000'
-                      : '#ffffff',
-                  color: selectedConditionFilter === cond ? '#ffffff' : '#000000',
-                  border: '1.5px solid #000000',
-                  borderRadius: '8px',
-                  padding: '4px 10px',
-                  fontSize: '11px',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                }}
-              >
-                {cond}
-              </button>
-            ))}
+        {/* Condition Pills Bar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '11px', fontWeight: 900, color: '#000000', textTransform: 'uppercase', letterSpacing: '0.4px', width: '75px', flexShrink: 0 }}>
+            Condition:
+          </span>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', flex: 1 }}>
+            {(['All', 'Good', 'Fair', 'Bad'] as const).map((cond) => {
+              const isSelected = selectedConditionFilter === cond;
+
+              let btnBg = '#ffffff';
+              let btnColor = '#000000';
+              let btnBorder = '#000000';
+
+              if (isSelected) {
+                if (cond === 'Good') { btnBg = '#dcfce7'; btnColor = '#15803d'; btnBorder = '#16a34a'; }
+                else if (cond === 'Fair') { btnBg = '#ffedd5'; btnColor = '#c2410c'; btnBorder = '#ea580c'; }
+                else if (cond === 'Bad') { btnBg = '#fee2e2'; btnColor = '#dc2626'; btnBorder = '#ef4444'; }
+                else { btnBg = '#000000'; btnColor = '#ffffff'; btnBorder = '#000000'; }
+              }
+
+              return (
+                <button
+                  key={cond}
+                  type="button"
+                  onClick={() => setSelectedConditionFilter(cond)}
+                  style={{
+                    background: btnBg,
+                    color: btnColor,
+                    border: `2px solid ${btnBorder}`,
+                    borderRadius: '10px',
+                    padding: '6px 14px',
+                    fontSize: '12px',
+                    fontWeight: 800,
+                    boxShadow: isSelected ? '2px 2px 0px #000000' : 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {cond === 'All' ? 'All Conditions' : cond}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* 4. Tools Overview Table Card */}
-      <div
-        style={{
-          background: '#ffffff',
-          border: '2.5px solid #000000',
-          borderRadius: '20px',
-          boxShadow: '4px 4px 0px #000000',
-          overflow: 'hidden',
-        }}
-      >
-        <div style={{ padding: '16px 20px', borderBottom: '2px solid #000000', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <HugeiconsIcon icon={ToolsIcon} size={20} color="#000000" />
-            <h2 style={{ fontSize: '16px', fontWeight: 900, color: '#000000', margin: 0 }}>
-              Tools & Equipment List ({filteredTools.length})
-            </h2>
-          </div>
-        </div>
-
+      {/* 5. Tool Cards List (Spacious & Responsive Neobrutalist Cards) */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '4px' }}>
         {filteredTools.length === 0 ? (
-          <div style={{ padding: '40px 20px', textAlign: 'center', color: '#64748b' }}>
-            <span style={{ fontSize: '14px', fontWeight: 700, display: 'block', marginBottom: '8px' }}>
-              No tools found matching your search filters.
+          <div
+            style={{
+              background: '#ffffff',
+              border: '2.5px solid #000000',
+              borderRadius: '20px',
+              padding: '40px 20px',
+              textAlign: 'center',
+              boxShadow: '3.5px 3.5px 0px #000000',
+            }}
+          >
+            <span style={{ fontSize: '15px', fontWeight: 800, color: '#000000', display: 'block', marginBottom: '8px' }}>
+              No tools match your active search or filters.
             </span>
             <button
               type="button"
@@ -452,171 +447,209 @@ export const ToolsView: React.FC = () => {
               }}
               style={{
                 background: '#f1f5f9',
-                border: '1.5px solid #000000',
-                borderRadius: '8px',
-                padding: '6px 12px',
+                border: '2px solid #000000',
+                borderRadius: '10px',
+                padding: '8px 16px',
                 fontSize: '12px',
-                fontWeight: 800,
+                fontWeight: 900,
                 cursor: 'pointer',
+                boxShadow: '2px 2px 0px #000000',
               }}
             >
-              Clear Filters
+              Reset Filters
             </button>
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #000000' }}>
-                  <th style={{ padding: '12px 16px', fontSize: '12px', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>Tool</th>
-                  <th style={{ padding: '12px 16px', fontSize: '12px', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>Category</th>
-                  <th style={{ padding: '12px 16px', fontSize: '12px', fontWeight: 900, color: '#000000', textTransform: 'uppercase', textAlign: 'right' }}>Quantity</th>
-                  <th style={{ padding: '12px 16px', fontSize: '12px', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>Date Bought</th>
-                  <th style={{ padding: '12px 16px', fontSize: '12px', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>Condition</th>
-                  <th style={{ padding: '12px 16px', fontSize: '12px', fontWeight: 900, color: '#000000', textTransform: 'uppercase' }}>Notes</th>
-                  <th style={{ padding: '12px 16px', fontSize: '12px', fontWeight: 900, color: '#000000', textTransform: 'uppercase', textAlign: 'center' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredTools.map((tool, index) => {
-                  const isEven = index % 2 === 0;
+          filteredTools.map((tool) => {
+            // Condition Badge Colors
+            let condBg = '#dcfce7';
+            let condColor = '#15803d';
+            let condBorder = '#16a34a';
 
-                  // Condition badge styles
-                  let condBg = '#dcfce7';
-                  let condColor = '#15803d';
-                  let condBorder = '#16a34a';
+            if (tool.condition === 'Fair') {
+              condBg = '#ffedd5';
+              condColor = '#c2410c';
+              condBorder = '#ea580c';
+            } else if (tool.condition === 'Bad') {
+              condBg = '#fee2e2';
+              condColor = '#dc2626';
+              condBorder = '#ef4444';
+            }
 
-                  if (tool.condition === 'Fair') {
-                    condBg = '#ffedd5';
-                    condColor = '#c2410c';
-                    condBorder = '#ea580c';
-                  } else if (tool.condition === 'Bad') {
-                    condBg = '#fee2e2';
-                    condColor = '#dc2626';
-                    condBorder = '#ef4444';
-                  }
-
-                  return (
-                    <tr
-                      key={tool.id}
+            return (
+              <div
+                key={tool.id}
+                className="neobrutal-card"
+                style={{
+                  background: '#ffffff',
+                  border: '2.5px solid #000000',
+                  borderRadius: '20px',
+                  padding: '18px',
+                  boxShadow: '3.5px 3.5px 0px #000000',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '14px',
+                  transition: 'transform 0.15s ease, boxShadow 0.15s ease',
+                }}
+              >
+                {/* Top Row: Squircle Icon + Title + Category + Action Buttons */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div
                       style={{
-                        background: isEven ? '#ffffff' : '#fafafa',
-                        borderBottom: '1px solid #e2e8f0',
+                        width: '44px',
+                        height: '44px',
+                        borderRadius: '14px',
+                        background: tool.category === 'Equipment' ? '#eff6ff' : '#fff7ed',
+                        border: '2.5px solid #000000',
+                        boxShadow: '2.5px 2.5px 0px #000000',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
                       }}
                     >
-                      {/* Tool Name */}
-                      <td style={{ padding: '14px 16px', fontSize: '14px', fontWeight: 900, color: '#000000' }}>
-                        {tool.name}
-                      </td>
+                      <HugeiconsIcon icon={ToolsIcon} size={22} color="#000000" />
+                    </div>
 
-                      {/* Category */}
-                      <td style={{ padding: '14px 16px', fontSize: '13px' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <h3 style={{ fontSize: '18px', fontWeight: 900, color: '#000000', margin: 0, lineHeight: 1.2 }}>
+                          {tool.name}
+                        </h3>
                         <span
                           style={{
-                            display: 'inline-block',
-                            background: tool.category === 'Equipment' ? '#eff6ff' : '#f8fafc',
-                            color: tool.category === 'Equipment' ? '#1d4ed8' : '#334155',
-                            border: '1px solid #000000',
-                            padding: '3px 10px',
-                            borderRadius: '8px',
-                            fontWeight: 800,
                             fontSize: '11px',
+                            fontWeight: 800,
+                            background: tool.category === 'Equipment' ? '#dbeafe' : '#f1f5f9',
+                            color: tool.category === 'Equipment' ? '#1e40af' : '#334155',
+                            border: '1.5px solid #000000',
+                            padding: '2px 8px',
+                            borderRadius: '6px',
                           }}
                         >
                           {tool.category}
                         </span>
-                      </td>
+                      </div>
 
-                      {/* Quantity */}
-                      <td style={{ padding: '14px 16px', fontSize: '15px', fontWeight: 900, color: '#000000', textAlign: 'right' }}>
-                        {tool.quantity}
-                      </td>
-
-                      {/* Date Bought */}
-                      <td style={{ padding: '14px 16px', fontSize: '13px', fontWeight: 700, color: '#475569', whiteSpace: 'nowrap' }}>
-                        {formatDateDisplay(tool.date_bought)}
-                      </td>
-
-                      {/* Condition */}
-                      <td style={{ padding: '14px 16px' }}>
-                        <span
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                            background: condBg,
-                            color: condColor,
-                            border: `1.5px solid ${condBorder}`,
-                            padding: '3px 10px',
-                            borderRadius: '8px',
-                            fontWeight: 900,
-                            fontSize: '12px',
-                          }}
-                        >
-                          {tool.condition === 'Good' && <HugeiconsIcon icon={CheckmarkCircle02Icon} size={14} color={condColor} />}
-                          {tool.condition === 'Fair' && <HugeiconsIcon icon={AlertCircleIcon} size={14} color={condColor} />}
-                          {tool.condition === 'Bad' && <HugeiconsIcon icon={CancelCircleIcon} size={14} color={condColor} />}
-                          {tool.condition}
-                        </span>
-                      </td>
-
-                      {/* Notes */}
-                      <td style={{ padding: '14px 16px', fontSize: '12px', fontWeight: 600, color: '#64748b', maxWidth: '200px' }}>
-                        {tool.notes || '—'}
-                      </td>
-
-                      {/* Actions */}
-                      <td style={{ padding: '14px 16px', textAlign: 'center' }}>
-                        <div style={{ display: 'flex', justifyContent: 'center', gap: '6px' }}>
-                          <button
-                            type="button"
-                            onClick={() => handleOpenEditModal(tool)}
-                            title="Edit Tool"
-                            style={{
-                              background: '#ffffff',
-                              border: '1.5px solid #000000',
-                              borderRadius: '8px',
-                              padding: '6px',
-                              boxShadow: '1.5px 1.5px 0px #000000',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}
-                          >
-                            <HugeiconsIcon icon={PencilEdit01Icon} size={14} color="#000000" />
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => setDeletingToolId(tool.id)}
-                            title="Delete Tool"
-                            style={{
-                              background: '#fee2e2',
-                              border: '1.5px solid #000000',
-                              borderRadius: '8px',
-                              padding: '6px',
-                              boxShadow: '1.5px 1.5px 0px #000000',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}
-                          >
-                            <HugeiconsIcon icon={Delete01Icon} size={14} color="#dc2626" />
-                          </button>
+                      {tool.notes && (
+                        <div style={{ fontSize: '12px', fontWeight: 700, color: '#64748b', marginTop: '2px' }}>
+                          💬 {tool.notes}
                         </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Actions: Edit & Delete */}
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEditModal(tool)}
+                      title="Edit Tool"
+                      style={{
+                        background: '#ffffff',
+                        border: '2px solid #000000',
+                        borderRadius: '10px',
+                        padding: '6px 10px',
+                        boxShadow: '2px 2px 0px #000000',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        fontSize: '12px',
+                        fontWeight: 800,
+                        color: '#000000',
+                      }}
+                    >
+                      <HugeiconsIcon icon={PencilEdit01Icon} size={14} color="#000000" />
+                      Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setDeletingToolId(tool.id)}
+                      title="Delete Tool"
+                      style={{
+                        background: '#fee2e2',
+                        border: '2px solid #000000',
+                        borderRadius: '10px',
+                        padding: '6px 10px',
+                        boxShadow: '2px 2px 0px #000000',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        fontSize: '12px',
+                        fontWeight: 800,
+                        color: '#dc2626',
+                      }}
+                    >
+                      <HugeiconsIcon icon={Delete01Icon} size={14} color="#dc2626" />
+                      Delete
+                    </button>
+                  </div>
+                </div>
+
+                {/* Middle Rectangles (3 Separate Field Boxes on the same line) */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                  {/* Field 1: Quantity Owned */}
+                  <div
+                    style={{
+                      background: '#f8fafc',
+                      border: '1.5px solid #000000',
+                      borderRadius: '12px',
+                      padding: '12px 14px',
+                    }}
+                  >
+                    <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.3px', display: 'block', marginBottom: '3px' }}>
+                      Quantity Owned
+                    </span>
+                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>
+                      {tool.quantity} {tool.quantity === 1 ? 'Unit' : 'Units'}
+                    </span>
+                  </div>
+
+                  {/* Field 2: Date Purchased */}
+                  <div
+                    style={{
+                      background: '#f8fafc',
+                      border: '1.5px solid #000000',
+                      borderRadius: '12px',
+                      padding: '12px 14px',
+                    }}
+                  >
+                    <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.3px', display: 'block', marginBottom: '3px' }}>
+                      Date Purchased
+                    </span>
+                    <span style={{ fontSize: '14px', fontWeight: 900, color: '#000000' }}>
+                      {formatDateDisplay(tool.date_bought)}
+                    </span>
+                  </div>
+
+                  {/* Field 3: Condition Status */}
+                  <div
+                    style={{
+                      background: condBg,
+                      border: `1.5px solid ${condBorder}`,
+                      borderRadius: '12px',
+                      padding: '12px 14px',
+                    }}
+                  >
+                    <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.3px', display: 'block', marginBottom: '3px' }}>
+                      Condition
+                    </span>
+                    <span style={{ fontSize: '15px', fontWeight: 900, color: condColor }}>
+                      {tool.condition}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })
         )}
       </div>
 
-      {/* 5. MODAL: Add / Edit Tool Form */}
+      {/* 6. MODAL: Add / Edit Tool Form */}
       {isFormModalOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(3px)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
           <div
@@ -809,7 +842,7 @@ export const ToolsView: React.FC = () => {
         </div>
       )}
 
-      {/* 6. MODAL: Delete Confirmation */}
+      {/* 7. MODAL: Delete Confirmation */}
       {deletingToolId && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(3px)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
           <div style={{ background: '#ffffff', border: '3.5px solid #000000', borderRadius: '20px', width: '100%', maxWidth: '380px', padding: '20px', boxShadow: '6px 6px 0px #000000' }}>
@@ -828,7 +861,7 @@ export const ToolsView: React.FC = () => {
                   flex: 1,
                   background: '#f1f5f9',
                   color: '#000000',
-                  border: '2px solid #000000',
+                  border: '2.5px solid #000000',
                   borderRadius: '10px',
                   padding: '10px',
                   fontWeight: 800,
