@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   ProductLoadingIcon,
-  PlusSignIcon,
   ArrowLeft02Icon,
   Layers01Icon,
   Analytics01Icon,
@@ -13,14 +12,36 @@ interface ProductViewProps {
   harvestRecords?: HarvestRecord[];
 }
 
+// Fallback Mock Harvest Records with individual batches if none passed in props
+const MOCK_HARVEST_RECORDS: HarvestRecord[] = [
+  {
+    id: 'HV-014',
+    name: 'Harvest HV-014',
+    created_at: '2026-09-24',
+    batches: [
+      { id: 'HV-014-B1', batch_name: 'Batch #1', date: '2026-09-24', ffb_weight: 1280, weight_unit: 'Kg', bunch_count: 180, destination: 'Mill 1', status: 'Processed' },
+      { id: 'HV-014-B2', batch_name: 'Batch #2', date: '2026-09-22', ffb_weight: 1500, weight_unit: 'Kg', bunch_count: 210, destination: 'Mill 1', status: 'Processed' },
+      { id: 'HV-014-B3', batch_name: 'Batch #3', date: '2026-09-18', ffb_weight: 1720, weight_unit: 'Kg', bunch_count: 240, destination: 'Mill 1', status: 'Processed' },
+    ],
+  },
+  {
+    id: 'HV-015',
+    name: 'Harvest HV-015',
+    created_at: '2026-09-12',
+    batches: [
+      { id: 'HV-015-B1', batch_name: 'Batch #1', date: '2026-09-12', ffb_weight: 2000, weight_unit: 'Kg', bunch_count: 280, destination: 'Mill 1', status: 'Processed' },
+    ],
+  },
+];
+
 // Initial Mock Product Batches
 const INITIAL_PRODUCT_BATCHES: ProductBatch[] = [
   {
     id: 'PB-024',
     harvest_id: 'HV-014',
+    harvest_batch_id: 'HV-014-B1',
     date: '2026-09-24',
     ffb_processed_kg: 1280,
-    pk_processed_kg: 250,
     cpo_produced_litres: 230,
     pko_produced_litres: 80,
     pkc_produced_kg: 150,
@@ -29,9 +50,9 @@ const INITIAL_PRODUCT_BATCHES: ProductBatch[] = [
   {
     id: 'PB-025',
     harvest_id: 'HV-014',
+    harvest_batch_id: 'HV-014-B2',
     date: '2026-09-22',
     ffb_processed_kg: 1500,
-    pk_processed_kg: 300,
     cpo_produced_litres: 270,
     pko_produced_litres: 95,
     pkc_produced_kg: 180,
@@ -40,9 +61,9 @@ const INITIAL_PRODUCT_BATCHES: ProductBatch[] = [
   {
     id: 'PB-026',
     harvest_id: 'HV-014',
+    harvest_batch_id: 'HV-014-B3',
     date: '2026-09-18',
     ffb_processed_kg: 1720,
-    pk_processed_kg: 350,
     cpo_produced_litres: 320,
     pko_produced_litres: 115,
     pkc_produced_kg: 210,
@@ -51,9 +72,9 @@ const INITIAL_PRODUCT_BATCHES: ProductBatch[] = [
   {
     id: 'PB-027',
     harvest_id: 'HV-015',
+    harvest_batch_id: 'HV-015-B1',
     date: '2026-09-12',
     ffb_processed_kg: 2000,
-    pk_processed_kg: 400,
     cpo_produced_litres: 360,
     pko_produced_litres: 130,
     pkc_produced_kg: 240,
@@ -128,42 +149,60 @@ const PRODUCTS_CONFIG: Record<ProductKey, ProductConfig> = {
 };
 
 export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] }) => {
+  // Combine props harvestRecords with fallback mock records
+  const allHarvestRecords = useMemo(() => {
+    if (harvestRecords && harvestRecords.length > 0) {
+      return harvestRecords;
+    }
+    return MOCK_HARVEST_RECORDS;
+  }, [harvestRecords]);
+
   // State management
   const [batches, setBatches] = useState<ProductBatch[]>(INITIAL_PRODUCT_BATCHES);
   const [selectedProductKey, setSelectedProductKey] = useState<ProductKey | null>(null);
+  const [selectedHarvestDetailId, setSelectedHarvestDetailId] = useState<string | null>(null);
   const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState<ProductBatch | null>(null);
 
-  // Form state for Record Processing Batch
+  // Form state for Record Processing Batch (Cascading Harvest -> Batch selection)
   const [formHarvestId, setFormHarvestId] = useState<string>('HV-014');
+  const [formBatchId, setFormBatchId] = useState<string>('HV-014-B1');
   const [formDate, setFormDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
-  const [formFfbKg, setFormFfbKg] = useState<number | ''>(1280);
-  const [formPkKg, setFormPkKg] = useState<number | ''>(250);
   const [formCpoLitres, setFormCpoLitres] = useState<number | ''>(230);
   const [formPkoLitres, setFormPkoLitres] = useState<number | ''>(80);
   const [formPkcKg, setFormPkcKg] = useState<number | ''>(150);
   const [formNotes, setFormNotes] = useState<string>('');
 
-  // Live yield calculation for form preview
-  const liveFfb = typeof formFfbKg === 'number' ? formFfbKg : 0;
-  const livePk = typeof formPkKg === 'number' ? formPkKg : 0;
-  const liveCpo = typeof formCpoLitres === 'number' ? formCpoLitres : 0;
-  const livePko = typeof formPkoLitres === 'number' ? formPkoLitres : 0;
-  const livePkc = typeof formPkcKg === 'number' ? formPkcKg : 0;
+  // Derived selected Harvest Record object
+  const currentHarvestObj = useMemo(() => {
+    return allHarvestRecords.find((h) => h.id === formHarvestId || h.name === formHarvestId) || allHarvestRecords[0];
+  }, [allHarvestRecords, formHarvestId]);
 
-  const liveCpoYield = liveFfb > 0 ? (liveCpo / liveFfb).toFixed(2) : '0.00';
-  const livePkoYield = livePk > 0 ? (livePko / livePk).toFixed(2) : '0.00';
-  const livePkcYield = livePk > 0 ? (livePkc / livePk).toFixed(2) : '0.00';
+  // Available batches for selected harvest record
+  const currentAvailableBatches = currentHarvestObj ? currentHarvestObj.batches : [];
 
-  // Available harvest list options
-  const availableHarvestIds = Array.from(
-    new Set([
-      'HV-014',
-      'HV-015',
-      ...harvestRecords.map((r) => r.name || r.id),
-      ...batches.map((b) => b.harvest_id),
-    ])
-  );
+  // Derived selected Batch object
+  const currentBatchObj = useMemo(() => {
+    return currentAvailableBatches.find((b) => b.id === formBatchId) || currentAvailableBatches[0];
+  }, [currentAvailableBatches, formBatchId]);
+
+  // Auto-linked FFB weight in Kg
+  const autoFfbKg = currentBatchObj
+    ? currentBatchObj.weight_unit === 'Tonnes'
+      ? currentBatchObj.ffb_weight * 1000
+      : currentBatchObj.ffb_weight
+    : 0;
+
+  // Handle Harvest selection change
+  const handleHarvestChange = (newHarvestId: string) => {
+    setFormHarvestId(newHarvestId);
+    const targetHarvest = allHarvestRecords.find((h) => h.id === newHarvestId || h.name === newHarvestId);
+    if (targetHarvest && targetHarvest.batches.length > 0) {
+      setFormBatchId(targetHarvest.batches[0].id);
+    } else {
+      setFormBatchId('');
+    }
+  };
 
   // Dynamic calculation for monthly totals from batches
   const monthlyTotals = batches.reduce(
@@ -176,21 +215,42 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
     { cpo: 1840, pko: 670, pkc: 1240 }
   );
 
+  // Group batches by harvest_id
+  const harvestGroups = Array.from(new Set(batches.map((b) => b.harvest_id))).map((harvestId) => {
+    const harvestBatches = batches.filter((b) => b.harvest_id === harvestId);
+    const totalFfbKg = harvestBatches.reduce((sum, b) => sum + b.ffb_processed_kg, 0);
+    const totalCpo = harvestBatches.reduce((sum, b) => sum + b.cpo_produced_litres, 0);
+    const totalPko = harvestBatches.reduce((sum, b) => sum + b.pko_produced_litres, 0);
+    const totalPkc = harvestBatches.reduce((sum, b) => sum + b.pkc_produced_kg, 0);
+    const latestDate = harvestBatches.slice().sort((a, b) => (a.date > b.date ? -1 : 1))[0]?.date || '';
+
+    return {
+      harvestId,
+      batches: harvestBatches,
+      batchCount: harvestBatches.length,
+      totalFfbKg,
+      totalCpo,
+      totalPko,
+      totalPkc,
+      latestDate,
+    };
+  });
+
   // Submit new production batch
   const handleSaveBatch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!liveFfb || liveFfb <= 0) return;
+    if (autoFfbKg <= 0) return;
 
     const nextNumber = batches.length + 24;
     const newBatch: ProductBatch = {
       id: `PB-0${nextNumber}`,
       harvest_id: formHarvestId,
+      harvest_batch_id: formBatchId,
       date: formDate,
-      ffb_processed_kg: liveFfb,
-      pk_processed_kg: livePk,
-      cpo_produced_litres: liveCpo,
-      pko_produced_litres: livePko,
-      pkc_produced_kg: livePkc,
+      ffb_processed_kg: autoFfbKg,
+      cpo_produced_litres: typeof formCpoLitres === 'number' ? formCpoLitres : 0,
+      pko_produced_litres: typeof formPkoLitres === 'number' ? formPkoLitres : 0,
+      pkc_produced_kg: typeof formPkcKg === 'number' ? formPkcKg : 0,
       notes: formNotes.trim() || undefined,
     };
 
@@ -214,11 +274,184 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
     const diff = monthProduced - product.lastMonthProduced;
     const pct = product.lastMonthProduced > 0 ? Math.round((diff / product.lastMonthProduced) * 100) : 0;
 
+    // -------------------------------------------------------------
+    // VIEW 1.B: INDIVIDUAL HARVEST BATCHES DRILL-DOWN VIEW
+    // -------------------------------------------------------------
+    if (selectedHarvestDetailId) {
+      const harvestGroup = harvestGroups.find((g) => g.harvestId === selectedHarvestDetailId);
+      const harvestBatches = harvestGroup ? harvestGroup.batches : [];
+
+      const totalFfb = harvestGroup ? harvestGroup.totalFfbKg : 0;
+      const totalProduced = harvestGroup
+        ? selectedProductKey === 'cpo'
+          ? harvestGroup.totalCpo
+          : selectedProductKey === 'pko'
+          ? harvestGroup.totalPko
+          : harvestGroup.totalPkc
+        : 0;
+
+      const avgYield =
+        selectedProductKey === 'cpo'
+          ? (totalFfb > 0 ? (totalProduced / totalFfb).toFixed(2) : '0.00') + ' L/kg'
+          : selectedProductKey === 'pko'
+          ? (totalFfb > 0 ? (totalProduced / totalFfb).toFixed(2) : '0.00') + ' L/kg'
+          : (totalFfb > 0 ? (totalProduced / totalFfb).toFixed(2) : '0.00') + ' kg/kg';
+
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '100px' }}>
+          {/* Back Button */}
+          <button
+            onClick={() => setSelectedHarvestDetailId(null)}
+            type="button"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              background: '#ffffff',
+              border: '2px solid #000000',
+              borderRadius: '10px',
+              padding: '8px 14px',
+              fontSize: '13px',
+              fontWeight: 800,
+              boxShadow: '2.5px 2.5px 0px #000000',
+              cursor: 'pointer',
+              marginBottom: '4px',
+              alignSelf: 'flex-start',
+            }}
+          >
+            <HugeiconsIcon icon={ArrowLeft02Icon} size={16} color="#000000" />
+            Back to Harvests ({product.shortName})
+          </button>
+
+          {/* Harvest Header Card */}
+          <div
+            className="neobrutal-card"
+            style={{
+              background: '#ffffff',
+              border: '2.5px solid #000000',
+              borderRadius: '20px',
+              padding: '20px',
+              boxShadow: '4px 4px 0px #000000',
+            }}
+          >
+            <div style={{ marginBottom: '14px' }}>
+              <span style={{ fontSize: '11px', fontWeight: 800, color: product.badgeText, textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block' }}>
+                {product.name}
+              </span>
+              <h1 style={{ fontSize: '24px', fontWeight: 900, color: '#000000', margin: '2px 0 0 0' }}>
+                Harvest {selectedHarvestDetailId}
+              </h1>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748b' }}>
+                {harvestBatches.length} Processing Batches Logged
+              </span>
+            </div>
+
+            {/* Summary metrics row */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+              <div style={{ background: '#f8fafc', border: '1.5px solid #000000', borderRadius: '10px', padding: '10px' }}>
+                <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block' }}>Total FFB</span>
+                <span style={{ fontSize: '15px', fontWeight: 900, color: '#000000' }}>{totalFfb.toLocaleString()} kg</span>
+              </div>
+
+              <div style={{ background: '#f8fafc', border: '1.5px solid #000000', borderRadius: '10px', padding: '10px' }}>
+                <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block' }}>Total Produced</span>
+                <span style={{ fontSize: '15px', fontWeight: 900, color: product.badgeText }}>{totalProduced.toLocaleString()} {product.unit}</span>
+              </div>
+
+              <div style={{ background: '#f8fafc', border: '1.5px solid #000000', borderRadius: '10px', padding: '10px' }}>
+                <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block' }}>Avg Yield</span>
+                <span style={{ fontSize: '15px', fontWeight: 900, color: '#000000' }}>{avgYield}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* List of Individual Batches under Harvest */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <h2 style={{ fontSize: '16px', fontWeight: 900, color: '#000000', margin: '4px 0 0 0' }}>
+              Logged Processing Batches ({harvestBatches.length})
+            </h2>
+
+            {harvestBatches.map((batch) => {
+              const producedVal =
+                selectedProductKey === 'cpo'
+                  ? batch.cpo_produced_litres
+                  : selectedProductKey === 'pko'
+                  ? batch.pko_produced_litres
+                  : batch.pkc_produced_kg;
+
+              const outputRate =
+                selectedProductKey === 'cpo'
+                  ? (batch.cpo_produced_litres / batch.ffb_processed_kg).toFixed(2) + ' L/kg'
+                  : selectedProductKey === 'pko'
+                  ? (batch.pko_produced_litres / Math.max(1, batch.ffb_processed_kg)).toFixed(2) + ' L/kg'
+                  : (batch.pkc_produced_kg / Math.max(1, batch.ffb_processed_kg)).toFixed(2) + ' kg/kg';
+
+              return (
+                <div
+                  key={batch.id}
+                  onClick={() => setSelectedBatch(batch)}
+                  className="neobrutal-card"
+                  style={{
+                    background: '#ffffff',
+                    border: '2.5px solid #000000',
+                    borderRadius: '16px',
+                    padding: '16px',
+                    boxShadow: '3px 3px 0px #000000',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>#{batch.id}</span>
+                      <span style={{ fontSize: '11px', fontWeight: 800, background: '#e2e8f0', border: '1px solid #000000', padding: '2px 8px', borderRadius: '6px' }}>
+                        Harvest {batch.harvest_id}
+                      </span>
+                    </div>
+
+                    <span style={{ fontSize: '12px', fontWeight: 800, color: '#64748b' }}>{batch.date}</span>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                    <div style={{ background: '#f8fafc', border: '1px solid #000000', borderRadius: '8px', padding: '8px' }}>
+                      <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block' }}>FFB Processed</span>
+                      <span style={{ fontSize: '14px', fontWeight: 900, color: '#000000' }}>{batch.ffb_processed_kg.toLocaleString()} kg</span>
+                    </div>
+
+                    <div style={{ background: '#f8fafc', border: '1px solid #000000', borderRadius: '8px', padding: '8px' }}>
+                      <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block' }}>Produced</span>
+                      <span style={{ fontSize: '14px', fontWeight: 900, color: product.badgeText }}>{producedVal.toLocaleString()} {product.unit}</span>
+                    </div>
+
+                    <div style={{ background: '#f8fafc', border: '1px solid #000000', borderRadius: '8px', padding: '8px' }}>
+                      <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block' }}>Yield Rate</span>
+                      <span style={{ fontSize: '14px', fontWeight: 900, color: '#000000' }}>{outputRate}</span>
+                    </div>
+                  </div>
+
+                  {batch.notes && (
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#475569', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px 10px' }}>
+                      💬 {batch.notes}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '100px' }}>
         {/* Back Button */}
         <button
-          onClick={() => setSelectedProductKey(null)}
+          onClick={() => {
+            setSelectedProductKey(null);
+            setSelectedHarvestDetailId(null);
+          }}
           type="button"
           style={{
             display: 'inline-flex',
@@ -232,7 +465,8 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
             fontWeight: 800,
             boxShadow: '2.5px 2.5px 0px #000000',
             cursor: 'pointer',
-            marginBottom: '16px',
+            marginBottom: '4px',
+            alignSelf: 'flex-start',
           }}
         >
           <HugeiconsIcon icon={ArrowLeft02Icon} size={16} color="#000000" />
@@ -248,7 +482,6 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
             borderRadius: '20px',
             padding: '20px',
             boxShadow: '4px 4px 0px #000000',
-            marginBottom: '18px',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
@@ -320,7 +553,6 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
             borderRadius: '16px',
             padding: '16px',
             boxShadow: '3.5px 3.5px 0px #000000',
-            marginBottom: '18px',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
@@ -366,7 +598,6 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
             borderRadius: '16px',
             padding: '16px',
             boxShadow: '3.5px 3.5px 0px #000000',
-            marginBottom: '18px',
           }}
         >
           <span style={{ fontSize: '13px', fontWeight: 900, color: '#000000', textTransform: 'uppercase', display: 'block', marginBottom: '10px' }}>
@@ -392,7 +623,7 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
           </div>
         </div>
 
-        {/* Section 3: Processing Batches Attuned to This Product */}
+        {/* Section 3: Processing Harvests Attuned to This Product */}
         <div
           style={{
             background: '#ffffff',
@@ -402,68 +633,132 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
             boxShadow: '3.5px 3.5px 0px #000000',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <HugeiconsIcon icon={Layers01Icon} size={18} color="#000000" />
-              <h2 style={{ fontSize: '14px', fontWeight: 900, color: '#000000', margin: 0, textTransform: 'uppercase' }}>
-                Processing Batches ({product.shortName})
-              </h2>
-            </div>
-
-            <button
-              onClick={() => setIsRecordModalOpen(true)}
-              className="neobrutal-btn-orange"
-              style={{ padding: '6px 12px', fontSize: '12px' }}
-            >
-              + Record Batch
-            </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '14px' }}>
+            <HugeiconsIcon icon={Layers01Icon} size={18} color="#000000" />
+            <h2 style={{ fontSize: '14px', fontWeight: 900, color: '#000000', margin: 0, textTransform: 'uppercase' }}>
+              Processing Harvests ({product.shortName})
+            </h2>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {batches.map((batch) => {
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {harvestGroups.map((hGroup) => {
               const producedVal =
                 selectedProductKey === 'cpo'
-                  ? batch.cpo_produced_litres
+                  ? hGroup.totalCpo
                   : selectedProductKey === 'pko'
-                  ? batch.pko_produced_litres
-                  : batch.pkc_produced_kg;
+                  ? hGroup.totalPko
+                  : hGroup.totalPkc;
 
-              const outputRate =
+              const avgYield =
                 selectedProductKey === 'cpo'
-                  ? (batch.cpo_produced_litres / batch.ffb_processed_kg).toFixed(2) + ' L/kg'
+                  ? (hGroup.totalFfbKg > 0 ? (hGroup.totalCpo / hGroup.totalFfbKg).toFixed(2) : '0.00') + ' L/kg'
                   : selectedProductKey === 'pko'
-                  ? (batch.pko_produced_litres / Math.max(1, batch.pk_processed_kg)).toFixed(2) + ' L/kg'
-                  : (batch.pkc_produced_kg / Math.max(1, batch.pk_processed_kg)).toFixed(2) + ' kg/kg';
+                  ? (hGroup.totalFfbKg > 0 ? (hGroup.totalPko / hGroup.totalFfbKg).toFixed(2) : '0.00') + ' L/kg'
+                  : (hGroup.totalFfbKg > 0 ? (hGroup.totalPkc / hGroup.totalFfbKg).toFixed(2) : '0.00') + ' kg/kg';
 
               return (
                 <div
-                  key={batch.id}
-                  onClick={() => setSelectedBatch(batch)}
+                  key={hGroup.harvestId}
+                  onClick={() => setSelectedHarvestDetailId(hGroup.harvestId)}
+                  className="neobrutal-card"
                   style={{
-                    background: '#f8fafc',
-                    border: '2px solid #000000',
-                    borderRadius: '12px',
-                    padding: '12px',
-                    boxShadow: '2px 2px 0px #000000',
+                    background: '#ffffff',
+                    border: '2.5px solid #000000',
+                    borderRadius: '20px',
+                    padding: '18px',
+                    boxShadow: '3.5px 3.5px 0px #000000',
                     cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '14px',
+                    transition: 'transform 0.15s ease, boxShadow 0.15s ease',
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: '14px', fontWeight: 900, color: '#000000' }}>#{batch.id}</span>
-                      <span style={{ fontSize: '11px', fontWeight: 800, background: '#e2e8f0', border: '1px solid #000000', padding: '2px 6px', borderRadius: '6px' }}>
-                        Harvest {batch.harvest_id}
+                  {/* Top Row: Harvest Title + Batch Count + Arrow */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div
+                        style={{
+                          width: '42px',
+                          height: '42px',
+                          borderRadius: '12px',
+                          background: '#f8fafc',
+                          border: '2px solid #000000',
+                          boxShadow: '2.5px 2.5px 0px #000000',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <HugeiconsIcon icon={Layers01Icon} size={22} color="#000000" />
+                      </div>
+
+                      <div>
+                        <h3 style={{ fontSize: '18px', fontWeight: 900, color: '#000000', margin: 0, lineHeight: 1.2 }}>
+                          Harvest {hGroup.harvestId}
+                        </h3>
+                        <div style={{ fontSize: '12px', fontWeight: 700, color: '#64748b', marginTop: '2px' }}>
+                          Latest: {hGroup.latestDate} • <strong style={{ color: '#000000' }}>{hGroup.batchCount} Batches Logged</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <span style={{ fontSize: '18px', fontWeight: 900, color: '#000000' }}>→</span>
+                  </div>
+
+                  {/* 3 Separate Field Rectangles (Longer in height, clean spacing) */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                    {/* Field 1: FFB Processed */}
+                    <div
+                      style={{
+                        background: '#f8fafc',
+                        border: '1.5px solid #000000',
+                        borderRadius: '12px',
+                        padding: '12px 14px',
+                      }}
+                    >
+                      <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.3px', display: 'block', marginBottom: '3px' }}>
+                        FFB Processed
+                      </span>
+                      <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>
+                        {hGroup.totalFfbKg.toLocaleString()} kg
                       </span>
                     </div>
 
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>{batch.date}</span>
-                  </div>
+                    {/* Field 2: Produced */}
+                    <div
+                      style={{
+                        background: '#f8fafc',
+                        border: '1.5px solid #000000',
+                        borderRadius: '12px',
+                        padding: '12px 14px',
+                      }}
+                    >
+                      <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.3px', display: 'block', marginBottom: '3px' }}>
+                        Produced
+                      </span>
+                      <span style={{ fontSize: '16px', fontWeight: 900, color: product.badgeText }}>
+                        {producedVal.toLocaleString()} {product.unit}
+                      </span>
+                    </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', fontWeight: 800 }}>
-                    <span style={{ color: '#475569' }}>FFB: {batch.ffb_processed_kg.toLocaleString()} kg</span>
-                    <span style={{ color: product.badgeText, fontWeight: 900 }}>
-                      Produced: {producedVal} {product.unit} (Yield: {outputRate})
-                    </span>
+                    {/* Field 3: Average Yield */}
+                    <div
+                      style={{
+                        background: '#f8fafc',
+                        border: '1.5px solid #000000',
+                        borderRadius: '12px',
+                        padding: '12px 14px',
+                      }}
+                    >
+                      <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.3px', display: 'block', marginBottom: '3px' }}>
+                        Avg Yield Rate
+                      </span>
+                      <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>
+                        {avgYield}
+                      </span>
+                    </div>
                   </div>
                 </div>
               );
@@ -725,60 +1020,36 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
               {/* Bottom Action CTA Row */}
               <div
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: '10px',
-                  flexWrap: 'wrap',
                   paddingTop: '12px',
                   borderTop: '2px solid #000000',
                   marginTop: '2px',
                 }}
-                onClick={(e) => e.stopPropagation()}
               >
-                {/* Primary Button: + Record Batch */}
-                <button
-                  type="button"
-                  onClick={() => setIsRecordModalOpen(true)}
-                  className="neobrutal-btn-orange"
-                  style={{
-                    height: '42px',
-                    padding: '0 14px',
-                    fontSize: '13px',
-                    whiteSpace: 'nowrap',
-                    flex: 1,
-                    justifyContent: 'center',
-                  }}
-                >
-                  <HugeiconsIcon icon={PlusSignIcon} size={16} color="#ffffff" strokeWidth={2.5} />
-                  <span>Record Batch</span>
-                </button>
-
-                {/* Secondary Button: View Performance & Batches → */}
                 <button
                   type="button"
                   onClick={() => setSelectedProductKey(product.key)}
+                  className="neobrutal-btn-orange"
                   style={{
-                    height: '42px',
-                    padding: '0 14px',
+                    width: '100%',
+                    height: '44px',
+                    padding: '0 16px',
                     fontSize: '13px',
-                    fontWeight: 800,
-                    color: '#000000',
-                    background: '#ffffff',
-                    border: '2px solid #000000',
-                    borderRadius: '12px',
-                    boxShadow: '2.5px 2.5px 0px #000000',
+                    fontWeight: 900,
+                    color: '#ffffff',
+                    background: '#ea580c',
+                    border: '2.5px solid #000000',
+                    borderRadius: '14px',
+                    boxShadow: '3px 3px 0px #000000',
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
-                    flex: 1,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '4px',
+                    gap: '6px',
                   }}
                 >
                   <span>View Batches & Performance</span>
-                  <span style={{ fontSize: '15px' }}>→</span>
+                  <span style={{ fontSize: '16px', fontWeight: 900 }}>→</span>
                 </button>
               </div>
             </div>
@@ -786,199 +1057,224 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
         })}
       </div>
 
-      {/* 5. MODAL: Record Production Batch */}
-      {isRecordModalOpen && (
+    {/* 5. MODAL: Record Production Batch */}
+    {isRecordModalOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(3px)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
-          <div style={{ background: '#ffffff', border: '3px solid #000000', borderRadius: '20px', width: '100%', maxWidth: '440px', padding: '20px', boxShadow: '6px 6px 0px #000000', maxHeight: '90vh', overflowY: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+          {/* Outer Neobrutalist Shell (Overflow hidden preserves crisp border & rounded corners) */}
+          <div
+            style={{
+              background: '#ffffff',
+              border: '3.5px solid #000000',
+              borderRadius: '24px',
+              width: '100%',
+              maxWidth: '460px',
+              boxShadow: '8px 8px 0px #000000',
+              maxHeight: '88vh',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Modal Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 20px 14px 20px', borderBottom: '2px solid #000000', background: '#ffffff' }}>
               <h2 style={{ fontSize: '18px', fontWeight: 900, color: '#000000', margin: 0 }}>
                 Record Processing Batch
               </h2>
               <button
                 onClick={() => setIsRecordModalOpen(false)}
                 type="button"
-                style={{ background: 'none', border: 'none', fontSize: '20px', fontWeight: 900, cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', fontSize: '20px', fontWeight: 900, cursor: 'pointer', lineHeight: 1 }}
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleSaveBatch} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {/* Harvest selection */}
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 800, color: '#000000', marginBottom: '4px' }}>
-                  Select Harvest:
-                </label>
-                <select
-                  value={formHarvestId}
-                  onChange={(e) => setFormHarvestId(e.target.value)}
-                  className="davot-input"
-                  required
-                >
-                  {availableHarvestIds.map((hId) => (
-                    <option key={hId} value={hId}>
-                      Harvest {hId}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Date */}
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 800, color: '#000000', marginBottom: '4px' }}>
-                  Production Date:
-                </label>
-                <input
-                  type="date"
-                  value={formDate}
-                  onChange={(e) => setFormDate(e.target.value)}
-                  className="davot-input"
-                  required
-                />
-              </div>
-
-              {/* Raw Material Inputs */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+            {/* Scrollable Form Body */}
+            <div style={{ padding: '18px 20px', overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <form onSubmit={handleSaveBatch} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {/* 1. Select Harvest */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#000000', marginBottom: '4px' }}>
-                    FFB Processed (kg):
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 800, color: '#000000', marginBottom: '4px' }}>
+                    Select Harvest:
+                  </label>
+                  <select
+                    value={formHarvestId}
+                    onChange={(e) => handleHarvestChange(e.target.value)}
+                    className="davot-input"
+                    required
+                  >
+                    {allHarvestRecords.map((h) => (
+                      <option key={h.id} value={h.id}>
+                        {h.name ? h.name : `Harvest ${h.id}`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 2. Select Harvest Batch */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 800, color: '#000000', marginBottom: '4px' }}>
+                    Select Harvest Batch:
+                  </label>
+                  <select
+                    value={formBatchId}
+                    onChange={(e) => setFormBatchId(e.target.value)}
+                    className="davot-input"
+                    required
+                  >
+                    {currentAvailableBatches.length > 0 ? (
+                      currentAvailableBatches.map((b) => (
+                        <option key={b.id} value={b.id}>
+                          {b.batch_name} ({b.ffb_weight} {b.weight_unit}) - {b.date}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="">No batches logged for this harvest</option>
+                    )}
+                  </select>
+                </div>
+
+                {/* 3. Auto-populated FFB Weight Badge */}
+                <div
+                  style={{
+                    background: '#f8fafc',
+                    border: '1.5px solid #000000',
+                    borderRadius: '12px',
+                    padding: '12px 14px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    boxShadow: '2px 2px 0px #000000',
+                  }}
+                >
+                  <div>
+                    <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.3px', display: 'block', marginBottom: '2px' }}>
+                      FFB Processed (Auto-linked from Batch)
+                    </span>
+                    <span style={{ fontSize: '18px', fontWeight: 900, color: '#000000' }}>
+                      {autoFfbKg > 0 ? `${autoFfbKg.toLocaleString()} kg` : '0 kg'}
+                    </span>
+                  </div>
+                  {autoFfbKg > 0 && (
+                    <span style={{ fontSize: '11px', fontWeight: 800, background: '#dcfce7', color: '#15803d', border: '1px solid #16a34a', padding: '4px 8px', borderRadius: '6px' }}>
+                      ✓ Linked
+                    </span>
+                  )}
+                </div>
+
+                {/* 4. Production Date */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 800, color: '#000000', marginBottom: '4px' }}>
+                    Production Date:
                   </label>
                   <input
-                    type="number"
-                    placeholder="e.g. 1280"
-                    value={formFfbKg}
-                    onChange={(e) => setFormFfbKg(e.target.value === '' ? '' : Number(e.target.value))}
+                    type="date"
+                    value={formDate}
+                    onChange={(e) => setFormDate(e.target.value)}
                     className="davot-input"
-                    min="1"
                     required
                   />
                 </div>
 
+                {/* 5. Finished Products Produced Inputs */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#000000', marginBottom: '4px' }}>
-                    PK Processed (kg):
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 800, color: '#000000', marginBottom: '6px' }}>
+                    Finished Products Produced:
+                  </label>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div>
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: '#ea580c' }}>Crude Palm Oil (Litres):</span>
+                      <input
+                        type="number"
+                        placeholder="e.g. 230"
+                        value={formCpoLitres}
+                        onChange={(e) => setFormCpoLitres(e.target.value === '' ? '' : Number(e.target.value))}
+                        className="davot-input"
+                        style={{ marginTop: '2px' }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
+                      <div>
+                        <span style={{ fontSize: '11px', fontWeight: 700, color: '#059669' }}>PKO (Litres):</span>
+                        <input
+                          type="number"
+                          placeholder="e.g. 80"
+                          value={formPkoLitres}
+                          onChange={(e) => setFormPkoLitres(e.target.value === '' ? '' : Number(e.target.value))}
+                          className="davot-input"
+                          style={{ marginTop: '2px' }}
+                        />
+                      </div>
+
+                      <div>
+                        <span style={{ fontSize: '11px', fontWeight: 700, color: '#ca8a04' }}>Cake (kg):</span>
+                        <input
+                          type="number"
+                          placeholder="e.g. 150"
+                          value={formPkcKg}
+                          onChange={(e) => setFormPkcKg(e.target.value === '' ? '' : Number(e.target.value))}
+                          className="davot-input"
+                          style={{ marginTop: '2px' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Notes */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 800, color: '#000000', marginBottom: '4px' }}>
+                    Notes (Optional):
                   </label>
                   <input
-                    type="number"
-                    placeholder="e.g. 250"
-                    value={formPkKg}
-                    onChange={(e) => setFormPkKg(e.target.value === '' ? '' : Number(e.target.value))}
+                    type="text"
+                    placeholder="e.g. Good extraction, boiler operating normally"
+                    value={formNotes}
+                    onChange={(e) => setFormNotes(e.target.value)}
                     className="davot-input"
-                    min="0"
                   />
                 </div>
-              </div>
 
-              {/* Finished Products Inputs */}
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 800, color: '#000000', marginBottom: '6px' }}>
-                  Finished Products Produced:
-                </label>
+                {/* Form Buttons */}
+                <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsRecordModalOpen(false)}
+                    style={{
+                      flex: 1,
+                      background: '#f1f5f9',
+                      color: '#000000',
+                      border: '2px solid #000000',
+                      borderRadius: '10px',
+                      padding: '10px',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Cancel
+                  </button>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#ea580c' }}>Crude Palm Oil (Litres):</span>
-                    <input
-                      type="number"
-                      placeholder="e.g. 230"
-                      value={formCpoLitres}
-                      onChange={(e) => setFormCpoLitres(e.target.value === '' ? '' : Number(e.target.value))}
-                      className="davot-input"
-                      style={{ marginTop: '2px' }}
-                    />
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }}>
-                    <div>
-                      <span style={{ fontSize: '11px', fontWeight: 700, color: '#059669' }}>PKO (Litres):</span>
-                      <input
-                        type="number"
-                        placeholder="e.g. 80"
-                        value={formPkoLitres}
-                        onChange={(e) => setFormPkoLitres(e.target.value === '' ? '' : Number(e.target.value))}
-                        className="davot-input"
-                        style={{ marginTop: '2px' }}
-                      />
-                    </div>
-
-                    <div>
-                      <span style={{ fontSize: '11px', fontWeight: 700, color: '#ca8a04' }}>Cake (kg):</span>
-                      <input
-                        type="number"
-                        placeholder="e.g. 150"
-                        value={formPkcKg}
-                        onChange={(e) => setFormPkcKg(e.target.value === '' ? '' : Number(e.target.value))}
-                        className="davot-input"
-                        style={{ marginTop: '2px' }}
-                      />
-                    </div>
-                  </div>
+                  <button
+                    type="submit"
+                    style={{
+                      flex: 1,
+                      background: '#ea580c',
+                      color: '#ffffff',
+                      border: '2px solid #000000',
+                      borderRadius: '10px',
+                      padding: '10px',
+                      fontWeight: 900,
+                      cursor: 'pointer',
+                      boxShadow: '2px 2px 0px #000000',
+                    }}
+                  >
+                    Save Batch
+                  </button>
                 </div>
-              </div>
-
-              {/* Live Yield Calculation Preview */}
-              <div style={{ background: '#f8fafc', border: '1.5px solid #000000', borderRadius: '10px', padding: '10px', marginTop: '2px' }}>
-                <span style={{ fontSize: '10px', fontWeight: 900, color: '#000000', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>
-                  ⚡ Auto-Calculated Output Rates (Yield)
-                </span>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 800 }}>
-                  <span style={{ color: '#ea580c' }}>CPO: {liveCpoYield} L/kg</span>
-                  <span style={{ color: '#059669' }}>PKO: {livePkoYield} L/kg</span>
-                  <span style={{ color: '#ca8a04' }}>Cake: {livePkcYield} kg/kg</span>
-                </div>
-              </div>
-
-              {/* Notes */}
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 800, color: '#000000', marginBottom: '4px' }}>
-                  Notes (Optional):
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Good extraction, boiler operating normally"
-                  value={formNotes}
-                  onChange={(e) => setFormNotes(e.target.value)}
-                  className="davot-input"
-                />
-              </div>
-
-              {/* Form Buttons */}
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                <button
-                  type="button"
-                  onClick={() => setIsRecordModalOpen(false)}
-                  style={{
-                    flex: 1,
-                    background: '#f1f5f9',
-                    color: '#000000',
-                    border: '2px solid #000000',
-                    borderRadius: '10px',
-                    padding: '10px',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="submit"
-                  style={{
-                    flex: 1,
-                    background: '#ea580c',
-                    color: '#ffffff',
-                    border: '2px solid #000000',
-                    borderRadius: '10px',
-                    padding: '10px',
-                    fontWeight: 900,
-                    cursor: 'pointer',
-                    boxShadow: '2px 2px 0px #000000',
-                  }}
-                >
-                  Save Batch
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       )}
@@ -1008,18 +1304,12 @@ export const ProductView: React.FC<ProductViewProps> = ({ harvestRecords = [] })
 
             {/* Raw Material Section */}
             <div style={{ background: '#f8fafc', border: '1.5px solid #000000', borderRadius: '12px', padding: '12px', marginBottom: '12px' }}>
-              <span style={{ fontSize: '11px', fontWeight: 900, color: '#000000', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
+              <span style={{ fontSize: '11px', fontWeight: 900, color: '#000000', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>
                 Raw Material Processed
               </span>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
-                <div>
-                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', display: 'block' }}>FFB Processed</span>
-                  <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>{selectedBatch.ffb_processed_kg.toLocaleString()} kg</span>
-                </div>
-                <div>
-                  <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', display: 'block' }}>Palm Kernel Processed</span>
-                  <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>{selectedBatch.pk_processed_kg.toLocaleString()} kg</span>
-                </div>
+              <div>
+                <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', display: 'block' }}>FFB Processed (Linked Batch)</span>
+                <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>{selectedBatch.ffb_processed_kg.toLocaleString()} kg</span>
               </div>
             </div>
 

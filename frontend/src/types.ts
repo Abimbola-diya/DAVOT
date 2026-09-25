@@ -116,12 +116,25 @@ export interface KernelProcessingBatch {
 export interface ProductBatch {
   id: string;
   harvest_id: string;
+  harvest_batch_id?: string;
   date: string;
   ffb_processed_kg: number;
-  pk_processed_kg: number;
   cpo_produced_litres: number;
   pko_produced_litres: number;
   pkc_produced_kg: number;
+  notes?: string;
+}
+
+export type ToolCategory = 'Hand Tool' | 'Equipment' | 'Other';
+export type ToolCondition = 'Good' | 'Fair' | 'Bad';
+
+export interface Tool {
+  id: string;
+  name: string;
+  category: ToolCategory;
+  quantity: number;
+  date_bought: string;
+  condition: ToolCondition;
   notes?: string;
 }
 
