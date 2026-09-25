@@ -47,6 +47,7 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
   const [isUsageModalOpen, setIsUsageModalOpen] = useState(false);
   const [activeItemForAction, setActiveItemForAction] = useState<InventoryItem | null>(null);
+  const [intelligencePeriod, setIntelligencePeriod] = useState<'daily' | 'weekly' | 'monthly'>('monthly');
 
   // Form states for Add Input
   const [newName, setNewName] = useState('');
@@ -381,56 +382,134 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
           </div>
 
           {/* Operational Intelligence Section: Purchased -> Used -> Remaining */}
-          <div style={{ background: '#ffffff', border: '2.5px solid #000000', borderRadius: '16px', padding: '16px', boxShadow: '3.5px 3.5px 0px #000000', marginBottom: '16px' }}>
-            <div style={{ fontSize: '13px', fontWeight: 900, color: '#000000', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <HugeiconsIcon icon={InformationCircleIcon} size={16} color="#000000" />
-              Monthly Input Intelligence
-            </div>
+          {(() => {
+            const intelData = (() => {
+              if (intelligencePeriod === 'daily') {
+                const bought = selectedItem.bought_today ?? Math.round((selectedItem.bought_this_month ?? 20) / 10);
+                const usedCurr = selectedItem.usage_today ?? Math.max(1, Math.round((selectedItem.usage_this_month ?? 11) / 10));
+                const usedPrev = selectedItem.usage_yesterday ?? Math.max(0, Math.round((selectedItem.usage_last_month ?? 7) / 10));
+                return {
+                  boughtLabel: 'Bought (Today)',
+                  usedLabel: 'Used (Today)',
+                  boughtValue: bought,
+                  usedCurrValue: usedCurr,
+                  currLabel: 'Usage Today',
+                  prevLabel: 'Usage Yesterday',
+                  prevValue: usedPrev,
+                  comparisonPeriodText: 'yesterday',
+                };
+              } else if (intelligencePeriod === 'weekly') {
+                const bought = selectedItem.bought_this_week ?? Math.round((selectedItem.bought_this_month ?? 20) / 2.5);
+                const usedCurr = selectedItem.usage_this_week ?? Math.max(1, Math.round((selectedItem.usage_this_month ?? 11) / 2.5));
+                const usedPrev = selectedItem.usage_last_week ?? Math.max(1, Math.round((selectedItem.usage_last_month ?? 7) / 2.5));
+                return {
+                  boughtLabel: 'Bought (Week)',
+                  usedLabel: 'Used (Week)',
+                  boughtValue: bought,
+                  usedCurrValue: usedCurr,
+                  currLabel: 'Usage This Week',
+                  prevLabel: 'Usage Last Week',
+                  prevValue: usedPrev,
+                  comparisonPeriodText: 'last week',
+                };
+              } else {
+                const bought = selectedItem.bought_this_month ?? 20;
+                const usedCurr = selectedItem.usage_this_month ?? 11;
+                const usedPrev = selectedItem.usage_last_month ?? 7;
+                return {
+                  boughtLabel: 'Bought (Month)',
+                  usedLabel: 'Used (Month)',
+                  boughtValue: bought,
+                  usedCurrValue: usedCurr,
+                  currLabel: 'Usage This Month',
+                  prevLabel: 'Usage Last Month',
+                  prevValue: usedPrev,
+                  comparisonPeriodText: 'last month',
+                };
+              }
+            })();
 
-            {/* Flow Row */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', border: '2px solid #000000', borderRadius: '12px', padding: '12px', marginBottom: '14px' }}>
-              <div style={{ textAlign: 'center' }}>
-                <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block' }}>Bought (Month)</span>
-                <span style={{ fontSize: '15px', fontWeight: 900, color: '#16a34a' }}>+{(selectedItem.bought_this_month ?? 20)} {selectedItem.unit}</span>
+            const diff = intelData.usedCurrValue - intelData.prevValue;
+            const pct = intelData.prevValue > 0 ? Math.round((diff / intelData.prevValue) * 100) : 0;
+
+            return (
+              <div style={{ background: '#ffffff', border: '2.5px solid #000000', borderRadius: '16px', padding: '16px', boxShadow: '3.5px 3.5px 0px #000000', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 900, color: '#000000', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <HugeiconsIcon icon={InformationCircleIcon} size={16} color="#000000" />
+                    {intelligencePeriod} Input Intelligence
+                  </div>
+
+                  <select
+                    value={intelligencePeriod}
+                    onChange={(e) => setIntelligencePeriod(e.target.value as 'daily' | 'weekly' | 'monthly')}
+                    style={{
+                      background: '#f8fafc',
+                      border: '1.5px solid #000000',
+                      borderRadius: '8px',
+                      padding: '2px 8px',
+                      fontSize: '11px',
+                      fontWeight: 800,
+                      color: '#000000',
+                      cursor: 'pointer',
+                      outline: 'none',
+                      boxShadow: '1.5px 1.5px 0px #000000',
+                    }}
+                  >
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
+                </div>
+
+                {/* Flow Row */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', border: '2px solid #000000', borderRadius: '12px', padding: '12px', marginBottom: '14px' }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block' }}>{intelData.boughtLabel}</span>
+                    <span style={{ fontSize: '15px', fontWeight: 900, color: '#16a34a' }}>+{intelData.boughtValue} {selectedItem.unit}</span>
+                  </div>
+                  
+                  <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>→</span>
+
+                  <div style={{ textAlign: 'center' }}>
+                    <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block' }}>{intelData.usedLabel}</span>
+                    <span style={{ fontSize: '15px', fontWeight: 900, color: '#dc2626' }}>-{intelData.usedCurrValue} {selectedItem.unit}</span>
+                  </div>
+
+                  <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>→</span>
+
+                  <div style={{ textAlign: 'center' }}>
+                    <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block' }}>Remaining</span>
+                    <span style={{ fontSize: '15px', fontWeight: 900, color: '#000000' }}>{selectedItem.current_stock} {selectedItem.unit}</span>
+                  </div>
+                </div>
+
+                {/* Usage Comparison Cards */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+                  {/* CURRENT USAGE -> ORANGE VALUE, BLACK HEADING */}
+                  <div style={{ background: '#fff7ed', border: '1.5px solid #000000', borderRadius: '10px', padding: '10px' }}>
+                    <span style={{ fontSize: '10px', fontWeight: 800, color: '#000000', textTransform: 'uppercase', display: 'block' }}>{intelData.currLabel}</span>
+                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#ea580c' }}>{intelData.usedCurrValue} {selectedItem.unit}</span>
+                  </div>
+
+                  {/* PREVIOUS USAGE -> BLACK */}
+                  <div style={{ background: '#ffffff', border: '1.5px solid #000000', borderRadius: '10px', padding: '10px' }}>
+                    <span style={{ fontSize: '10px', fontWeight: 800, color: '#000000', textTransform: 'uppercase', display: 'block' }}>{intelData.prevLabel}</span>
+                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>{intelData.prevValue} {selectedItem.unit}</span>
+                  </div>
+                </div>
+
+                {/* Operational Tip */}
+                <div style={{ marginTop: '10px', fontSize: '11px', fontWeight: 700, color: '#475569', background: '#fef08a', border: '1.5px solid #000000', borderRadius: '8px', padding: '6px 10px' }}>
+                  💡 {diff === 0
+                    ? `Usage is unchanged compared to ${intelData.comparisonPeriodText}`
+                    : diff > 0
+                      ? `Increased by ${diff} ${selectedItem.unit.toLowerCase()} (+${pct}%) vs ${intelData.comparisonPeriodText}`
+                      : `Decreased by ${Math.abs(diff)} ${selectedItem.unit.toLowerCase()} (${pct}%) vs ${intelData.comparisonPeriodText}`}
+                </div>
               </div>
-              
-              <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>→</span>
-
-              <div style={{ textAlign: 'center' }}>
-                <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block' }}>Used (Month)</span>
-                <span style={{ fontSize: '15px', fontWeight: 900, color: '#dc2626' }}>-{(selectedItem.usage_this_month ?? 11)} {selectedItem.unit}</span>
-              </div>
-
-              <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>→</span>
-
-              <div style={{ textAlign: 'center' }}>
-                <span style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block' }}>Remaining</span>
-                <span style={{ fontSize: '15px', fontWeight: 900, color: '#000000' }}>{selectedItem.current_stock} {selectedItem.unit}</span>
-              </div>
-            </div>
-
-            {/* Usage Comparison Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
-              {/* USAGE THIS MONTH -> ORANGE VALUE, BLACK HEADING */}
-              <div style={{ background: '#fff7ed', border: '1.5px solid #000000', borderRadius: '10px', padding: '10px' }}>
-                <span style={{ fontSize: '10px', fontWeight: 800, color: '#000000', textTransform: 'uppercase', display: 'block' }}>Usage This Month</span>
-                <span style={{ fontSize: '16px', fontWeight: 900, color: '#ea580c' }}>{(selectedItem.usage_this_month ?? 11)} {selectedItem.unit}</span>
-              </div>
-
-              {/* USAGE LAST MONTH -> BLACK */}
-              <div style={{ background: '#ffffff', border: '1.5px solid #000000', borderRadius: '10px', padding: '10px' }}>
-                <span style={{ fontSize: '10px', fontWeight: 800, color: '#000000', textTransform: 'uppercase', display: 'block' }}>Usage Last Month</span>
-                <span style={{ fontSize: '16px', fontWeight: 900, color: '#000000' }}>{(selectedItem.usage_last_month ?? 7)} {selectedItem.unit}</span>
-              </div>
-            </div>
-
-            {/* Operational Tip */}
-            <div style={{ marginTop: '10px', fontSize: '11px', fontWeight: 700, color: '#475569', background: '#fef08a', border: '1.5px solid #000000', borderRadius: '8px', padding: '6px 10px' }}>
-              💡 {((selectedItem.usage_this_month ?? 11) - (selectedItem.usage_last_month ?? 7)) > 0
-                ? `Increased by ${((selectedItem.usage_this_month ?? 11) - (selectedItem.usage_last_month ?? 7))} ${selectedItem.unit.toLowerCase()} (+${Math.round((((selectedItem.usage_this_month ?? 11) - (selectedItem.usage_last_month ?? 7))/Math.max(1, selectedItem.usage_last_month ?? 7))*100)}%)`
-                : `Decreased by ${Math.abs(((selectedItem.usage_this_month ?? 11) - (selectedItem.usage_last_month ?? 7)))} ${selectedItem.unit.toLowerCase()}`}
-            </div>
-          </div>
+            );
+          })()}
 
           {/* Recent Activity Ledger for this item */}
           <div style={{ background: '#ffffff', border: '2.5px solid #000000', borderRadius: '16px', padding: '16px', boxShadow: '3.5px 3.5px 0px #000000' }}>

@@ -15,6 +15,7 @@ import { DomainSelection } from './components/DomainSelection';
 import { LoginPage } from './components/LoginPage';
 import { HarvestView } from './components/HarvestView';
 import { AddHarvestModal } from './components/edit/AddHarvestModal';
+import { ProductView } from './components/ProductView';
 
 
 const getTabFromPath = (pathname: string): ActiveTab => {
@@ -565,6 +566,8 @@ export const App: React.FC = () => {
                             onRecordPurchase={handleRecordPurchase}
                             onRecordUsage={handleRecordUsage}
                           />
+                        ) : (effectiveTab === 'product' || effectiveTab === 'processing' || recordCategory === 'product') ? (
+                          <ProductView harvestRecords={harvestRecords} />
                         ) : (
                           <FlowView flowData={flowData} summary={summary} />
                         )

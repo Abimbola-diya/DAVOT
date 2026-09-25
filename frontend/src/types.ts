@@ -26,6 +26,12 @@ export interface InventoryItem {
   usage_this_month?: number;
   usage_last_month?: number;
   bought_this_month?: number;
+  bought_today?: number;
+  usage_today?: number;
+  usage_yesterday?: number;
+  bought_this_week?: number;
+  usage_this_week?: number;
+  usage_last_week?: number;
 }
 
 export interface InventoryLedger {
@@ -104,6 +110,18 @@ export interface KernelProcessingBatch {
   pkc_output_bags: number;
   extraction_rate_percent: number;
   processing_cost: number;
+  notes?: string;
+}
+
+export interface ProductBatch {
+  id: string;
+  harvest_id: string;
+  date: string;
+  ffb_processed_kg: number;
+  pk_processed_kg: number;
+  cpo_produced_litres: number;
+  pko_produced_litres: number;
+  pkc_produced_kg: number;
   notes?: string;
 }
 
